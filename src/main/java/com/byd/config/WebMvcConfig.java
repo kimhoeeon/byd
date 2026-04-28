@@ -24,14 +24,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/.well-known/**");
 
         // 2. 유지보수 모드 (백도어 기능 포함)
-        // 일반 사용자는 /maintenance로 강제 이동, 백도어 사용자만 통과
-        // 오픈 시: WebMvcConfig.java에서 해당 부분 주석 처리 → 배포.
-        // 점검 시: 주석 해제 → 배포.
         registry.addInterceptor(new MaintenanceInterceptor())
-                .addPathPatterns("/**") // 전체 경로 차단
+                .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/maintenance",      // 점검 페이지 (무한 루프 방지)
-                        "/assets/**",        // 정적 자원 (CSS, JS, 이미지 등)
+                        "/maintenance",
+                        "/assets/**",
                         "/css/**",
                         "/js/**",
                         "/img/**",
@@ -41,10 +38,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/test/**",
                         "/api/v1/system/init",
                         "/api/common/upload/editor",
-                        "/error",            // 에러 페이지
-                        "/.well-known/**",   // SSL 인증
-                        "/upload/**",        // 업로드 파일
-                        "/mng/**"            // 관리자 페이지는 점검 모드 영향 안 받도록 설정 (필요 시 제거 가능)
+                        "/error",
+                        "/.well-known/**",
+                        "/upload/**",
+                        "/mng/**" // 관리자 페이지는 점검 모드 영향 안 받도록 설정
                 );
 
         // 3. 관리자 권한 체크 (관리자 경로만 적용)
@@ -55,20 +52,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/mng/css/**",
                         "/mng/js/**",
                         "/mng/img/**",
-                        "/mng/login",
-                        "/mng/loginAction",
-                        "/mng/index",
-                        "/mng/index.do"
+                        "/mng/login",         // 로그인 페이지 제외
+                        "/mng/loginProcess"    // 로그인 처리 API 제외
                 );
 
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 1. 업로드 경로 설정 (OS 독립적으로 user.home 사용 통일)
+        // 업로드 경로 설정 (필요 시 유지, 미사용 시 삭제 가능)
         String uploadPath = "file:///tomcat/webapps/upload/";
 
-        // /upload/** URL로 요청 시 실제 서버의 저장 폴더로 연결
         registry.addResourceHandler("/upload/**")
                 .addResourceLocations(uploadPath);
     }

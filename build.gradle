@@ -1,27 +1,13 @@
 plugins {
 	id 'java'
-	id 'war'
-	id 'org.springframework.boot' version '2.7.18' // Java 8 호환 최신 버전
+	id 'war' // 카페24 외부 톰캣에 배포하기 위해 war 플러그인 필수
+	id 'org.springframework.boot' version '2.7.18' // Java 8 및 Tomcat 8.5 호환 버전
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
-// Spring Framework 버전을 보안 패치된 최신 버전(5.3.39)으로 강제 지정
-ext['spring-framework.version'] = '5.3.39'
-
 group = 'com.byd'
 version = '0.0.1-SNAPSHOT'
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(8)
-	}
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
+sourceCompatibility = '1.8' // JDK 8
 
 repositories {
 	mavenCentral()
@@ -30,71 +16,24 @@ repositories {
 dependencies {
 	// 1. Web & Tomcat
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-security' // 비밀번호 암호화
+	// 외부 톰캣(카페24)에서 구동할 때 내장 톰캣과 충돌하지 않도록 providedRuntime 설정
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+	// JSP 처리용
 	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
-	implementation 'javax.servlet:jstl'
+	implementation 'javax.servlet:jstl' // Servlet 3.0 환경이므로 반드시 javax 사용
 
-	// 2. Database
+	// 2. Database (MariaDB 10.1.x)
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.1'
-	implementation 'com.mysql:mysql-connector-j'
+	implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.6' // MariaDB 권장 드라이버
 	implementation group: 'org.bgee.log4jdbc-log4j2', name:'log4jdbc-log4j2-jdbc4.1', version: '1.16'
-	// Java 8 Date/Time 사용을 위한 의존성 (MyBatis 처리용)
-	implementation 'org.mybatis:mybatis-typehandlers-jsr310:1.0.2'
 
-	// 3. Utils
-	implementation 'com.google.code.gson:gson:2.10.1'
-	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-	implementation 'org.apache.httpcomponents:httpmime:4.5.14'
-	implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
-	implementation 'org.apache.poi:poi:5.2.3'
-	implementation 'org.apache.poi:poi-ooxml:5.2.3'
-	implementation 'com.google.firebase:firebase-admin:9.2.0'
-
-	// JWT 검증용 라이브러리 (Apple 로그인 등)
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-	// 로컬 라이브러리
-	implementation fileTree(dir : 'src/main/webapp/WEB-INF/lib', include : [ '*.jar'])
-
-	// 4. Lombok (테스트 환경 포함 필수)
+	// 3. Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	testCompileOnly 'org.projectlombok:lombok'
-	testAnnotationProcessor 'org.projectlombok:lombok'
-
-	// 5. Test (가장 단순화된 설정)
-	// 이 한 줄이 JUnit5, SpringBootTest, Assertions를 모두 가져옵니다.
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:2.3.1'
-
-	// HTML 파싱 및 크롤링 라이브러리
-	implementation 'org.jsoup:jsoup:1.16.1'
 }
 
+// 카페24 톰캣 배포 시 기본 루트("/") 경로로 인식되도록 파일명을 ROOT.war로 고정
 bootWar {
-	// 1. 이 작업이 실행되기 전에 무조건 'clean' 작업을 먼저 수행함
-	dependsOn tasks.clean
-
-	// 2. 메인 클래스 위치 지정 (패키지명 + 클래스명)
-	// Spring Boot가 시작점을 헷갈리지 않게 고정합니다.
-	mainClass = 'com.byd.BydApplication'
-
-	// 3. 파일명을 'ROOT.war'로 고정
 	archiveFileName = 'ROOT.war'
-
-	// 4. 파일 생성 위치 지정
-	destinationDirectory = file("$rootDir/out/artifacts/ROOT")
-
-	// 5. 중복 파일 처리 전략 (중복 시 제외)
-	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-tasks.compileJava.mustRunAfter tasks.clean
-tasks.processResources.mustRunAfter tasks.clean
-
-tasks.named('test') {
-	useJUnitPlatform()
 }

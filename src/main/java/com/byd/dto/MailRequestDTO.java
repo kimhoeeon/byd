@@ -1,6 +1,5 @@
 package com.byd.dto;
 
-import com.byd.vo.DevFileVO;
 import lombok.Data;
 import java.util.List;
 
@@ -10,7 +9,6 @@ public class MailRequestDTO {
     private String body;
     private List<Receiver> receiver;
     private String template;
-    private List<DevFileVO> fileUrl;
 
     @Data
     public static class Receiver {
