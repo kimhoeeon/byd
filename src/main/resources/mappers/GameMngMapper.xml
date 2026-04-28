@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.byd.mapper.GameMngMapper">
+
+    <select id="selectGameListByMonth" resultType="com.byd.vo.GameVO">
+        SELECT
+            g.*,
+            IFNULL(s.short_name, s.name) AS stadiumName,
+            t1.name_kr AS homeTeamName,
+            t2.name_kr AS awayTeamName,
+            (SELECT COUNT(*) FROM diaries d WHERE d.game_id = g.game_id AND d.status = 'COMPLETED') AS diaryCount
+        FROM games g
+         LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+         LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+         LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        WHERE DATE_FORMAT(g.game_date, '%Y-%m') = #{yearMonth}
+        ORDER BY g.game_date ASC, g.game_time ASC
+    </select>
+
+    <select id="selectGameById" resultType="com.byd.vo.GameVO">
+        SELECT * FROM games WHERE game_id = #{gameId}
+    </select>
+
+    <insert id="insertGame" parameterType="com.byd.vo.GameVO">
+        INSERT INTO games (
+            season, game_type, game_date, game_time, dh_code,
+            stadium_id, home_team_code, away_team_code,
+            score_home, score_away, winning_team,
+            status, cancel_reason, home_starter, away_starter,
+            etc_info, mvp_player, data_source, created_at
+        )
+        VALUES (
+                   YEAR(#{gameDate}), 'REGULAR', #{gameDate}, #{gameTime}, '0',
+                   #{stadiumId}, #{homeTeamCode}, #{awayTeamCode},
+                   IFNULL(#{scoreHome}, 0), IFNULL(#{scoreAway}, 0),
+                   CASE
+                       WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) > IFNULL(#{scoreAway},0) THEN #{homeTeamCode}
+                       WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreAway},0) > IFNULL(#{scoreHome},0) THEN #{awayTeamCode}
+                       WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) = IFNULL(#{scoreAway},0) THEN 'DRAW'
+                       ELSE NULL
+                       END,
+                   #{status}, #{cancelReason}, #{homeStarter}, #{awayStarter},
+                   #{etcInfo}, #{mvpPlayer}, 'MANUAL', NOW()
+               )
+    </insert>
+
+    <update id="updateGame" parameterType="com.byd.vo.GameVO">
+        UPDATE games
+        SET
+            season         = YEAR(#{gameDate}),
+            game_date      = #{gameDate},
+            game_time      = #{gameTime},
+            home_team_code = #{homeTeamCode},
+            away_team_code = #{awayTeamCode},
+            stadium_id     = #{stadiumId},
+            score_home     = #{scoreHome},
+            score_away     = #{scoreAway},
+            winning_team   = CASE
+                                 WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) > IFNULL(#{scoreAway},0) THEN #{homeTeamCode}
+                                 WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreAway},0) > IFNULL(#{scoreHome},0) THEN #{awayTeamCode}
+                                 WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) = IFNULL(#{scoreAway},0) THEN 'DRAW'
+                                 ELSE NULL END,
+            status         = #{status},
+            etc_info       = #{etcInfo},
+            home_starter   = #{homeStarter},
+            away_starter   = #{awayStarter},
+            cancel_reason  = #{cancelReason},
+            mvp_player     = #{mvpPlayer},
+            updated_at     = NOW()
+        WHERE game_id = #{gameId}
+    </update>
+
+    <delete id="deleteGame">
+        DELETE FROM games WHERE game_id = #{gameId}
+    </delete>
+
+    <select id="selectStadiumList" resultType="com.byd.vo.StadiumVO">
+        SELECT stadium_id, name
+        FROM stadiums
+        ORDER BY name ASC
+    </select>
+
+</mapper>

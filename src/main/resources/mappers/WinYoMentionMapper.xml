@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byd.mapper.WinYoMentionMapper">
+
+    <select id="selectMentionList" resultType="com.byd.vo.WinYoMentionVO">
+        SELECT * FROM winyo_mentions
+        <where>
+            <if test="filterCategory != null and filterCategory != ''">
+                category = #{filterCategory}
+            </if>
+            <if test="searchWord != null and searchWord != ''">
+                AND (
+                <choose>
+                    <when test="searchType == 'category'">
+                        category LIKE CONCAT('%', #{searchWord}, '%') OR
+                        category = CASE
+                        WHEN #{searchWord} LIKE '%승률%' THEN 'WIN_RATE'
+                        WHEN #{searchWord} LIKE '%횟수%' THEN 'ATTENDANCE_COUNT'
+                        WHEN #{searchWord} LIKE '%흐름%' THEN 'RECENT_TREND'
+                        ELSE #{searchWord} END
+                    </when>
+                    <when test="searchType == 'levelName'">
+                        level_name LIKE CONCAT('%', #{searchWord}, '%')
+                    </when>
+                    <when test="searchType == 'message'">
+                        message LIKE CONCAT('%', #{searchWord}, '%')
+                    </when>
+                    <otherwise>
+                        category LIKE CONCAT('%', #{searchWord}, '%') OR
+                        level_name LIKE CONCAT('%', #{searchWord}, '%') OR
+                        message LIKE CONCAT('%', #{searchWord}, '%')
+                    </otherwise>
+                </choose>
+                )
+            </if>
+        </where>
+        ORDER BY category ASC, min_val ASC, priority DESC
+    </select>
+
+    <select id="selectMention" resultType="com.byd.vo.WinYoMentionVO">
+        SELECT * FROM winyo_mentions WHERE mention_id = #{mentionId}
+    </select>
+
+    <update id="updateMention">
+        UPDATE winyo_mentions
+        SET level_name = #{levelName},
+            message = #{message},
+            min_val = #{minVal},
+            max_val = #{maxVal},
+            priority = #{priority},
+            description = #{description},
+            updated_at = NOW()
+        WHERE mention_id = #{mentionId}
+    </update>
+
+    <select id="selectMentionByValue" resultType="com.byd.vo.WinYoMentionVO">
+        SELECT * FROM winyo_mentions
+        WHERE category = #{category}
+          AND min_val <![CDATA[ <= ]]> #{value}
+          AND (max_val <![CDATA[ >= ]]> #{value} OR max_val IS NULL)
+        ORDER BY priority DESC, min_val DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectMentionByCode" resultType="com.byd.vo.WinYoMentionVO">
+        SELECT * FROM winyo_mentions
+        WHERE category = #{category} AND condition_code = #{conditionCode}
+        ORDER BY priority DESC
+        LIMIT 1
+    </select>
+</mapper>

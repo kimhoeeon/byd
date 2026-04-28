@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.byd.mapper.DiaryMngMapper">
+
+    <sql id="criteria">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                d.content LIKE CONCAT('%', #{keyword}, '%')
+                OR m.nickname LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="status != null and status != ''">
+                AND d.status = #{status}
+            </if>
+            <if test="isPopular != null and isPopular != ''">
+                AND d.is_popular = #{isPopular}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectDiaryList" resultType="com.byd.vo.DiaryVO">
+        SELECT d.diary_id
+        , d.content
+        , d.one_line_comment
+        , d.image_url
+        , d.created_at
+        , d.status
+        , d.is_public
+        , d.is_popular
+        , d.is_verified
+        , d.member_id
+        , m.nickname AS memberName
+        , m.email AS memberEmail
+        , m.profile_image AS profileImage
+
+        -- 경기 관련 정보
+        , g.game_date
+        , g.status AS gameStatus
+        , g.cancel_reason AS cancelReason
+        , g.score_home AS scoreHome
+        , g.score_away AS scoreAway
+        , t1.name_kr AS homeTeamName
+        , t2.name_kr AS awayTeamName
+
+        -- 승요 판별 정보 (타팀 경기 제외 조건 유지)
+        , d.snapshot_team_code AS snapshotTeamCode
+        , CASE
+        WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
+        WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+        WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+        WHEN g.winning_team IS NOT NULL THEN 'LOSE'
+        ELSE 'NONE'
+        END AS gameResult
+
+        -- 예측 관련 정보 (재미용)
+        , d.pred_score_home AS predScoreHome
+        , d.pred_score_away AS predScoreAway
+
+        FROM diaries d
+        JOIN members m ON d.member_id = m.member_id
+        LEFT JOIN games g ON d.game_id = g.game_id
+        LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+        LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        <include refid="criteria"/>
+        ORDER BY d.created_at DESC
+        LIMIT #{amount} OFFSET ${(pageNum - 1) * amount}
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM diaries d
+        JOIN members m ON d.member_id = m.member_id
+        <include refid="criteria"/>
+    </select>
+
+    <select id="selectDiaryById" resultType="com.byd.vo.DiaryVO">
+        SELECT
+            d.*,
+            m.nickname AS memberName,
+            m.email AS memberEmail,
+            g.game_date,
+            g.game_time,
+            g.status AS gameStatus,
+            g.cancel_reason AS cancelReason,
+            g.score_home AS scoreHome,
+            g.score_away AS scoreAway,
+            IFNULL(s.short_name, s.name) AS stadiumName,
+            t1.name_kr AS homeTeamName,
+            t2.name_kr AS awayTeamName,
+
+            -- 승요 판별 정보 추가
+            CASE
+                WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
+                WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+                WHEN g.winning_team IS NOT NULL THEN 'LOSE'
+                ELSE 'NONE'
+                END AS gameResult
+
+        FROM diaries d
+                 JOIN members m ON d.member_id = m.member_id
+                 LEFT JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        WHERE d.diary_id = #{diaryId}
+    </select>
+
+    <update id="blindDiary">
+        UPDATE diaries
+        SET status = 'BLIND',
+            updated_at = NOW()
+        WHERE diary_id = #{diaryId}
+    </update>
+
+    <update id="deleteDiary">
+        UPDATE diaries
+        SET status = 'DELETED',
+            updated_at = NOW()
+        WHERE diary_id = #{diaryId}
+    </update>
+
+    <select id="selectMemberDiaryHistory" resultType="com.byd.vo.DiaryVO">
+        SELECT d.diary_id,
+               d.member_id,
+               d.one_line_comment,
+               g.game_date,
+               g.game_time,
+               g.status AS gameStatus,
+               g.cancel_reason AS cancelReason,
+
+               -- 구장 짧은 이름 + 풀네임 조합 (예: 잠실 (서울종합운동장 야구장))
+               CASE
+                   WHEN s.short_name IS NOT NULL AND s.short_name != s.name
+                       THEN CONCAT(s.short_name, ' (', s.name, ')')
+                   ELSE s.name
+                   END AS stadiumName,
+
+               g.score_home AS scoreHome,
+               g.score_away AS scoreAway,
+               t1.name_kr AS homeTeamName,
+               t2.name_kr AS awayTeamName,
+
+               CASE
+                   WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
+                   WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                   WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+                   WHEN g.winning_team IS NOT NULL THEN 'LOSE'
+                   ELSE 'NONE'
+                   END AS gameResult
+
+        FROM diaries d
+                 INNER JOIN games g ON d.game_id = g.game_id
+                 INNER JOIN stadiums s ON g.stadium_id = s.stadium_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        WHERE d.member_id = #{memberId}
+          AND d.is_verified = 1
+          AND g.status = 'FINISHED'
+          AND d.status = 'COMPLETED'
+          AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
+        ORDER BY g.game_date DESC, g.game_time DESC
+    </select>
+
+    <select id="getPopularDiaryCount" resultType="int">
+        SELECT COUNT(*)
+        FROM diaries
+        WHERE is_popular = 'Y'
+          AND is_public = 'PUBLIC'
+          AND status = 'COMPLETED'
+    </select>
+
+    <update id="updatePopularStatus">
+        UPDATE diaries
+        SET is_popular = #{status},
+            updated_at = NOW()
+        WHERE diary_id = #{diaryId}
+    </update>
+
+</mapper>

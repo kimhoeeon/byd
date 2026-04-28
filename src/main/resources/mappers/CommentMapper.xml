@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.byd.mapper.CommentMapper">
+
+    <select id="selectMyCommentList" resultType="com.byd.dto.CommentDTO">
+        SELECT
+            c.comment_id,
+            c.content,
+            c.created_at,
+            c.diary_id,
+            d.snapshot_team_code AS diaryTeamCode,
+            d.one_line_comment AS diaryTitle
+        FROM comments c
+        JOIN diaries d ON c.diary_id = d.diary_id
+        WHERE c.member_id = #{memberId}
+        ORDER BY c.created_at DESC
+    </select>
+
+    <delete id="deleteComment">
+        DELETE c
+        FROM comments c
+        INNER JOIN diaries d ON c.diary_id = d.diary_id
+        WHERE c.comment_id = #{commentId}
+          AND (c.member_id = #{requestMemberId} OR d.member_id = #{requestMemberId})
+    </delete>
+
+    <select id="selectCommentListByDiaryId" resultType="com.byd.dto.CommentDTO">
+        SELECT
+            c.comment_id,
+            c.content,
+            c.created_at,
+            c.member_id,
+            m.nickname,
+            m.my_team_code AS memberTeamCode,
+            m.profile_image AS profileImage
+        FROM comments c
+        JOIN members m ON c.member_id = m.member_id
+        WHERE c.diary_id = #{diaryId}
+        AND m.status = 'ACTIVE'
+        ORDER BY c.created_at ASC
+    </select>
+
+    <insert id="insertComment" parameterType="com.byd.dto.CommentDTO">
+        INSERT INTO comments (diary_id, member_id, content, created_at)
+        VALUES (#{diaryId}, #{memberId}, #{content}, NOW())
+    </insert>
+
+</mapper>

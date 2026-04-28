@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.byd.mapper.AdminMngMapper">
+
+    <sql id="searchCriteria">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (name LIKE CONCAT('%', #{keyword}, '%') OR login_id LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="type != null and type != ''"> AND role = #{type}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectAdminList" resultType="com.byd.vo.AdminVO">
+        SELECT * FROM admins
+        <include refid="searchCriteria"/>
+        ORDER BY created_at DESC
+        LIMIT #{amount} OFFSET ${(pageNum - 1) * amount}
+    </select>
+
+    <select id="countAdminList" resultType="int">
+        SELECT COUNT(*) FROM admins <include refid="searchCriteria"/>
+    </select>
+
+    <select id="selectAdminById" resultType="com.byd.vo.AdminVO">
+        SELECT * FROM admins WHERE admin_id = #{adminId}
+    </select>
+
+    <select id="checkLoginId" resultType="int">
+        SELECT COUNT(*) FROM admins WHERE login_id = #{loginId}
+    </select>
+
+    <insert id="insertAdmin" useGeneratedKeys="true" keyProperty="adminId">
+        INSERT INTO admins (login_id, password, name, role, created_at)
+        VALUES (#{loginId}, #{password}, #{name}, #{role}, NOW())
+    </insert>
+
+    <update id="updateAdmin">
+        UPDATE admins
+        SET name = #{name},
+        role = #{role}
+        <if test="password != null and password != ''">
+            , password = #{password}
+        </if>
+        WHERE admin_id = #{adminId}
+    </update>
+
+    <delete id="deleteAdmin">
+        DELETE FROM admins WHERE admin_id = #{adminId}
+    </delete>
+
+    <select id="selectIpsByAdminId" resultType="string">
+        SELECT ip_address FROM admin_access_ips WHERE admin_id = #{adminId}
+    </select>
+
+    <insert id="insertIp">
+        INSERT INTO admin_access_ips (admin_id, ip_address, memo, created_at)
+        VALUES (#{adminId}, #{ipAddress}, #{memo}, NOW())
+    </insert>
+
+    <delete id="deleteIpsByAdminId">
+        DELETE FROM admin_access_ips WHERE admin_id = #{adminId}
+    </delete>
+
+    <select id="selectEmailsByAdminId" resultType="com.byd.vo.AdminEmailVO">
+        SELECT * FROM admin_emails WHERE admin_id = #{adminId}
+    </select>
+
+    <insert id="insertEmail">
+        INSERT INTO admin_emails (admin_id, email_address, receive_types, is_main, created_at)
+        VALUES (#{adminId}, #{emailAddress}, #{receiveTypes}, #{isMain}, NOW())
+    </insert>
+
+    <delete id="deleteEmailsByAdminId">
+        DELETE FROM admin_emails WHERE admin_id = #{adminId}
+    </delete>
+
+</mapper>

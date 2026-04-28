@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.byd.mapper.CommentMngMapper">
+
+    <sql id="criteria">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                c.content LIKE CONCAT('%', #{keyword}, '%')
+                OR m.nickname LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="status != null and status != ''">
+                AND c.del_yn = #{status}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectCommentList" resultType="com.byd.dto.CommentDTO">
+        SELECT
+        c.comment_id AS commentId,
+        c.diary_id AS diaryId,
+        c.content,
+        c.created_at AS createdAt,
+        c.updated_at AS updatedAt,
+        c.del_yn AS delYn,
+        m.nickname,
+        m.email,
+        m.profile_image AS profileImage
+        FROM comments c
+        JOIN members m ON c.member_id = m.member_id
+        <include refid="criteria"/>
+        ORDER BY c.created_at DESC
+        LIMIT #{amount} OFFSET ${(pageNum - 1) * amount}
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM comments c
+        JOIN members m ON c.member_id = m.member_id
+        <include refid="criteria"/>
+    </select>
+
+    <update id="deleteComment">
+        UPDATE comments
+        SET del_yn = 'Y',
+            updated_at = NOW()
+        WHERE comment_id = #{commentId}
+    </update>
+
+</mapper>

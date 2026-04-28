@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.byd.mapper.MemberMapper">
+
+    <insert id="insertMember" parameterType="com.byd.vo.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
+        INSERT INTO members (email,
+                             password,
+                             nickname,
+                             phone_number,
+                             birthdate,
+                             gender,
+                             my_team_code,
+                             social_provider,
+                             social_uid,
+                             role,
+                             status,
+                             marketing_agree, created_at,
+                             updated_at)
+        VALUES (#{email},
+                #{password},
+                #{nickname},
+                #{phoneNumber},
+                #{birthdate},
+                #{gender},
+                #{myTeamCode},
+                IFNULL(#{socialProvider}, 'NONE'),
+                #{socialUid},
+                'USER',
+                'ACTIVE',
+                IFNULL(#{marketingAgree}, 'N'), NOW(),
+                NOW())
+    </insert>
+
+    <select id="selectMemberByEmail" parameterType="string" resultType="com.byd.vo.MemberVO">
+        SELECT * FROM members WHERE email = #{email}
+    </select>
+
+    <select id="countByNickname" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM members WHERE nickname = #{nickname} and status != 'WITHDRAWN'
+    </select>
+
+    <select id="countByPhoneNumber" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM members
+        WHERE phone_number = #{phoneNumber}
+          AND status != 'WITHDRAWN'
+    </select>
+
+    <select id="selectMembersByPhoneNumber" parameterType="string" resultType="com.byd.vo.MemberVO">
+        SELECT * FROM members WHERE phone_number = #{phoneNumber} ORDER BY updated_at DESC
+    </select>
+
+    <select id="selectMemberById" parameterType="long" resultType="com.byd.vo.MemberVO">
+        SELECT
+            m.*,
+            t.name_kr AS myTeamName
+        FROM members m
+        LEFT JOIN teams t ON m.my_team_code = t.team_code
+        WHERE m.member_id = #{memberId}
+    </select>
+
+    <update id="updateLastLogin" parameterType="long">
+        UPDATE members
+        SET last_login_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="updateMemberInfo" parameterType="com.byd.vo.MemberVO">
+        UPDATE members
+        <set>
+            updated_at = NOW(),
+            <if test="nickname != null">
+                nickname = #{nickname},
+                nickname_updated_at = NOW(),
+            </if>
+            <if test="profileImage != null">
+                profile_image = #{profileImage},
+            </if>
+        </set>
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE members
+        SET
+            password = #{newPassword},
+            updated_at = NOW()
+        WHERE
+            member_id = #{memberId}
+    </update>
+
+    <update id="updateMemberTeam" parameterType="com.byd.vo.MemberVO">
+        UPDATE members
+        SET
+            my_team_code = #{myTeamCode},
+            team_change_date = NOW(),
+            updated_at = NOW()
+        WHERE
+            member_id = #{memberId}
+    </update>
+
+    <update id="withdrawMember">
+        UPDATE members
+        SET
+            status = 'WITHDRAWN',
+            updated_at = NOW()
+        WHERE
+            member_id = #{memberId}
+    </update>
+
+    <select id="selectMemberList" resultType="com.byd.vo.MemberVO">
+        SELECT
+        member_id,
+        email,
+        nickname,
+        my_team_code,
+        social_provider,
+        role,
+        status,
+        created_at,
+        last_login_at
+        FROM members
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'email'">
+                        AND email LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'nickname'">
+                        AND nickname LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND (email LIKE CONCAT('%', #{keyword}, '%')
+                        OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countMemberList" resultType="int">
+        SELECT COUNT(*)
+        FROM members
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'email'">
+                        AND email LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'nickname'">
+                        AND nickname LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND (email LIKE CONCAT('%', #{keyword}, '%')
+                        OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteAuthCode">
+        DELETE FROM auth_codes WHERE phone_number = #{phoneNumber}
+    </delete>
+
+    <insert id="insertAuthCode">
+        INSERT INTO auth_codes (phone_number, code, type, is_verified, expires_at, created_at)
+        VALUES (#{phoneNumber}, #{authCode}, #{type}, 0, DATE_ADD(NOW(), INTERVAL 3 MINUTE), NOW())
+    </insert>
+
+    <select id="selectAuthCode" resultType="string">
+        SELECT code FROM auth_codes
+        WHERE phone_number = #{phoneNumber}
+          AND is_verified = 0
+        ORDER BY auth_id DESC LIMIT 1
+    </select>
+
+    <select id="selectAuthCodeExpireTime" resultType="java.time.LocalDateTime">
+        SELECT expires_at FROM auth_codes
+        WHERE phone_number = #{phoneNumber}
+        ORDER BY auth_id DESC LIMIT 1
+    </select>
+
+    <update id="updateAuthCodeVerified">
+        UPDATE auth_codes SET is_verified = 1 WHERE phone_number = #{phoneNumber}
+    </update>
+
+    <select id="findMemberByBirthAndPhone" resultType="com.byd.vo.MemberVO">
+        SELECT email, nickname
+        FROM members
+        WHERE birthdate = #{birthdate}
+          AND phone_number = #{phoneNumber}
+          AND status = 'ACTIVE'
+    </select>
+
+    <select id="findMemberByNameAndPhone" resultType="com.byd.vo.MemberVO">
+        SELECT * FROM members
+        WHERE nickname = #{userName}  AND phone_number = #{phoneNumber}
+          AND status = 'ACTIVE'
+    </select>
+
+    <select id="findMemberByEmailAndPhone" resultType="com.byd.vo.MemberVO">
+        SELECT * FROM members
+        WHERE email = #{email}
+          AND phone_number = #{phoneNumber}
+          AND status = 'ACTIVE'
+    </select>
+
+    <update id="updateNickname">
+        UPDATE members
+        SET nickname = #{nickname},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="updateAlarmSetting" parameterType="com.byd.vo.MemberVO">
+        UPDATE members
+        SET push_yn         = #{pushYn},
+            game_alarm      = #{gameAlarm},
+            friend_alarm    = #{friendAlarm},
+            marketing_agree = #{marketingAgree},
+            updated_at      = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="updatePushToken">
+        UPDATE members
+        SET fcm_token = #{token}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="updateDeviceInfo" parameterType="com.byd.vo.MemberVO">
+        UPDATE members
+        SET
+            device_platform = #{devicePlatform},
+            device_model    = #{deviceModel},
+            os_version      = #{osVersion},
+            app_version     = #{appVersion},
+            device_uuid     = #{deviceUuid},
+            updated_at      = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
+    <select id="selectFollowingList" resultType="com.byd.dto.FollowDTO">
+        SELECT
+            m.member_id,
+            m.nickname,
+            m.my_team_code AS myTeamCode,
+            (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+            1 AS isFollowing,
+            -- 맞팔 여부 확인 (이 사람이 나를 팔로우 하는가?)
+            (SELECT COUNT(*) > 0 FROM follows f2 WHERE f2.follower_id = m.member_id AND f2.following_id = #{targetMemberId}) AS isMutual
+        FROM follows f
+         JOIN members m ON f.following_id = m.member_id
+        WHERE f.follower_id = #{targetMemberId}
+          AND m.status = 'ACTIVE'
+        ORDER BY f.created_at DESC
+    </select>
+
+    <select id="selectFollowerList" resultType="com.byd.dto.FollowDTO">
+        SELECT
+            m.member_id,
+            m.nickname,
+            m.my_team_code AS myTeamCode,
+            (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+            -- 내가 이 사람을 팔로우 중인가?
+            (SELECT COUNT(*) > 0 FROM follows f2
+             WHERE f2.follower_id = #{myMemberId} AND f2.following_id = m.member_id) AS isFollowing,
+            -- 팔로워 목록에서 mutual(맞팔)은 isFollowing과 동일한 조건임
+            (SELECT COUNT(*) > 0 FROM follows f2
+             WHERE f2.follower_id = #{myMemberId} AND f2.following_id = m.member_id) AS isMutual
+        FROM follows f
+         JOIN members m ON f.follower_id = m.member_id
+        WHERE f.following_id = #{targetMemberId}
+          AND m.status = 'ACTIVE'
+        ORDER BY f.created_at DESC
+    </select>
+
+    <insert id="insertFollow">
+        INSERT IGNORE INTO follows (follower_id, following_id, created_at)
+        VALUES (#{followerId}, #{followingId}, NOW())
+    </insert>
+
+    <delete id="deleteFollow">
+        DELETE FROM follows
+        WHERE follower_id = #{followerId} AND following_id = #{followingId}
+    </delete>
+
+    <select id="checkFollow" resultType="int">
+        SELECT COUNT(*)
+        FROM follows
+        WHERE follower_id = #{followerId}
+          AND following_id = #{followingId}
+    </select>
+
+    <select id="searchMembers" resultType="com.byd.vo.MemberVO">
+        SELECT
+            member_id,
+            nickname,
+            profile_image,
+            my_team_code,
+            (SELECT name_kr FROM teams WHERE team_code = members.my_team_code) AS myTeamName,
+
+            -- 내가 팔로우 중인지 확인 (1: true, 0: false)
+            (SELECT COUNT(*) > 0
+             FROM follows f
+             WHERE f.follower_id = #{myMemberId} AND f.following_id = members.member_id) AS isFollowing
+
+        FROM members
+        WHERE nickname LIKE CONCAT('%', #{keyword}, '%')
+          AND member_id != #{myMemberId}
+          AND status = 'ACTIVE'
+        ORDER BY nickname ASC
+    </select>
+
+    <select id="countTodayMembers" resultType="int">
+        SELECT COUNT(*) FROM members WHERE DATE(created_at) = CURDATE()
+    </select>
+
+    <select id="selectBySocialId" resultType="com.byd.vo.MemberVO">
+        SELECT * FROM members
+        WHERE social_provider = #{socialProvider}
+          AND social_uid = #{socialUid}
+    </select>
+
+    <insert id="insertSocialMember" parameterType="com.byd.vo.MemberVO"
+            useGeneratedKeys="true" keyProperty="memberId">
+        INSERT INTO members (
+            email, nickname, password, phone_number,
+            my_team_code, social_provider, social_uid,
+            role, status, profile_image, marketing_agree, created_at, updated_at
+        ) VALUES (
+                     #{email}, #{nickname}, NULL, NULL,
+                     'NONE', #{socialProvider}, #{socialUid},
+                     'USER', 'ACTIVE', #{profileImage}, 'N', NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="updateSocialInfo">
+        UPDATE members
+        SET social_provider = #{socialProvider},
+            social_uid = #{socialUid},
+            profile_image = CASE WHEN profile_image IS NULL THEN #{profileImage} ELSE profile_image END,
+            updated_at = NOW()
+        WHERE email = #{email}
+    </update>
+
+    <select id="selectMembersForGameAlarm" resultType="com.byd.vo.MemberVO">
+        SELECT * FROM members
+        WHERE (my_team_code = #{homeTeamCode} OR my_team_code = #{awayTeamCode})
+          AND game_alarm = 'Y'
+          AND status = 'ACTIVE'
+    </select>
+
+    <insert id="insertAccessLog">
+        INSERT IGNORE INTO access_logs (member_id, login_date, created_at)
+        VALUES (#{memberId}, CURDATE(), NOW())
+    </insert>
+
+    <select id="selectGameParticipants" resultType="com.byd.vo.MemberVO">
+        SELECT m.*
+        FROM members m
+        WHERE m.game_alarm = 'Y'
+          AND m.status = 'ACTIVE'
+          AND m.my_team_code IN (#{homeTeam}, #{awayTeam})
+          AND (
+            EXISTS (SELECT 1 FROM predictions p WHERE p.member_id = m.member_id AND p.game_id = #{gameId})
+                OR
+            EXISTS (SELECT 1 FROM diaries d WHERE d.member_id = m.member_id AND d.game_id = #{gameId})
+            )
+    </select>
+
+</mapper>
