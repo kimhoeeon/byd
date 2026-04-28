@@ -56,7 +56,7 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
-                    <form action="/event/applyProcess" method="post" id="applyForm">
+                    <form action="/apply/applyProcess" method="post" id="applyForm">
 
                         <ul class="form_box">
                             <li>

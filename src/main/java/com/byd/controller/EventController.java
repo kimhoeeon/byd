@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/event")
+@RequestMapping("/apply")
 @RequiredArgsConstructor
 public class EventController {
 

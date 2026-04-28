@@ -3,6 +3,7 @@ package com.byd.controller;
 import com.byd.service.AdminMngService;
 import com.byd.vo.AdminVO;
 import com.byd.vo.ParticipantVO;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -29,7 +30,7 @@ public class AdminMngController {
         if (session.getAttribute("adminInfo") != null) {
             return "redirect:/mng/main";
         }
-        return "mng/login";
+        return "mng/index";
     }
 
     @PostMapping("/loginProcess")
@@ -43,70 +44,47 @@ public class AdminMngController {
             return "redirect:/mng/main";
         } else {
             model.addAttribute("errorMessage", "아이디 또는 비밀번호가 일치하지 않습니다.");
-            return "mng/login";
+            return "mng/index";
         }
     }
 
     @GetMapping("/main")
     public String mainPage(HttpSession session, Model model) {
-        if (session.getAttribute("adminInfo") == null) {
-            return "redirect:/mng/login";
-        }
+        if (session.getAttribute("adminInfo") == null) return "redirect:/mng/login";
 
-        // 1. 대시보드 상단 요약 데이터 가져오기
         StatsVO stats = adminMngService.getDashboardSummary();
-        // 통계 데이터가 없을 경우(NULL) 기본값 0 처리
-        if(stats == null) stats = new StatsVO();
+        if (stats == null) stats = new StatsVO();
 
-        // 2. 차트 데이터 (최근 7일 및 타입별 누적) 가져오기
         Map<String, Object> chartData = adminMngService.getChartData();
 
         model.addAttribute("stats", stats);
         model.addAttribute("chartData", chartData);
-
         return "mng/main";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/mng/login";
-    }
-
-    @GetMapping("/event/list")
-    public String eventList(HttpSession session, Model model) {
+    // 통합 목록 뷰
+    @GetMapping("/participant/list")
+    public String participantList(HttpSession session, Model model) {
         if (session.getAttribute("adminInfo") == null) return "redirect:/mng/login";
-
-        List<ParticipantVO> list = adminMngService.getParticipantListByType("EVENT");
+        List<ParticipantVO> list = adminMngService.getAllParticipantList();
         model.addAttribute("list", list);
-        return "mng/event/event_list";
+        return "mng/participant/list";
     }
 
-    @GetMapping({"/event/detail", "/drive/detail"})
+    // 통합 상세 뷰
+    @GetMapping("/participant/detail")
     public String participantDetail(@RequestParam("seq") int seq, HttpSession session, Model model) {
         if (session.getAttribute("adminInfo") == null) return "redirect:/mng/login";
-
         ParticipantVO data = adminMngService.getParticipantBySeq(seq);
         model.addAttribute("data", data);
-
-        return "mng/detail/participant_detail";
+        return "mng/participant/detail";
     }
 
-    @GetMapping("/drive/list")
-    public String driveList(HttpSession session, Model model) {
-        if (session.getAttribute("adminInfo") == null) return "redirect:/mng/login";
-
-        List<ParticipantVO> list = adminMngService.getParticipantListByType("DRIVE");
-        model.addAttribute("list", list);
-        return "mng/drive/drive_list";
-    }
-
-    // 현장 스태프가 도착 확인 버튼 클릭 시 처리하는 비동기 API
+    // 현장 스태프 도착 확인 API
     @PostMapping("/api/checkArrival")
     @ResponseBody
     public String checkArrival(@RequestParam("seq") int seq, HttpSession session) {
         if (session.getAttribute("adminInfo") == null) return "FAIL";
-
         try {
             adminMngService.updateQrScanTime(seq);
             return "SUCCESS";
@@ -115,4 +93,11 @@ public class AdminMngController {
             return "ERROR";
         }
     }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/mng/index";
+    }
+
 }

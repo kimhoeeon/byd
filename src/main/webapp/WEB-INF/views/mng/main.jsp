@@ -94,60 +94,38 @@
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
     <script>
-        // JSTL을 활용하여 Java List 배열을 JavaScript 배열 형식으로 출력
-        const chartLabels = [
-            <c:forEach items="${chartData.labels}" var="label" varStatus="st">
-            '${label}'${!st.last ? ',' : ''}
-            </c:forEach>
-        ];
+        const chartLabels = [<c:forEach items="${chartData.labels}" var="label" varStatus="st">'${label}'${!st.last ? ',' : ''}</c:forEach>];
+        const dataList = [<c:forEach items="${chartData.data}" var="d" varStatus="st">${d}${!st.last ? ',' : ''}</c:forEach>];
 
-        const eventDataList = [
-            <c:forEach items="${chartData.eventData}" var="d" varStatus="st">
-            ${d}${!st.last ? ',' : ''}
-            </c:forEach>
-        ];
-
-        const driveDataList = [
-            <c:forEach items="${chartData.driveData}" var="d" varStatus="st">
-            ${d}${!st.last ? ',' : ''}
-            </c:forEach>
-        ];
-
-        // 1. 통계 차트 (Line Chart - DB 연동)
+        // 라인 차트 (통합 신청수)
         const ctx = document.getElementById('statChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: chartLabels,
                 datasets: [{
-                    label: '일반 참여',
-                    data: eventDataList,
+                    label: '일별 신청자',
+                    data: dataList,
                     borderColor: '#009ef7',
                     tension: 0.3,
                     fill: true,
                     backgroundColor: 'rgba(0, 158, 247, 0.1)'
-                }, {
-                    label: '시승 신청',
-                    data: driveDataList,
-                    borderColor: '#50cd89',
-                    tension: 0.3
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
 
-        // 2. 타입별 비중 (Doughnut Chart - DB 연동)
-        const eventTotal = ${stats.eventCnt};
-        const driveTotal = ${stats.driveCnt};
-
+        // 도넛 차트 (현장 확인 비율로 변경)
+        const checked = ${stats.qrCheckCnt};
+        const waiting = ${stats.driveWaitCnt};
         const ctx2 = document.getElementById('typeDoughnutChart').getContext('2d');
         new Chart(ctx2, {
             type: 'doughnut',
             data: {
-                labels: ['이벤트 참여', '시승 신청'],
+                labels: ['도착(확인) 완료', '미도착(대기)'],
                 datasets: [{
-                    data: [eventTotal, driveTotal],
-                    backgroundColor: ['#009ef7', '#50cd89']
+                    data: [checked, waiting],
+                    backgroundColor: ['#009ef7', '#f1416c']
                 }]
             }
         });

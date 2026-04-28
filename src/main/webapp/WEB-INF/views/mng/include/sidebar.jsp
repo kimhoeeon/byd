@@ -38,45 +38,18 @@
                 </div>
 
                 <div class="menu-item">
-                    <a class="menu-link" href="/mng/event/list">
+                    <a class="menu-link ${requestScope['javax.servlet.forward.servlet_path'] eq '/WEB-INF/views/mng/participant_list.jsp' ? 'active' : ''}"
+                       href="/mng/participant/list">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-address-book fs-2">
-                                <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
                             </i>
                         </span>
-                        <span class="menu-title">이벤트 참여 내역</span>
+                        <span class="menu-title">통합 신청 내역</span>
                     </a>
                 </div>
-
-                <div class="menu-item">
-                    <a class="menu-link" href="/mng/drive/list">
-                        <span class="menu-icon">
-                            <i class="ki-duotone ki-car fs-2">
-                                <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span>
-                            </i>
-                        </span>
-                        <span class="menu-title">시승 신청 내역</span>
-                    </a>
-                </div>
-
-                <div class="menu-item pt-5">
-                    <div class="menu-content">
-                        <span class="menu-heading fw-bold text-uppercase fs-7 text-muted">시스템 관리</span>
-                    </div>
-                </div>
-
-                <c:if test="${sessionScope.adminInfo.adminRole eq 'DEV'}">
-                    <div class="menu-item">
-                        <a class="menu-link" href="/mng/system/admin_list">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-setting-3 fs-2">
-                                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">관리자 계정 설정</span>
-                        </a>
-                    </div>
-                </c:if>
 
             </div>
         </div>

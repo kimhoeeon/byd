@@ -12,17 +12,15 @@ import java.util.List;
 public interface AdminMngMapper {
     AdminVO getAdminById(String adminId);
 
-    List<ParticipantVO> getParticipantList();
+    // 통합 목록 및 상세 조회
+    List<ParticipantVO> getAllParticipantList();
 
-    // 대시보드 상단 요약 데이터
-    StatsVO getDashboardSummary();
-
-    // 최근 7일 일별 신청 통계 데이터
-    List<DailyStatsVO> getDailyStats();
-
-    List<ParticipantVO> getParticipantListByType(String entryType);
+    ParticipantVO getParticipantBySeq(int seq);
 
     void updateQrScanTime(int seq);
 
-    ParticipantVO getParticipantBySeq(int seq);
+    // 대시보드 통계
+    StatsVO getDashboardSummary();
+
+    List<DailyStatsVO> getDailyStats();
 }

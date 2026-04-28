@@ -3,89 +3,46 @@
 <mapper namespace="com.byd.mapper.AdminMngMapper">
 
     <select id="getAdminById" parameterType="string" resultType="com.byd.vo.AdminVO">
-        SELECT admin_id AS adminId,
-               admin_pw AS adminPw,
-               admin_name AS adminName,
-               admin_role AS adminRole
-        FROM admin
-        WHERE admin_id = #{adminId}
+        SELECT admin_id AS adminId, admin_pw AS adminPw, admin_name AS adminName, admin_role AS adminRole
+        FROM admin WHERE admin_id = #{adminId}
     </select>
 
-    <select id="getParticipantList" resultType="com.byd.vo.ParticipantVO">
-        SELECT seq AS seq,
-               name AS name,
-               phone AS phone,
-               address AS address,
-               car_model AS carModel,
-               test_drive_time AS testDriveTime,
-               qr_code_url AS qrCodeUrl,
-               reg_date AS regDate
+    <select id="getAllParticipantList" resultType="com.byd.vo.ParticipantVO">
+        SELECT seq, entry_type AS entryType, name, phone, address, shop_info AS shopInfo,
+               car_model AS carModel, test_drive_time AS testDriveTime,
+               mkt_agree AS mktAgree, safety_agree AS safetyAgree,
+               qr_code_url AS qrCodeUrl, qr_scan_time AS qrScanTime, reg_date AS regDate
         FROM event_participant
         ORDER BY seq DESC
     </select>
+
+    <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
+        SELECT seq, entry_type AS entryType, name, phone, address, shop_info AS shopInfo,
+               car_model AS carModel, test_drive_time AS testDriveTime,
+               mkt_agree AS mktAgree, safety_agree AS safetyAgree,
+               qr_code_url AS qrCodeUrl, qr_scan_time AS qrScanTime, reg_date AS regDate
+        FROM event_participant
+        WHERE seq = #{seq}
+    </select>
+
+    <update id="updateQrScanTime" parameterType="int">
+        UPDATE event_participant SET qr_scan_time = NOW() WHERE seq = #{seq}
+    </update>
 
     <select id="getDashboardSummary" resultType="com.byd.vo.StatsVO">
         SELECT
             COUNT(*) AS totalCnt,
             SUM(CASE WHEN DATE(reg_date) = CURDATE() THEN 1 ELSE 0 END) AS todayCnt,
-            SUM(CASE WHEN entry_type = 'EVENT' AND qr_scan_time IS NOT NULL THEN 1 ELSE 0 END) AS qrCheckCnt,
-            SUM(CASE WHEN entry_type = 'DRIVE' AND qr_scan_time IS NULL THEN 1 ELSE 0 END) AS driveWaitCnt,
-            SUM(CASE WHEN entry_type = 'EVENT' THEN 1 ELSE 0 END) AS eventCnt,
-            SUM(CASE WHEN entry_type = 'DRIVE' THEN 1 ELSE 0 END) AS driveCnt
+            SUM(CASE WHEN qr_scan_time IS NOT NULL THEN 1 ELSE 0 END) AS qrCheckCnt,
+            SUM(CASE WHEN qr_scan_time IS NULL THEN 1 ELSE 0 END) AS driveWaitCnt
         FROM event_participant
     </select>
 
     <select id="getDailyStats" resultType="com.byd.vo.DailyStatsVO">
-        SELECT
-            DATE_FORMAT(reg_date, '%m.%d') AS regDateStr,
-            entry_type AS entryType,
-            COUNT(*) AS cnt
+        SELECT DATE_FORMAT(reg_date, '%m.%d') AS regDateStr, COUNT(*) AS cnt
         FROM event_participant
         WHERE reg_date >= DATE(DATE_SUB(NOW(), INTERVAL 6 DAY))
-        GROUP BY DATE_FORMAT(reg_date, '%m.%d'), entry_type
-    </select>
-
-    <select id="getParticipantListByType" parameterType="string" resultType="com.byd.vo.ParticipantVO">
-        SELECT seq AS seq,
-               entry_type AS entryType,
-               name AS name,
-               phone AS phone,
-               address AS address,
-               shop_info AS shopInfo,
-               car_model AS carModel,
-               test_drive_time AS testDriveTime,
-               mkt_agree AS mktAgree,
-               safety_agree AS safetyAgree,
-               qr_code_url AS qrCodeUrl,
-               qr_scan_time AS qrScanTime,
-               reg_date AS regDate
-        FROM event_participant
-        WHERE entry_type = #{entryType}
-        ORDER BY seq DESC
-    </select>
-
-    <update id="updateQrScanTime" parameterType="int">
-        UPDATE event_participant
-        SET qr_scan_time = NOW()
-        WHERE seq = #{seq}
-    </update>
-
-    <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
-        SELECT seq AS seq,
-               entry_type AS entryType,
-               name AS name,
-               phone AS phone,
-               address AS address,
-               shop_info AS shopInfo,
-               car_model AS carModel,
-               test_drive_time AS testDriveTime,
-               mkt_agree AS mktAgree,
-               safety_agree AS safetyAgree,
-               qr_code_url AS qrCodeUrl,
-               qr_scan_time AS qrScanTime,
-               reg_date AS regDate
-        FROM event_participant
-        WHERE seq = #{seq}
+        GROUP BY DATE_FORMAT(reg_date, '%m.%d')
     </select>
 
 </mapper>
