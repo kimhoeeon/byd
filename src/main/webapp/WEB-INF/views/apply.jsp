@@ -39,7 +39,7 @@
 
     <!-- container -->
     <div id="container">
-    
+
         <!-- check-in -->
         <div class="ck-in">
 
@@ -112,6 +112,17 @@
                                 </select>
                             </div>
                         </li>
+                        <li>
+                            <div class="gubun">시승 시간 선택</div>
+                            <div class="input">
+                                <select>
+                                    <option>선택해 주세요.</option>
+                                    <option>09:00</option>
+                                    <option>10:00</option>
+                                    <option>11:00</option>
+                                </select>
+                            </div>
+                        </li>
                     </ul>
                     <div class="terms-check">
                         <label>
@@ -122,6 +133,16 @@
                                 </span>
                         </label>
                         <p>선택하신 정보는 마케팅 정보 제공을 위해 활용되며, <br />동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
+                    </div>
+                    <div class="terms-check">
+                        <label>
+                            <input type="checkbox" id="">
+                            <span class="terms-check_box" aria-hidden="true"></span>
+                            <span class="terms-check_label">
+                                    시승 안전 동의
+                                </span>
+                        </label>
+                        <p>시승 안전 안내 및 유의사항을 충분히 숙지하였으며, <br />이에 동의합니다.</p>
                     </div>
                     <div class="btn_box">
                         <a href="main/main.html" class="btn_st01">SUBMIT</a>

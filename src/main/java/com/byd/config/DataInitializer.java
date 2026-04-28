@@ -1,6 +1,5 @@
 package com.byd.config;
 
-import com.byd.service.GameDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

@@ -1,49 +1,14 @@
-/* =========================================================
-iOS Optimized Reset.css
-- Based on Meyer Reset
-- Tuned for iOS Safari / WKWebView
-========================================================= */
+/* http://meyerweb.com/eric/tools/css/reset/
+v2.0 | 20110126
+License: none (public domain)
+*/
 
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-html {
-    -webkit-text-size-adjust: 100%; 
-    -webkit-tap-highlight-color: transparent; 
-}
-
-body {
-    margin: 0;
-    min-height: 100%;
-    line-height: 1.25;
-    background: #ffffff;
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Apple SD Gothic Neo",
-        "Noto Sans KR",
-        "Segoe UI",
-        Roboto,
-        Helvetica,
-        Arial,
-        sans-serif;
-    color: #0E0F12;
-    overflow-x: hidden;
-}
-
-html, body {
-    overflow-x: hidden;
-    width: 100%;
-    position: relative;
-}
+*{box-sizing: border-box;} 
 
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
-del, dfn, em, ins, kbd, q, s, samp,
+del, dfn, em, img, ins, kbd, q, s, samp,
 small, strike, strong, sub, sup, tt, var,
 b, u, i, center,
 dl, dt, dd, ol, ul, li,
@@ -53,110 +18,34 @@ article, aside, canvas, details, embed,
 figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    font: inherit;
-    vertical-align: baseline;
+margin: 0;
+padding: 0;
+border: 0;
+font-size: 100%;
+font: inherit;
+vertical-align: baseline;
 }
-
+/* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
-    display: block;
+display: block;
 }
-
+body {
+line-height: 1;
+}
 ol, ul {
-    list-style: none;
+list-style: none;
 }
-
 blockquote, q {
-    quotes: none;
+quotes: none;
 }
-blockquote::before,
-blockquote::after,
-q::before,
-q::after {
-    content: '';
+blockquote:before, blockquote:after,
+q:before, q:after {
+content: '';
+content: none;
 }
-
 table {
-    border-collapse: collapse;
-    border-spacing: 0;
+border-collapse: collapse;
+border-spacing: 0;
 }
-
-a {
-    text-decoration: none;
-    color: inherit; 
-    -webkit-touch-callout: none; 
-}
-
-img,
-picture,
-video,
-canvas,
-svg {
-    display: block;
-    max-width: 100%;
-    height: auto;
-}
-
-button,
-input,
-select,
-textarea {
-    font: inherit;
-    color: inherit;
-    background: none;
-    border: none;
-    outline: none;
-    border-radius: 0;
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-button {
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-}
-
-input,
-textarea,
-select {
-    font-size: 16px;
-    color: #0E0F12;
-}
-
-input::placeholder,
-textarea::placeholder,
-select::placeholder{
-    color: #A6A9B0;
-}
-
-button:disabled,
-input:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-input:focus{
-    outline: none;
-}
-
-:focus-visible {
-    outline: 2px solid var(--mainColor);
-    outline-offset: 2px;
-}
-
-[hidden] {
-    display: none !important;
-}
-
-:root {
-    --mainColor: #1CCEB0;
-    --seconColor: #5994F4;
-    --eventColor: #FFE220;
-    --winColor: #2ED573;
-    --blackColor: #0E0F12;
-    --redColor:#FF2F32;
-    --vh: 1vh;
-}
+a {text-decoration:none; color:#000;}

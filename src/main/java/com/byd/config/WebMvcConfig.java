@@ -15,9 +15,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private HttpsRedirectInterceptor httpsRedirectInterceptor;
 
-    @Autowired
-    private AutoLoginInterceptor autoLoginInterceptor;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 1. HTTPS 리다이렉트 (보안 - 최우선 실행)
@@ -64,34 +61,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/mng/index.do"
                 );
 
-        // 4. 자동 로그인 체크 (모든 경로)
-        registry.addInterceptor(autoLoginInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns(
-                        "/mng/**",
-                        "/member/login",
-                        "/member/join",
-                        "/member/logout",
-                        "/assets/**",
-                        "/css/**",
-                        "/js/**",
-                        "/img/**",
-                        "/fonts/**",
-                        "/favicon.ico",
-                        "/site.webmanifest",
-                        "/maintenance", // 점검 페이지 제외
-                        "/error"
-                );
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 1. 업로드 경로 설정 (OS 독립적으로 user.home 사용 통일)
-        // 예(Win): file:///C:/Users/사용자/viotory/upload/
-        // 예(Mac/Linux): file:///home/사용자/viotory/upload/
-        //String uploadPath = Paths.get(System.getProperty("user.home"), "viotory", "upload").toUri().toString();
-
-        String uploadPath = "file:///usr/local/tomcat/webapps/upload/";
+        String uploadPath = "file:///tomcat/webapps/upload/";
 
         // /upload/** URL로 요청 시 실제 서버의 저장 폴더로 연결
         registry.addResourceHandler("/upload/**")
