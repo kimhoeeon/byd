@@ -40,7 +40,7 @@ public class EventController {
             newInfo.setName(name);
             newInfo.setPhone(phone);
             session.setAttribute("tempInfo", newInfo);
-            return "redirect:/step2";
+            return "redirect:/apply/step2";
         }
     }
 

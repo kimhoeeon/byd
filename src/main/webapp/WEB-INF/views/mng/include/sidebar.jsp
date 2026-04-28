@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="menu-item">
-                    <a class="menu-link ${requestScope['javax.servlet.forward.servlet_path'] eq '/WEB-INF/views/mng/participant_list.jsp' ? 'active' : ''}"
+                    <a class="menu-link ${requestScope['javax.servlet.forward.servlet_path'] eq '/WEB-INF/views/mng/participant/list.jsp' ? 'active' : ''}" href="/mng/participant/list">
                        href="/mng/participant/list">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-address-book fs-2">
