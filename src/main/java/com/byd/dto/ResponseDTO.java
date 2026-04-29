@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ResponseDTO {
-    private String resultCode;
-    private String resultMessage;
+    private boolean success;
+    private String message;
 }

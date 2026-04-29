@@ -191,6 +191,7 @@ label:last-child {margin-right: 0;}
 .ck-in .info_box textarea {width: 100%;}
 .ck-in .info_box .tel{display: flex; gap: 10px;}
 .ck-in .info_box .tel .phone-cert{background: #fff; border: 0;padding: 0 15px;}
+.ck-in.center{display: flex; flex-direction: column; justify-content: center; height: 100vh;}
 
 .main {background:#000;}
 .main .main_tit .tit {font-size: 2rem; line-height: 2.6rem; font-weight: 700; text-align: center; margin-bottom: 30px; color: #fff;}
@@ -272,3 +273,8 @@ label:last-child {margin-right: 0;}
 .qr_code{margin-top: 50px;}
 .qr_code .time{margin-top:20px}
 .qr_code .qr{background: #fff; width: auto; display: inline-block; padding: 10px;}
+
+.timer_wrap{aspect-ratio: 16 / 9; font-family: 'LABDigital-Regular';}
+.timer_wrap .inner{margin: 0 auto; height: 90vh; display: flex; gap: 100px; flex-direction: column; align-items: center;justify-content: center;}
+.timer_wrap .inner .timer{color: #bb0a0a; font-size: 20vw;}
+.timer_wrap .inner img{position: absolute; bottom: 80px}

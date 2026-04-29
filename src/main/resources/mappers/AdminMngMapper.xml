@@ -17,13 +17,14 @@
     </select>
 
     <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
-        SELECT seq, entry_type AS entryType, name, phone, address, shop_info AS shopInfo,
-               car_model AS carModel, test_drive_time AS testDriveTime,
-               mkt_agree AS mktAgree, safety_agree AS safetyAgree,
-               qr_code_url AS qrCodeUrl, qr_scan_time AS qrScanTime, reg_date AS regDate
-        FROM event_participant
-        WHERE seq = #{seq}
+        SELECT * FROM event_participant WHERE seq = #{seq}
     </select>
+
+    <update id="updateArrivalStatus" parameterType="int">
+        UPDATE event_participant
+        SET qr_scan_time = NOW()
+        WHERE seq = #{seq}
+    </update>
 
     <update id="updateQrScanTime" parameterType="int">
         UPDATE event_participant SET qr_scan_time = NOW() WHERE seq = #{seq}

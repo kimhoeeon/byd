@@ -17,10 +17,11 @@ public interface AdminMngMapper {
 
     ParticipantVO getParticipantBySeq(int seq);
 
-    void updateQrScanTime(int seq);
-
     // 대시보드 통계
     StatsVO getDashboardSummary();
 
     List<DailyStatsVO> getDailyStats();
+
+    void updateArrivalStatus(int seq);
+
 }

@@ -33,8 +33,8 @@ public class AdminMngService {
         return adminMngMapper.getParticipantBySeq(seq);
     }
 
-    public void updateQrScanTime(int seq) {
-        adminMngMapper.updateQrScanTime(seq);
+    public void updateArrivalStatus(int seq) {
+        adminMngMapper.updateArrivalStatus(seq);
     }
 
     public StatsVO getDashboardSummary() {

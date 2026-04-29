@@ -75,6 +75,13 @@
 	unicode-range: U+AC00-D7A3, U+0020-002F, U+003A-0040, U+005B-0060, U+007B-007E; /* 한글, 특수문자 */
 }
 
+@font-face{
+    font-family: 'LABDigital-Regular' ;
+    src: url('https://cdn.jsdelivr.net/gh/wooin21/fonts-LAB/LABDigital-Regular.woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
 
 html {
 	font-family: Interstate, Pretendard, Roboto, sans-serif;

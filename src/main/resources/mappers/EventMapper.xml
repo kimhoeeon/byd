@@ -2,16 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.byd.mapper.EventMapper">
 
-    <insert id="insertParticipant" parameterType="com.byd.vo.ParticipantVO">
-        INSERT INTO event_participant (
-            name, phone, address, shop_info, car_model, test_drive_time, mkt_agree, safety_agree, reg_date
-        ) VALUES (
-                     #{name}, #{phone}, #{address}, #{shopInfo}, #{carModel}, #{testDriveTime}, #{mktAgree}, #{safetyAgree}, NOW()
-                 )
-    </insert>
-
     <select id="getParticipantByPhone" parameterType="string" resultType="com.byd.vo.ParticipantVO">
         SELECT * FROM event_participant WHERE phone = #{phone} LIMIT 1
     </select>
+
+    <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
+        SELECT * FROM event_participant WHERE seq = #{seq}
+    </select>
+
+    <insert id="insertParticipant" parameterType="com.byd.vo.ParticipantVO" useGeneratedKeys="true" keyProperty="seq">
+        INSERT INTO event_participant (
+            entry_type, name, phone, address, shop_info, car_model, test_drive_time, mkt_agree, safety_agree, reg_date
+        ) VALUES (
+                     #{entryType}, #{name}, #{phone}, #{address}, #{shopInfo}, #{carModel}, #{testDriveTime}, #{mktAgree}, #{safetyAgree}, NOW()
+                 )
+    </insert>
 
 </mapper>

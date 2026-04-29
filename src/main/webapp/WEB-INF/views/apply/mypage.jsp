@@ -56,93 +56,64 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
-                    <form action="/apply/applyProcess" method="post" id="applyForm">
 
-                        <ul class="form_box">
-                            <li>
-                                <div class="gubun">이름</div>
-                                <div class="input"><input type="text" name="name" placeholder="입력해 주세요." required></div>
-                            </li>
-                            <li>
-                                <div class="gubun">연락처</div>
-                                <div class="input tel">
-                                    <input type="tel" name="phone" placeholder="입력해 주세요." class="onlyTel" required>
-                                    <button type="button" class="phone-cert">중복확인</button>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="gubun">주소</div>
-                                <div class="input"><input type="text" name="address" placeholder="입력해 주세요."></div>
-                            </li>
-                            <li>
-                                <div class="gubun">전시장 정보</div>
-                                <div class="input">
-                                    <select name="shopInfo">
-                                        <option value="">선택해 주세요.</option>
-                                        <option value="서울 강남 전시장">서울 강남 전시장</option>
-                                        <option value="성남 분당 전시장">성남 분당 전시장</option>
-                                        <option value="인천 송도 전시장">인천 송도 전시장</option>
-                                    </select>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="gubun">관심차량 정보</div>
-                                <div class="input">
-                                    <select name="carModel">
-                                        <option value="">선택해 주세요.</option>
-                                        <option value="BYD Seal">BYD Seal</option>
-                                        <option value="BYD Han">BYD Han</option>
-                                        <option value="BYD Qin Plus">BYD Qin Plus</option>
-                                        <option value="BYD Destroyer 05">BYD Destroyer 05</option>
-                                        <option value="BYD Atto 3">BYD Atto 3</option>
-                                        <option value="BYD Song Plus">BYD Song Plus</option>
-                                        <option value="BYD Tang">BYD Tang</option>
-                                        <option value="BYD Yuan Plus">BYD Yuan Plus</option>
-                                        <option value="BYD Sea Lion 07">BYD Sea Lion 07</option>
-                                        <option value="BYD Denza D9">BYD Denza D9</option>
-                                        <option value="BYD Xia">BYD Xia</option>
-                                        <option value="BYD Shark">BYD Shark</option>
-                                        <option value="BYD Fangchengbao Bao 5">BYD Fangchengbao Bao 5</option>
-                                        <option value="D9">D9</option>
-                                        <option value="N7">N7</option>
-                                        <option value="Z9 GT">Z9 GT</option>
-                                        <option value="Yangwang U8">Yangwang U8</option>
-                                        <option value="Yangwang U9">Yangwang U9</option>
-                                    </select>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="gubun">시승 시간 선택</div>
-                                <div class="input">
-                                    <select name="testDriveTime">
-                                        <option value="">선택해 주세요.</option>
-                                        <option value="09:00">09:00</option>
-                                        <option value="10:00">10:00</option>
-                                        <option value="11:00">11:00</option>
-                                    </select>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="terms-check">
-                            <label>
-                                <input type="checkbox" name="mktAgree" value="Y">
-                                <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">마케팅 수신 동의</span>
-                            </label>
-                            <p>선택하신 정보는 마케팅 정보 제공을 위해 활용되며, <br />동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
-                        </div>
-                        <div class="terms-check">
-                            <label>
-                                <input type="checkbox" name="safetyAgree" value="Y" required>
-                                <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">시승 안전 동의</span>
-                            </label>
-                            <p>시승 안전 안내 및 유의사항을 충분히 숙지하였으며, <br />이에 동의합니다.</p>
-                        </div>
-                        <div class="btn_box">
-                            <button type="submit" class="btn_st01">SUBMIT</button>
-                        </div>
-                    </form>
+                    <h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">모바일 시승 티켓</h2>
+
+                    <!-- [추가] QR 코드 영역 -->
+                    <div style="text-align: center; background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                        <p style="color: #333; font-weight: bold; margin-bottom: 10px;">현장 데스크에 아래 QR 코드를 제시해 주세요.</p>
+                        <img src="${qrCodeImgUrl}" alt="QR Code" style="width: 200px; height: 200px;"/>
+                        <p style="color: #e50000; font-size: 14px; margin-top: 10px; font-weight:bold;">
+                            [유효기간] 예약하신 시승 시간 (${data.testDriveTime}) 까지 유효합니다.
+                        </p>
+                    </div>
+
+                    <ul class="form_box">
+                        <li>
+                            <div class="gubun">이름</div>
+                            <div class="input"><input type="text" value="${data.name}" readonly style="background-color:#f5f5f5;"></div>
+                        </li>
+                        <li>
+                            <div class="gubun">연락처</div>
+                            <div class="input">
+                                <input type="text" name="phone" value="${data.phone}" readonly style="background-color:#f5f5f5;"></div>
+                        </li>
+                        <li>
+                            <div class="gubun">주소</div>
+                            <div class="input"><input type="text" value="${empty data.address ? '-' : data.address}" readonly style="background-color:#f5f5f5;"></div>
+                        </li>
+                        <li>
+                            <div class="gubun">전시장 정보</div>
+                            <div class="input"><input type="text" value="${empty data.shopInfo ? '-' : data.shopInfo}" readonly style="background-color:#f5f5f5;"></div>
+                        </li>
+                        <li>
+                            <div class="gubun">관심차량 정보</div>
+                            <div class="input"><input type="text" value="${empty data.carModel ? '-' : data.carModel}" readonly style="background-color:#f5f5f5;"></div>
+                        </li>
+                        <li>
+                            <div class="gubun">시승 시간 선택</div>
+                            <div class="input"><input type="text" value="${empty data.testDriveTime ? '-' : data.testDriveTime}" readonly style="background-color:#f5f5f5;"></div>
+                        </li>
+                    </ul>
+                    <div class="terms-check">
+                        <label>
+                            <input type="checkbox" checked disabled>
+                            <span class="terms-check_box" aria-hidden="true"></span>
+                            <span class="terms-check_label">마케팅 수신 동의 <span style="color:#009ef7;">(${data.mktAgree})</span></span>
+                        </label>
+                        <p>선택하신 정보는 마케팅 정보 제공을 위해 활용되며, <br />동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
+                    </div>
+                    <div class="terms-check">
+                        <label>
+                            <input type="checkbox" checked disabled>
+                            <span class="terms-check_box" aria-hidden="true"></span>
+                            <span class="terms-check_label">시승 안전 동의 <span style="color:#009ef7;">(${data.safetyAgree})</span></span>
+                        </label>
+                        <p>시승 안전 안내 및 유의사항을 충분히 숙지하였으며, <br />이에 동의합니다.</p>
+                    </div>
+                    <div class="btn_box">
+                        <a href="/apply/step1" class="btn_st01">확인 (HOME)</a>
+                    </div>
                 </div>
             </div>
             <!-- //info -->

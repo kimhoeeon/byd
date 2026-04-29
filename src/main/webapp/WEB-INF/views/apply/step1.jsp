@@ -56,7 +56,7 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
-                    <form action="/apply/applyProcess" method="post" id="applyForm">
+                    <form action="/apply/checkParticipant" method="post" id="applyForm">
 
                         <ul class="form_box">
                             <li>
@@ -65,9 +65,8 @@
                             </li>
                             <li>
                                 <div class="gubun">연락처</div>
-                                <div class="input tel">
-                                    <input type="tel" name="phone" placeholder="입력해 주세요." class="onlyTel" required>
-                                    <button type="button" class="phone-cert">중복확인</button>
+                                <div class="input">
+                                    <input type="text" name="phone" placeholder="입력해 주세요." class="onlyTel" required>
                                 </div>
                             </li>
                         </ul>
