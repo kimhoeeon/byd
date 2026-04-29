@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -150,6 +152,111 @@ public class AdminMngController {
             response.setSuccess(false);
         }
         return response;
+    }
+
+    // ==========================================
+    // 📊 [추가] 엑셀 다운로드를 위한 전체 목록 조회 API
+    // ==========================================
+    @GetMapping("/api/participant/excelData")
+    @ResponseBody
+    public List<Map<String, String>> getExcelData(Criteria cri) {
+        List<ParticipantVO> list = adminMngService.getAllList(cri);
+        List<Map<String, String>> excelData = new ArrayList<>();
+
+        for (ParticipantVO vo : list) {
+            Map<String, String> row = new LinkedHashMap<>();
+
+            // 1. 날짜 처리 (형변환 에러 해결: getRegDate()가 String이거나 Date일 경우 모두 대응)
+            String regDateStr = "";
+            if (vo.getRegDate() != null) {
+                regDateStr = vo.getRegDate().toString(); // String으로 바로 변환
+                // 만약 DB에서 "2024-05-12 14:22:00.0" 처럼 뒤에 .0이 붙는다면 잘라냄
+                if (regDateStr.endsWith(".0")) {
+                    regDateStr = regDateStr.substring(0, regDateStr.length() - 2);
+                }
+            }
+
+            // 2. 항목 맵핑 (코드명 컬럼 추가)
+            row.put("문의일자", regDateStr);
+            row.put("전시장 코드", getShopCode(vo.getShopInfo()));
+            row.put("전시장명", vo.getShopInfo()); // 맵핑된 전시장 이름
+
+            row.put("유입경로 코드", "4040");
+            row.put("유입경로명", "오프라인"); // 4040에 해당하는 이름
+
+            row.put("고객명", vo.getName());
+            row.put("연락처", vo.getPhone());
+
+            row.put("관심모델그룹 코드", getCarModelCode(vo.getCarModel()));
+            row.put("관심모델명", vo.getCarModel()); // 맵핑된 차량 이름
+
+            row.put("시승타임 선택", vo.getTestDriveTime());
+            row.put("개인정보 동의여부", "Y");
+            row.put("마케팅 동의여부", vo.getMktAgree() != null ? vo.getMktAgree() : "N");
+
+            // 3. 챌린지/시승참여 (QR 스캔 여부에 따라 Y/N)
+            String isParticipated = vo.getQrScanTime() != null ? "Y" : "N";
+            row.put("챌린지 참여", isParticipated);
+            row.put("시승 참여", isParticipated);
+
+            excelData.add(row);
+        }
+
+        return excelData;
+    }
+
+    // 엑셀 맵핑용 - 전시장 코드 변환 함수
+    private String getShopCode(String shopName) {
+        if (shopName == null || shopName.trim().isEmpty()) return "";
+        switch (shopName.trim()) {
+            case "BYD 동탄": return "APKR0001AW0011SW";
+            case "BYD 부산 동래": return "APKR0001AW0010SW";
+            case "BYD 분당": return "APKR0001AW0003SW";
+            case "BYD 서초": return "APKR0001AW0002SW";
+            case "BYD 수영": return "APKR0001AW0005SW";
+            case "BYD 수원": return "APKR0001AW0001SW";
+            case "BYD 스타필드 명지": return "APKR0001AW0014SW";
+            case "BYD 스타필드 안성": return "APKR0001AW0016SW";
+            case "BYD 스타필드 운정": return "APKR0001AW0017SW";
+            case "BYD 스타필드 일산": return "APKR0001AW0013SW";
+            case "BYD 스타필드 하남": return "APKR0001AW0015SW";
+            case "BYD 일산": return "APKR0001AW0007SW";
+            case "BYD 창원": return "APKR0001AW0012SW";
+            case "BYD 강서": return "APKR0002AW0004SW";
+            case "BYD 김포": return "APKR0002AW0005SW";
+            case "BYD 마포": return "APKR0002AW0006SW";
+            case "BYD 용산": return "APKR0002AW0001SW";
+            case "BYD 의정부": return "APKR0002AW0010SW";
+            case "BYD 제주": return "APKR0002AW0002SW";
+            case "BYD 천안": return "APKR0002AW0008SW";
+            case "BYD 청주": return "APKR0002AW0009SW";
+            case "BYD 강동": return "APKR0003AW0010SW";
+            case "BYD 목동": return "APKR0003AW0002SW";
+            case "BYD 부천": return "APKR0003AW0007SW";
+            case "BYD 서해구": return "APKR0003AW0008SW";
+            case "BYD 송도": return "APKR0003AW0001SW";
+            case "BYD 송파": return "APKR0003AW0009SW";
+            case "BYD 안양": return "APKR0003AW0003SW";
+            case "BYD 대구": return "APKR0004AW0001SW";
+            case "BYD 포항": return "APKR0004AW0002SW";
+            case "BYD 원주": return "APKR0005AW0001SW";
+            case "BYD 광주": return "APKR0006AW0003SW";
+            case "BYD 대전": return "APKR0006AW0001SW";
+            case "BYD 전주": return "APKR0006AW0005SW";
+            default: return ""; // 매핑이 안되면 빈값 처리
+        }
+    }
+
+    // 엑셀 맵핑용 - 관심모델그룹 코드 변환 함수
+    private String getCarModelCode(String carModel) {
+        if (carModel == null || carModel.trim().isEmpty()) return "";
+        switch (carModel.trim().toUpperCase()) {
+            case "BYD DOLPHIN": return "BYD0004";
+            case "BYD ATTO 3": return "BYD0001";
+            case "BYD SEAL": return "BYD0005";
+            case "BYD SEALION 7": return "BYD0019";
+            default: return "";
+        }
     }
 
     @GetMapping("/logout")

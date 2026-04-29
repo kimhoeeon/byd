@@ -42,6 +42,10 @@ public class AdminMngService {
         return adminMngMapper.getList(cri);
     }
 
+    public List<ParticipantVO> getAllList(Criteria cri) {
+        return adminMngMapper.getAllList(cri);
+    }
+
     public int getTotalCount(Criteria cri) {
         return adminMngMapper.getTotalCount(cri);
     }

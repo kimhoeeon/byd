@@ -13,6 +13,9 @@ public interface AdminMngMapper {
     // 통합 목록 조회 (검색 및 페이징 적용)
     List<ParticipantVO> getList(Criteria cri);
 
+    // 엑셀 다운로드용 전체 목록 조회 (페이징 무시)
+    List<ParticipantVO> getAllList(Criteria cri);
+
     // 전체 데이터 개수 (페이징용)
     int getTotalCount(Criteria cri);
 

@@ -59,6 +59,9 @@
                                 <a href="/mng/participant/list" class="btn btn-light">초기화</a>
                             </form>
                         </div>
+                        <div class="card-footer d-flex justify-content-end">
+                            <button type="button" class="btn btn-success" onclick="downloadExcel()">엑셀 다운로드</button>
+                        </div>
                     </div>
 
                     <!-- 데이터 목록 카드 -->
@@ -153,6 +156,8 @@
     <script src="/assets/js/scripts.bundle.js"></script>
     <!-- 서버사이드 페이징과 충돌 방지를 위해 DataTables 라이브러리는 스타일용으로만 남기고 페이징/검색/정렬 기능은 false 처리합니다. -->
     <script src="/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <!-- 엑셀 다운로드를 위한 SheetJS 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#kt_datatable').DataTable({
@@ -195,6 +200,62 @@
         function goPage(page) {
             document.getElementById('pageNum').value = page;
             document.getElementById('searchForm').submit();
+        }
+
+        // 엑셀 다운로드 함수
+        function downloadExcel() {
+            // 1. 검색 폼 파라미터를 한 번에 가져오기
+            var searchData = $('#searchForm').serialize();
+
+            // 2. 백엔드 API 호출하여 매핑 완료된 데이터 가져오기
+            $.ajax({
+                url: '/mng/api/participant/excelData',
+                type: 'GET',
+                data: searchData,
+                success: function(res) {
+                    if(res.length === 0) {
+                        alert("다운로드할 데이터가 없습니다.");
+                        return;
+                    }
+
+                    // 3. SheetJS를 이용해 JSON 데이터를 엑셀 시트로 변환
+                    var ws = XLSX.utils.json_to_sheet(res);
+
+                    // 4. 컬럼 너비 지정 (코드 우측에 코드명이 나오도록 보기 좋게)
+                    var wscols = [
+                        {wch: 20}, // 문의일자
+                        {wch: 20}, // 전시장 코드
+                        {wch: 15}, // 전시장명
+                        {wch: 15}, // 유입경로 코드
+                        {wch: 25}, // 유입경로명
+                        {wch: 15}, // 고객명
+                        {wch: 15}, // 연락처
+                        {wch: 20}, // 관심모델그룹 코드
+                        {wch: 20}, // 관심모델명
+                        {wch: 20}, // 시승타임 선택
+                        {wch: 15}, // 개인정보 동의여부
+                        {wch: 15}, // 마케팅 동의여부
+                        {wch: 12}, // 챌린지 참여
+                        {wch: 12}  // 시승 참여
+                    ];
+                    ws['!cols'] = wscols;
+
+                    var wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "참여자목록");
+
+                    // 5. 파일명 생성 및 다운로드 실행
+                    var today = new Date();
+                    var month = ('0' + (today.getMonth() + 1)).slice(-2);
+                    var day = ('0' + today.getDate()).slice(-2);
+                    var filename = "BYD_Event_참여자_" + today.getFullYear() + month + day + ".xlsx";
+
+                    XLSX.writeFile(wb, filename);
+                },
+                error: function(err) {
+                    alert("엑셀 데이터를 생성하는 중 오류가 발생했습니다.");
+                    console.error(err);
+                }
+            });
         }
     </script>
 </body>

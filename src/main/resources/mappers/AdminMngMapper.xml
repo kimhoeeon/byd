@@ -41,6 +41,14 @@
         LIMIT #{pageStart}, #{amount}
     </select>
 
+    <select id="getAllList" resultType="com.byd.vo.ParticipantVO">
+        SELECT * FROM event_participant
+        <where>
+            <include refid="searchCondition"></include>
+        </where>
+        ORDER BY seq DESC
+    </select>
+
     <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
         SELECT * FROM event_participant WHERE seq = #{seq}
     </select>
