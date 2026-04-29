@@ -72,6 +72,7 @@ public class AdminMngController {
 
         model.addAttribute("list", list);
         model.addAttribute("pageMaker", new PageDTO(cri, total)); // 페이징 객체 전달
+        model.addAttribute("cri", cri); // 현재 검색 조건 및 페이지 번호 유지용
 
         return "mng/participant/list";
     }

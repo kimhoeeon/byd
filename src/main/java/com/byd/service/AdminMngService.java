@@ -22,10 +22,6 @@ public class AdminMngService {
         return adminMngMapper.getAdminById(adminId);
     }
 
-    public List<ParticipantVO> getAllParticipantList() {
-        return adminMngMapper.getAllParticipantList();
-    }
-
     public ParticipantVO getParticipantBySeq(int seq) {
         return adminMngMapper.getParticipantBySeq(seq);
     }
@@ -38,12 +34,10 @@ public class AdminMngService {
         adminMngMapper.cancelArrivalStatus(seq);
     }
 
-    // [추가] 관리자 목록 조회
     public List<ParticipantVO> getList(Criteria cri) {
         return adminMngMapper.getList(cri);
     }
 
-    // [추가] 관리자 목록 전체 개수 (페이징용)
     public int getTotalCount(Criteria cri) {
         return adminMngMapper.getTotalCount(cri);
     }
