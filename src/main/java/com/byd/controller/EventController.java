@@ -5,6 +5,7 @@ import com.byd.util.AES128;
 import com.byd.vo.ParticipantVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,17 +39,15 @@ public class EventController {
         ParticipantVO existing = eventService.getParticipantByPhone(phone);
 
         if (existing != null) {
-            // 기존 신청자 -> 암호화 토큰 생성 후 티켓 페이지로 리다이렉트
             try {
                 AES128 aes128 = new AES128(SECRET_KEY);
                 String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
                 return "redirect:/apply/ticket?token=" + encryptedSeq;
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("중복 신청자 토큰 생성 오류: ", e);
                 return "error/400";
             }
         } else {
-            // 신규 신청자 -> 2페이지
             ParticipantVO newInfo = new ParticipantVO();
             newInfo.setName(name);
             newInfo.setPhone(phone);
@@ -73,27 +72,43 @@ public class EventController {
             participantVO.setPhone(step1Info.getPhone());
         }
 
-        eventService.insertParticipant(participantVO);
+        try {
+            eventService.insertParticipant(participantVO);
+        } catch (DuplicateKeyException e) {
+            // [방어 로직] DB의 UNIQUE KEY 제약조건에 의해 중복 삽입이 막힌 경우 (ex: 뒤로가기 후 재제출)
+            log.warn("중복 시승 신청 감지 (DB Unique Key 방어): {}", participantVO.getPhone());
+            ParticipantVO existing = eventService.getParticipantByPhone(participantVO.getPhone());
+            if (existing != null) {
+                try {
+                    AES128 aes128 = new AES128(SECRET_KEY);
+                    String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
+                    return "redirect:/apply/ticket?token=" + encryptedSeq;
+                } catch (Exception ex) {
+                    return "error/400";
+                }
+            }
+            return "redirect:/apply/step1";
+        } catch (Exception e) {
+            log.error("신청 처리 중 예기치 않은 오류 발생: ", e);
+            return "error/400";
+        }
+
         session.removeAttribute("tempInfo"); // 세션 정리
 
         try {
-            // 2. seq 암호화 (AES128)
             AES128 aes128 = new AES128(SECRET_KEY);
             String encryptedSeq = aes128.encrypt(String.valueOf(participantVO.getSeq()));
 
-            // 3. 모바일 티켓 URL 생성 (도메인은 실제 서비스 도메인으로 변경)
-            String domain = "https://your-byd-domain.com";
+            String domain = "https://your-byd-domain.com"; // 실제 도메인으로 변경 필수
             String ticketUrl = domain + "/apply/ticket?token=" + encryptedSeq;
 
-            // 4. SMS 전송
             eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            // 에러 로깅 처리 (문자 발송 실패해도 신청 완료 페이지로는 넘어가야 함)
+            log.error("알림 발송 실패 (신청은 완료됨): ", e);
         }
 
-        return "redirect:/apply/complete"; // 리다이렉트로 변경
+        return "redirect:/apply/complete";
     }
 
     // 3. 완료 페이지 매핑 추가
@@ -118,19 +133,18 @@ public class EventController {
                 return "error/404"; // 없는 정보일 경우 에러페이지
             }
 
-            // 3. 관리자 태블릿에서 스캔 시 호출할 Check-in URL 세팅 (QR코드에 들어갈 내용)
-            String domain = "https://your-byd-domain.com"; // 실제 도메인으로 변경 필수
-            String qrContentUrl = domain + "/mng/api/checkArrival?qrToken=" + data.getQrCodeUrl();
-
-            // 구글 차트 API를 이용한 QR 이미지 URL 생성
-            String qrCodeImgUrl = "https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=" + qrContentUrl;
+            // QR 인식률을 높이고 스캐너 로직과 맞추기 위해 전체 URL이 아닌 순수 토큰값만 삽입
+            String qrCodeImgUrl = "https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=" + data.getQrCodeUrl();
 
             model.addAttribute("data", data);
             model.addAttribute("qrCodeImgUrl", qrCodeImgUrl);
 
+        } catch (NumberFormatException e) {
+            log.error("티켓 접근 오류 - 변조된 토큰(숫자 변환 실패): {}", token);
+            return "error/400";
         } catch (Exception e) {
-            log.error("모바일 티켓 접근 오류: ", e);
-            return "error/400"; // 비정상적인 토큰 접근 시
+            log.error("티켓 접근 오류 - 잘못된 토큰: ", e);
+            return "error/400";
         }
 
         return "apply/mypage";
