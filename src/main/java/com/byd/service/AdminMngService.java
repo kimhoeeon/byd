@@ -1,10 +1,7 @@
 package com.byd.service;
 
 import com.byd.mapper.AdminMngMapper;
-import com.byd.vo.AdminVO;
-import com.byd.vo.DailyStatsVO;
-import com.byd.vo.ParticipantVO;
-import com.byd.vo.StatsVO;
+import com.byd.vo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +32,20 @@ public class AdminMngService {
 
     public void updateArrivalStatus(int seq) {
         adminMngMapper.updateArrivalStatus(seq);
+    }
+
+    public void cancelArrivalStatus(int seq) {
+        adminMngMapper.cancelArrivalStatus(seq);
+    }
+
+    // [추가] 관리자 목록 조회
+    public List<ParticipantVO> getList(Criteria cri) {
+        return adminMngMapper.getList(cri);
+    }
+
+    // [추가] 관리자 목록 전체 개수 (페이징용)
+    public int getTotalCount(Criteria cri) {
+        return adminMngMapper.getTotalCount(cri);
     }
 
     public StatsVO getDashboardSummary() {

@@ -42,7 +42,7 @@ public class EventService {
             // 알리고 SMS 전송 API 엔드포인트
             String apiUrl = "https://apis.aligo.in/send/";
 
-            String message = "[BYD 시승 이벤트]\n" +
+            String message = "[BYD 시승 신청]\n" +
                     name + "님, 시승 신청이 완료되었습니다.\n" +
                     "현장 데스크에서 아래 링크의 모바일 티켓(QR)을 보여주세요.\n\n" +
                     "▶ 모바일 티켓 보기:\n" + ticketUrl;

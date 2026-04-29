@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -35,40 +36,41 @@
                                 <th>도착 상태</th>
                             </tr>
                             </thead>
-                            <tbody class="text-gray-600 fw-semibold">
-                            <c:forEach items="${list}" var="item">
-                                <tr>
-                                    <td>${item.seq}</td>
-                                    <td><a href="/mng/participant/detail?seq=${item.seq}"
-                                           class="text-gray-800 text-hover-primary fw-bold">${item.name}</a></td>
-                                    <td>${item.phone}</td>
-                                    <td>
-                                        <div class="d-flex flex-column">
-                                            <span>${empty item.shopInfo ? '-' : item.shopInfo}</span>
-                                            <span class="text-muted fs-8">${empty item.carModel ? '-' : item.carModel}</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge badge-light-primary fs-6">${item.testDriveTime}</span></td>
-                                    <td><fmt:parseDate value="${item.regDate}" pattern="yyyy-MM-dd'T'HH:mm:ss"
-                                                       var="pDate"/><fmt:formatDate pattern="MM-dd HH:mm"
-                                                                                    value="${pDate}"/></td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${empty item.qrScanTime}">
-                                                <button type="button" class="btn btn-sm btn-primary check-arrival-btn"
-                                                        data-seq="${item.seq}">도착 확인
-                                                </button>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <fmt:parseDate value="${item.qrScanTime}"
-                                                               pattern="yyyy-MM-dd'T'HH:mm:ss" var="qDate"/>
-                                                <span class="badge badge-success"><fmt:formatDate pattern="MM-dd HH:mm"
-                                                                                                  value="${qDate}"/> 완료</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                </tr>
-                            </c:forEach>
+                            <tbody>
+                            <c:choose>
+                                <c:when test="${empty list}">
+                                    <tr>
+                                        <td colspan="7" style="text-align:center;">신청 내역이 없습니다.</td>
+                                    </tr>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach items="${list}" var="item">
+                                        <tr>
+                                            <td>${item.seq}</td>
+                                            <td><a href="/mng/participant/detail?seq=${item.seq}">${item.name}</a></td>
+                                            <td>${item.phone}</td>
+                                            <td>${item.carModel}</td>
+                                            <td>${item.testDriveTime}</td>
+                                            <td><fmt:formatDate value="${item.regDate}" pattern="yyyy-MM-dd HH:mm"/></td>
+
+                                            <!-- [중요] 방문 상태 출력 분기 -->
+                                            <td style="text-align:center;">
+                                                <c:choose>
+                                                    <c:when test="${empty item.qrScanTime}">
+                                                        <span style="color:#999; font-weight:bold;">미방문</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span style="color:#009ef7; font-weight:bold;">방문 완료</span><br>
+                                                        <span style="font-size:12px; color:#555;">
+                                                    (<fmt:formatDate value="${item.qrScanTime}" pattern="MM/dd HH:mm"/>)
+                                                </span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
                             </tbody>
                         </table>
                     </div>

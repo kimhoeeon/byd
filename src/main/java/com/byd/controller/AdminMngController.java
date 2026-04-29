@@ -1,8 +1,10 @@
 package com.byd.controller;
 
+import com.byd.dto.PageDTO;
 import com.byd.dto.ResponseDTO;
 import com.byd.service.AdminMngService;
 import com.byd.vo.AdminVO;
+import com.byd.vo.Criteria;
 import com.byd.vo.ParticipantVO;
 import com.byd.vo.StatsVO;
 import lombok.RequiredArgsConstructor;
@@ -62,18 +64,28 @@ public class AdminMngController {
 
     // 통합 목록 뷰
     @GetMapping("/participant/list")
-    public String participantList(HttpSession session, Model model) {
-        if (session.getAttribute("adminInfo") == null) return "redirect:/mng/login";
-        List<ParticipantVO> list = adminMngService.getAllParticipantList();
+    public String participantList(Criteria cri, Model model) {
+        // 데이터 목록 조회
+        List<ParticipantVO> list = adminMngService.getList(cri);
+        // 전체 게시물 수 조회
+        int total = adminMngService.getTotalCount(cri);
+
         model.addAttribute("list", list);
+        model.addAttribute("pageMaker", new PageDTO(cri, total)); // 페이징 객체 전달
+
         return "mng/participant/list";
     }
 
     // 통합 상세 뷰
+    // 상세 화면
     @GetMapping("/participant/detail")
-    public String participantDetail(@RequestParam("seq") int seq, HttpSession session, Model model) {
-        if (session.getAttribute("adminInfo") == null) return "redirect:/mng/login";
+    public String participantDetail(@RequestParam("seq") int seq, @ModelAttribute("cri") Criteria cri, Model model) {
         ParticipantVO data = adminMngService.getParticipantBySeq(seq);
+        if (data == null) {
+            // 존재하지 않는 데이터 처리
+            return "redirect:/mng/participant/list";
+        }
+
         model.addAttribute("data", data);
         return "mng/participant/detail";
     }
@@ -119,6 +131,24 @@ public class AdminMngController {
             e.printStackTrace();
         }
 
+        return response;
+    }
+
+    // 수동 도착 확인/취소 토글 API
+    @PostMapping("/api/manualArrival")
+    @ResponseBody
+    public ResponseDTO manualArrival(@RequestParam("seq") int seq, @RequestParam("status") boolean status) {
+        ResponseDTO response = new ResponseDTO();
+        try {
+            if (status) {
+                adminMngService.updateArrivalStatus(seq); // 토글 ON (도착)
+            } else {
+                adminMngService.cancelArrivalStatus(seq); // 토글 OFF (취소)
+            }
+            response.setSuccess(true);
+        } catch (Exception e) {
+            response.setSuccess(false);
+        }
         return response;
     }
 

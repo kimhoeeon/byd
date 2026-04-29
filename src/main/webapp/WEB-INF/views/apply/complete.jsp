@@ -38,7 +38,7 @@
 
 <body class="success">
 
-    <!-- [추가] 상단 헤더 (로고) 영역 -->
+    <!-- 다른 페이지와 동일한 공통 헤더 영역 -->
     <header id="header">
         <div class="inner">
             <a href="/apply/step1" class="logo">
@@ -47,24 +47,23 @@
         </div>
     </header>
 
-    <!-- [추가] 헤더가 고정되어 있으므로, 본문이 가려지지 않게 헤더 높이(60px)만큼 패딩 추가 -->
+    <!-- 헤더 높이(60px)만큼 패딩을 주어 본문 겹침 방지 -->
     <div id="container" style="padding-top: 60px;">
-        <!-- 상하 여백 공통 클래스 -->
-        <div class="padding_tb">
-            <!-- 좌우 여백 공통 클래스 -->
+
+        <!-- step1, step2와 동일한 info_box 래퍼 사용 -->
+        <div class="info_box padding_tb" style="color: #fff;">
             <div class="inner" style="text-align: center;">
 
                 <!-- 상단 타이틀 영역 -->
                 <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
-                <!-- style.css의 .bd_tit 클래스 적용 (기본 폰트/사이즈/자간) -->
                 <div class="bd_tit" style="color: #bb0a0a;">
                     신청 완료
                 </div>
 
                 <!-- 텍스트 영역 (style.css의 .bd_txt_w 적용) -->
-                <div class="bd_txt_w">
+                <div class="bd_txt_w" style="margin-top: 20px;">
                     <div class="big">시승 신청이 성공적으로 접수되었습니다.</div>
-                    <p style="color: #CBCBCA; line-height: 1.6;">
+                    <p style="color: #CBCBCA; line-height: 1.6; margin-top: 15px;">
                         입력하신 연락처로 <span style="color: #fff; font-weight: bold;">모바일 티켓(QR) 링크</span>가 발송되었습니다.<br><br>
                         현장 데스크에 방문하셔서<br>
                         문자로 받으신 모바일 티켓을 보여주시면<br>
@@ -72,9 +71,8 @@
                     </p>
                 </div>
 
-                <!-- 안내사항 영역 (style.css의 .nt_box 및 내부 txt p 태그의 '-' 불릿 스타일 적용) -->
-                <div class="nt_box"
-                     style="text-align: left; background-color: #202020; padding: 25px 20px; border-radius: 10px; margin-top: 40px; margin-bottom: 40px;">
+                <!-- 안내사항 영역 (style.css의 .success .nt_box 스타일 완벽 적용) -->
+                <div class="nt_box" style="text-align: left; background-color: #202020; padding: 25px 20px; border-radius: 10px;">
                     <div class="txt">
                         <p>문자를 받지 못하셨다면 스팸 메일함을 확인해 주세요.</p>
                         <p>행사 당일 원활한 진행을 위해 예약 시간을 준수해 주시기 바랍니다.</p>
@@ -82,13 +80,13 @@
                 </div>
 
                 <!-- 하단 버튼 영역 -->
-                <div class="btn_box">
-                    <!-- style.css의 .btn_st01 (붉은색 꽉 차는 버튼) 적용 -->
+                <div class="btn_box" style="margin-top: 40px;">
                     <a href="/apply/step1" class="btn_st01">처음으로 돌아가기</a>
                 </div>
 
             </div>
         </div>
+
     </div>
 
 </body>

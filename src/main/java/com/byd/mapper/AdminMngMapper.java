@@ -24,4 +24,6 @@ public interface AdminMngMapper {
 
     void updateArrivalStatus(int seq);
 
+    void cancelArrivalStatus(int seq);
+
 }

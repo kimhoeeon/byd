@@ -4,22 +4,24 @@ import lombok.Data;
 
 @Data
 public class Criteria {
-    private int pageNum;  // 현재 페이지
-    private int amount;   // 한 페이지당 보여줄 개수
-
-    private String type;  // 검색 조건 (E:이메일, N:닉네임 - 관리자용은 통합 검색이라 사용 안 할 수도 있음)
-    private String keyword; // 검색어
-    private String category;
-    private String status;  // 필터 (ACTIVE, SUSPENDED, WITHDRAWN)
-
-    private String isPopular;
+    private int pageNum;      // 현재 페이지 번호
+    private int amount;       // 페이지당 출력 데이터 수
+    private String searchType;// 검색 조건 (name, phone)
+    private String keyword;   // 검색어
+    private String arrivalStatus; // 방문 상태 필터 (Y/N) - 필요 시 확장용
 
     public Criteria() {
-        this(1, 10);
+        this.pageNum = 1;
+        this.amount = 10;
     }
 
     public Criteria(int pageNum, int amount) {
         this.pageNum = pageNum;
         this.amount = amount;
+    }
+
+    // MyBatis 쿼리에서 #{pageStart}로 호출하여 사용
+    public int getPageStart() {
+        return (this.pageNum - 1) * this.amount;
     }
 }
