@@ -61,17 +61,17 @@
                         <ul class="form_box">
                             <li>
                                 <div class="gubun">이름</div>
-                                <div class="input"><input type="text" name="name" placeholder="입력해 주세요." required></div>
+                                <div class="input"><input type="text" id="name" name="name" placeholder="입력해 주세요." required></div>
                             </li>
                             <li>
                                 <div class="gubun">연락처</div>
                                 <div class="input">
-                                    <input type="text" name="phone" placeholder="입력해 주세요." class="onlyTel" required>
+                                    <input type="text" id="phone" name="phone" placeholder="입력해 주세요. (숫자만)" class="onlyTel" required>
                                 </div>
                             </li>
                         </ul>
                         <div class="btn_box">
-                            <button type="submit" class="btn_st01">NEXT</button>
+                            <button type="button" class="btn_st01" onclick="submitStep1();">NEXT</button>
                         </div>
                     </form>
                 </div>
@@ -90,6 +90,33 @@
     <script src="/js/jquery.cookie.min.js"></script>
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
+    <script>
+        function submitStep1() {
+            var name = document.getElementById("name").val().trim();
+            var phone = document.getElementById("phone").val().trim();
 
+            if (name === "") {
+                alert("이름을 입력해 주세요.");
+                document.getElementById("name").focus();
+                return false;
+            }
+
+            if (phone === "") {
+                alert("연락처를 입력해 주세요.");
+                document.getElementById("phone").focus();
+                return false;
+            }
+
+            // 연락처 숫자만 입력되었는지 간단한 정규식 체크 (선택 사항)
+            var phoneRegex = /^[0-9]{10,11}$/;
+            if (!phoneRegex.test(phone.replace(/-/g, ''))) {
+                alert("올바른 연락처 형식이 아닙니다.");
+                document.getElementById("phone").focus();
+                return false;
+            }
+
+            document.getElementById("applyForm").submit();
+        }
+    </script>
 </body>
 </html>

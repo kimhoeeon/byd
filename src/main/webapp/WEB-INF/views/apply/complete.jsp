@@ -6,11 +6,12 @@
 <!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="format-detection" content="telephone=no,email=no,address=no" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="format-detection" content="telephone=no,email=no,address=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
@@ -25,7 +26,7 @@
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="manifest" href="/site.webmanifest" />--%>
 
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
 
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
@@ -33,58 +34,62 @@
 
     <title>BYD</title>
 
-    <style>
-        /* 완료 페이지 전용 인라인 스타일 (필요시 style.css로 이동) */
-        .complete-wrap { text-align: center; color: #fff; padding: 40px 20px; }
-        .complete-wrap h2 { font-size: 26px; font-weight: bold; margin-bottom: 10px; }
-        .complete-wrap .desc { font-size: 16px; margin-bottom: 30px; opacity: 0.9; }
-        .qr-box { background: #fff; padding: 20px; display: inline-block; border-radius: 15px; margin-bottom: 20px; }
-        .qr-box img { display: block; width: 200px; height: 200px; }
-        .valid-time { font-size: 14px; color: #aaa; margin-bottom: 40px; line-height: 1.5; }
-        .valid-time span { display: block; color: #fff; font-weight: 500; margin-top: 5px; }
-    </style>
 </head>
 
-<body>
+<body class="success">
 
-    <!-- container -->
-    <div id="container">
-        <div class="ck-in">
-            <div class="top_tit padding_tb">
-                <div class="inner">
-                    <div class="tit"><img src="/img/logo.png" alt="logo"></div>
+    <!-- [추가] 상단 헤더 (로고) 영역 -->
+    <header id="header">
+        <div class="inner">
+            <a href="/apply/step1" class="logo">
+                <img src="/img/logo.svg" alt="BYD">
+            </a>
+        </div>
+    </header>
+
+    <!-- [추가] 헤더가 고정되어 있으므로, 본문이 가려지지 않게 헤더 높이(60px)만큼 패딩 추가 -->
+    <div id="container" style="padding-top: 60px;">
+        <!-- 상하 여백 공통 클래스 -->
+        <div class="padding_tb">
+            <!-- 좌우 여백 공통 클래스 -->
+            <div class="inner" style="text-align: center;">
+
+                <!-- 상단 타이틀 영역 -->
+                <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
+                <!-- style.css의 .bd_tit 클래스 적용 (기본 폰트/사이즈/자간) -->
+                <div class="bd_tit" style="color: #bb0a0a;">
+                    신청 완료
                 </div>
-            </div>
 
-            <div class="info_box complete-wrap">
-                <div class="inner">
-                    <h2>등록이 완료되었습니다</h2>
-                    <c:choose>
-                        <c:when test="${entryType eq 'DRIVE'}">
-                            <p class="desc">시승 신청 내역이 문자로 발송되었습니다.</p>
-                        </c:when>
-                        <c:otherwise>
-                            <p class="desc">아래 QR 코드를 현장 데스크에 보여주세요.</p>
+                <!-- 텍스트 영역 (style.css의 .bd_txt_w 적용) -->
+                <div class="bd_txt_w">
+                    <div class="big">시승 신청이 성공적으로 접수되었습니다.</div>
+                    <p style="color: #CBCBCA; line-height: 1.6;">
+                        입력하신 연락처로 <span style="color: #fff; font-weight: bold;">모바일 티켓(QR) 링크</span>가 발송되었습니다.<br><br>
+                        현장 데스크에 방문하셔서<br>
+                        문자로 받으신 모바일 티켓을 보여주시면<br>
+                        빠르게 시승 안내를 도와드리겠습니다.
+                    </p>
+                </div>
 
-                            <div class="qr-box">
-                                <img src="${qrCodeUrl}" alt="QR Code">
-                            </div>
-
-                            <div class="valid-time">
-                                QR 코드 유효기간
-                                <span>${validTime}</span>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-
-                    <div class="btn_box">
-                        <a href="/event/main" class="btn_st01">HOME</a>
+                <!-- 안내사항 영역 (style.css의 .nt_box 및 내부 txt p 태그의 '-' 불릿 스타일 적용) -->
+                <div class="nt_box"
+                     style="text-align: left; background-color: #202020; padding: 25px 20px; border-radius: 10px; margin-top: 40px; margin-bottom: 40px;">
+                    <div class="txt">
+                        <p>문자를 받지 못하셨다면 스팸 메일함을 확인해 주세요.</p>
+                        <p>행사 당일 원활한 진행을 위해 예약 시간을 준수해 주시기 바랍니다.</p>
                     </div>
                 </div>
+
+                <!-- 하단 버튼 영역 -->
+                <div class="btn_box">
+                    <!-- style.css의 .btn_st01 (붉은색 꽉 차는 버튼) 적용 -->
+                    <a href="/apply/step1" class="btn_st01">처음으로 돌아가기</a>
+                </div>
+
             </div>
         </div>
     </div>
-    <!-- //container -->
 
 </body>
 </html>

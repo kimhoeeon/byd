@@ -56,7 +56,7 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
-                    <form action="/apply/applyProcess" method="post" id="applyForm">
+                    <form action="/apply/applyProcess" method="post" id="applyForm2">
 
                         <ul class="form_box">
                             <li>
@@ -129,7 +129,7 @@
                             <p>시승 안전 안내 및 유의사항을 충분히 숙지하였으며, <br />이에 동의합니다.</p>
                         </div>
                         <div class="btn_box">
-                            <button type="submit" class="btn_st01">SUBMIT</button>
+                            <button type="submit" class="btn_st01">시승 신청 완료하기</button>
                         </div>
                     </form>
                 </div>
