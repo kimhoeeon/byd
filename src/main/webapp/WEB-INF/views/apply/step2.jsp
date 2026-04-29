@@ -51,7 +51,7 @@
     <div id="container">
 
         <!-- check-in -->
-        <div class="ck-in">
+        <div class="ck-in center">
 
             <!-- title -->
             <div class="top_tit padding_tb">

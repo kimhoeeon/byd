@@ -41,7 +41,7 @@
     <div id="container">
     
         <!-- check-in -->
-        <div class="ck-in">
+        <div class="ck-in center">
 
             <!-- title -->
             <div class="top_tit padding_tb">
@@ -92,8 +92,8 @@
     <script src="/js/script.js"></script>
     <script>
         function submitStep1() {
-            var name = document.getElementById("name").val().trim();
-            var phone = document.getElementById("phone").val().trim();
+            var name = document.getElementById("name").value.trim();
+            var phone = document.getElementById("phone").value.trim();
 
             if (name === "") {
                 alert("이름을 입력해 주세요.");

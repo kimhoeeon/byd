@@ -111,8 +111,7 @@ label:last-child {margin-right: 0;}
 .swiper-button-prev {color: #181818;}
 .swiper-button-next:after, .swiper-button-prev:after {font-size: 18px;}
 
-.top_tit {color: #fff; text-align: center; background: url(../img/background01.png) no-repeat bottom center/cover;}
-.top_tit .tit {font-weight: 700;}
+.top_tit .tit {font-weight: 700; text-align: center;}
 .top_tit .tit .big {font-size: 2.9rem; line-height: 3.5rem;}
 .top_tit .tit .small {font-size: 2rem; line-height: 2.6rem;}
 .top_tit .tit .small .th {font-size: 1.4rem; display: inline-block; vertical-align: top;}
@@ -131,7 +130,7 @@ label:last-child {margin-right: 0;}
 .bd_txt_b .eng.viewEng {margin-top: 30px; display: none;}
 
 .form_box li {margin-top: 20px; color: #fff;}
-.form_box .gubun {margin-bottom: 10px; font-size: 1.6rem; line-height: 2.2rem;}
+.form_box .gubun {margin-bottom: 5px; font-size: 1.6rem; line-height: 2.2rem;}
 .form_box .input input[type="text"],
 .form_box .input input[type="tel"],
 .form_box .input select {width: 100%;}
@@ -184,10 +183,10 @@ label:last-child {margin-right: 0;}
 #container {max-width: 1000px; margin: 0 auto 0; }
 
 .ck-in {background: #252728;}
-.ck-in .top_tit {padding-top: 70px;padding-bottom: 30px;}
+.ck-in .top_tit {padding-top: 50px;padding-bottom: 10px;}
 .ck-in .info_box {color: #fff;}
 .ck-in .info_box .tit {font-size: 2rem; font-weight: 700; text-align: center;}
-.ck-in .info_box .btn_box {margin-top: 40px;}
+.ck-in .info_box .btn_box {margin-top: 25px;}
 .ck-in .info_box textarea {width: 100%;}
 .ck-in .info_box .tel{display: flex; gap: 10px;}
 .ck-in .info_box .tel .phone-cert{background: #fff; border: 0;padding: 0 15px;}
@@ -222,7 +221,6 @@ label:last-child {margin-right: 0;}
 
 .course_off {background: #000;}
 .course_off .off_txt .eng {margin-top: 20px;}
-.course_off .off_img {text-align: center; background: url(../img/background01.png) no-repeat bottom center/cover;}
 .course_off .off_img img {width: 270px;}
 .course_off .btn_box {display: flex; justify-content: center;}
 
@@ -267,7 +265,7 @@ label:last-child {margin-right: 0;}
 
 .terms-check {margin-top: 20px;}
 .terms-check input{margin-left: 0;}
-.terms-check p{margin-top: 5px; font-size: 14px; color: #CBCBCA;line-height: 18px;}
+.terms-check p{margin-top: 5px; font-size: 13px; color: #CBCBCA;line-height: 18px;}
 
 .qr_box{margin-top: 100px; text-align: center;}
 .qr_code{margin-top: 50px;}
@@ -278,3 +276,5 @@ label:last-child {margin-right: 0;}
 .timer_wrap .inner{margin: 0 auto; height: 90vh; display: flex; gap: 100px; flex-direction: column; align-items: center;justify-content: center;}
 .timer_wrap .inner .timer{color: #bb0a0a; font-size: 20vw;}
 .timer_wrap .inner img{position: absolute; bottom: 80px}
+
+.btn_st01{width: 100%; background: #bb0a0a; border: none; cursor: pointer;}
