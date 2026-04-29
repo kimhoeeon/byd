@@ -38,6 +38,3 @@ out/
 
 # 설정 파일 제외
 application.properties
-
-# Firebase Secret Key
-*firebase-adminsdk*.json

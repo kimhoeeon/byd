@@ -71,12 +71,12 @@
                         <ul class="form_box">
                             <li>
                                 <div class="gubun">주소</div>
-                                <div class="input"><input type="text" name="address" placeholder="입력해 주세요."></div>
+                                <div class="input"><input type="text" name="address" placeholder="입력해 주세요." required></div>
                             </li>
                             <li>
                                 <div class="gubun">전시장 정보</div>
                                 <div class="input select-group">
-                                    <select id="regionSelect" onchange="updateShops()">
+                                    <select id="regionSelect" onchange="updateShops()" required>
                                         <option value="">지역 선택</option>
                                         <option value="서울">서울</option>
                                         <option value="경기">경기</option>
@@ -84,11 +84,11 @@
                                         <option value="강원">강원</option>
                                         <option value="충청/대전">충청/대전</option>
                                         <option value="전라/광주">전라/광주</option>
-                                        <option value="경상/대구/부산">경상/대구/부산/창원</option>
+                                        <option value="경상/대구/부산/창원">경상/대구/부산/창원</option>
                                         <option value="제주">제주</option>
                                     </select>
 
-                                    <select name="shopInfo" id="shopSelect">
+                                    <select name="shopInfo" id="shopSelect" required>
                                         <option value="">전시장 선택</option>
                                         <!-- 지역 선택 시 여기에 옵션이 동적으로 생성됩니다. -->
                                     </select>
@@ -97,7 +97,7 @@
                             <li>
                                 <div class="gubun">관심차량 정보</div>
                                 <div class="input">
-                                    <select name="carModel">
+                                    <select name="carModel" required>
                                         <option value="">선택해 주세요.</option>
                                         <option value="BYD DOLPHIN">BYD DOLPHIN</option>
                                         <option value="BYD ATTO 3">BYD ATTO 3</option>
@@ -109,7 +109,7 @@
                             <li>
                                 <div class="gubun">시승 시간 선택</div>
                                 <div class="input">
-                                    <select name="testDriveTime">
+                                    <select name="testDriveTime" required>
                                         <option value="">선택해 주세요.</option>
                                         <option value="10:00">10:00</option>
                                         <option value="11:00">11:00</option>
@@ -203,7 +203,7 @@
                 "BYD 광주",
                 "BYD 전주"
             ],
-            "경상/대구/부산": [
+            "경상/대구/부산/창원": [
                 "BYD 대구",
                 "BYD 부산 동래",
                 "BYD 수영",
@@ -237,12 +237,38 @@
 
         // 폼 제출 시 유효성 검사
         function validateForm() {
+            const regionSelect = document.getElementById("regionSelect");
             const shopSelect = document.getElementById("shopSelect");
+            const carModel = document.querySelector("select[name='carModel']");
+            const testDriveTime = document.querySelector("select[name='testDriveTime']");
+            const address = document.querySelector("input[name='address']");
+
+            if(address.value.trim() === "") {
+                alert("주소를 입력해 주세요.");
+                address.focus();
+                return false;
+            }
+            if(regionSelect.value === "") {
+                alert("지역을 선택해 주세요.");
+                regionSelect.focus();
+                return false;
+            }
             if(shopSelect.value === "") {
                 alert("전시장 정보를 선택해 주세요.");
                 shopSelect.focus();
                 return false;
             }
+            if(carModel.value === "") {
+                alert("관심차량 정보를 선택해 주세요.");
+                carModel.focus();
+                return false;
+            }
+            if(testDriveTime.value === "") {
+                alert("시승 시간을 선택해 주세요.");
+                testDriveTime.focus();
+                return false;
+            }
+
             return true;
         }
     </script>
