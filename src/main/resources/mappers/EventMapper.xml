@@ -12,9 +12,9 @@
 
     <insert id="insertParticipant" parameterType="com.byd.vo.ParticipantVO" useGeneratedKeys="true" keyProperty="seq">
         INSERT INTO event_participant (
-            entry_type, name, phone, address, shop_info, car_model, test_drive_time, mkt_agree, safety_agree, reg_date
+            entry_type, name, phone, address, shop_info, car_model, test_drive_time, mkt_agree, safety_agree, qr_code_url, reg_date
         ) VALUES (
-                     #{entryType}, #{name}, #{phone}, #{address}, #{shopInfo}, #{carModel}, #{testDriveTime}, #{mktAgree}, #{safetyAgree}, NOW()
+                     #{entryType}, #{name}, #{phone}, #{address}, #{shopInfo}, #{carModel}, #{testDriveTime}, #{mktAgree}, #{safetyAgree}, #{qrCodeUrl}, NOW()
                  )
     </insert>
 

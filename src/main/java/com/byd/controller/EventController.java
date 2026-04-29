@@ -4,6 +4,7 @@ import com.byd.service.EventService;
 import com.byd.util.AES128;
 import com.byd.vo.ParticipantVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+@Slf4j
 @Controller
 @RequestMapping("/apply")
 @RequiredArgsConstructor
@@ -117,8 +119,8 @@ public class EventController {
             }
 
             // 3. 관리자 태블릿에서 스캔 시 호출할 Check-in URL 세팅 (QR코드에 들어갈 내용)
-            String domain = "https://your-byd-domain.com";
-            String qrContentUrl = domain + "/mng/api/checkArrival?seq=" + seq;
+            String domain = "https://your-byd-domain.com"; // 실제 도메인으로 변경 필수
+            String qrContentUrl = domain + "/mng/api/checkArrival?qrToken=" + data.getQrCodeUrl();
 
             // 구글 차트 API를 이용한 QR 이미지 URL 생성
             String qrCodeImgUrl = "https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=" + qrContentUrl;
@@ -127,11 +129,10 @@ public class EventController {
             model.addAttribute("qrCodeImgUrl", qrCodeImgUrl);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("모바일 티켓 접근 오류: ", e);
             return "error/400"; // 비정상적인 토큰 접근 시
         }
 
-        // 기존 mypage.jsp를 티켓 화면으로 재활용
         return "apply/mypage";
     }
 }

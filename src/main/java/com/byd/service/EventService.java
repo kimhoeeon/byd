@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,10 @@ public class EventService {
     }
 
     public void insertParticipant(ParticipantVO participantVO) {
+        // QR 코드 보안을 위해 난수(UUID) 토큰 생성 후 저장
+        String qrToken = UUID.randomUUID().toString().replace("-", "");
+        participantVO.setQrCodeUrl(qrToken);
+
         eventMapper.insertParticipant(participantVO);
     }
 

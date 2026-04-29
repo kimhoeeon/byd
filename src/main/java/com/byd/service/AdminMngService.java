@@ -26,6 +26,10 @@ public class AdminMngService {
         return adminMngMapper.getParticipantBySeq(seq);
     }
 
+    public ParticipantVO getParticipantByQrCodeUrl(String qrCodeUrl) {
+        return adminMngMapper.getParticipantByQrCodeUrl(qrCodeUrl);
+    }
+
     public void updateArrivalStatus(int seq) {
         adminMngMapper.updateArrivalStatus(seq);
     }

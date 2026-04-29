@@ -99,20 +99,19 @@ public class AdminMngController {
     // 현장 스태프 도착 확인 API
     @PostMapping("/api/checkArrival")
     @ResponseBody
-    public ResponseDTO checkArrival(@RequestParam("seq") int seq) {
+    public ResponseDTO checkArrival(@RequestParam("qrToken") String qrToken) {
         ResponseDTO response = new ResponseDTO();
 
         try {
-            ParticipantVO participant = adminMngService.getParticipantBySeq(seq);
+            ParticipantVO participant = adminMngService.getParticipantByQrCodeUrl(qrToken);
 
             // 1. 존재하지 않는 회원인 경우
             if (participant == null) {
                 response.setSuccess(false);
-                response.setMessage("존재하지 않는 예약 정보입니다.");
+                response.setMessage("유효하지 않은 QR 코드입니다.");
                 return response;
             }
 
-            // 2. 이미 QR 스캔(출석)을 한 경우 (qr_scan_time 컬럼이 null이 아님)
             if (participant.getQrScanTime() != null) {
                 response.setSuccess(false);
                 response.setMessage("이미 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
@@ -120,7 +119,7 @@ public class AdminMngController {
             }
 
             // 3. 정상 출석 처리 (qr_scan_time 업데이트)
-            adminMngService.updateArrivalStatus(seq);
+            adminMngService.updateArrivalStatus(participant.getSeq());
 
             // 4. 성공 응답 (스태프가 화면에서 확인할 수 있도록 차량/시간 정보 함께 전송)
             response.setSuccess(true);

@@ -8,7 +8,7 @@
             AND name LIKE CONCAT('%', #{keyword}, '%')
         </if>
         <if test="searchType == 'phone' and keyword != null and keyword != ''">
-            AND phone LIKE CONCAT('%', #{keyword}, '%')
+            AND phone = #{keyword}
         </if>
         <if test="arrivalStatus == 'Y'">
             AND qr_scan_time IS NOT NULL
@@ -43,6 +43,10 @@
 
     <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
         SELECT * FROM event_participant WHERE seq = #{seq}
+    </select>
+
+    <select id="getParticipantByQrCodeUrl" parameterType="string" resultType="com.byd.vo.ParticipantVO">
+        SELECT * FROM event_participant WHERE qr_code_url = #{qrCodeUrl}
     </select>
 
     <update id="updateArrivalStatus" parameterType="int">

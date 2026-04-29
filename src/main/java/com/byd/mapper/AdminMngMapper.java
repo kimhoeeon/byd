@@ -19,6 +19,9 @@ public interface AdminMngMapper {
     // 상세 조회
     ParticipantVO getParticipantBySeq(int seq);
 
+    // QR 토큰으로 조회
+    ParticipantVO getParticipantByQrCodeUrl(String qrCodeUrl);
+
     // 대시보드 통계
     StatsVO getDashboardSummary();
 
