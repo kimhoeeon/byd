@@ -59,7 +59,7 @@
 
                     <h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">모바일 시승 티켓</h2>
 
-                    <!-- [추가] QR 코드 영역 -->
+                    <!-- QR 코드 영역 -->
                     <div style="text-align: center; background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
                         <p style="color: #333; font-weight: bold; margin-bottom: 10px;">현장 데스크에 아래 QR 코드를 제시해 주세요.</p>
                         <img src="${qrCodeImgUrl}" alt="QR Code" style="width: 200px; height: 200px;"/>

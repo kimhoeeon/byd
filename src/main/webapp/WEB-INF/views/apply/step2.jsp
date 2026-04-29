@@ -33,6 +33,16 @@
 
     <title>BYD</title>
 
+    <style>
+        /* 셀렉트 박스 나란히 배치를 위한 CSS */
+        .select-group {
+            display: flex;
+            gap: 10px;
+        }
+        .select-group select {
+            flex: 1; /* 동일한 너비로 50%씩 차지 */
+        }
+    </style>
 </head>
 
 <body>
@@ -65,12 +75,22 @@
                             </li>
                             <li>
                                 <div class="gubun">전시장 정보</div>
-                                <div class="input">
-                                    <select name="shopInfo">
-                                        <option value="">선택해 주세요.</option>
-                                        <option value="서울 강남 전시장">서울 강남 전시장</option>
-                                        <option value="성남 분당 전시장">성남 분당 전시장</option>
-                                        <option value="인천 송도 전시장">인천 송도 전시장</option>
+                                <div class="input select-group">
+                                    <select id="regionSelect" onchange="updateShops()">
+                                        <option value="">지역 선택</option>
+                                        <option value="서울">서울</option>
+                                        <option value="경기">경기</option>
+                                        <option value="인천">인천</option>
+                                        <option value="강원">강원</option>
+                                        <option value="충청/대전">충청/대전</option>
+                                        <option value="전라/광주">전라/광주</option>
+                                        <option value="경상/대구/부산">경상/대구/부산/창원</option>
+                                        <option value="제주">제주</option>
+                                    </select>
+
+                                    <select name="shopInfo" id="shopSelect">
+                                        <option value="">전시장 선택</option>
+                                        <!-- 지역 선택 시 여기에 옵션이 동적으로 생성됩니다. -->
                                     </select>
                                 </div>
                             </li>
@@ -79,24 +99,10 @@
                                 <div class="input">
                                     <select name="carModel">
                                         <option value="">선택해 주세요.</option>
-                                        <option value="BYD Seal">BYD Seal</option>
-                                        <option value="BYD Han">BYD Han</option>
-                                        <option value="BYD Qin Plus">BYD Qin Plus</option>
-                                        <option value="BYD Destroyer 05">BYD Destroyer 05</option>
-                                        <option value="BYD Atto 3">BYD Atto 3</option>
-                                        <option value="BYD Song Plus">BYD Song Plus</option>
-                                        <option value="BYD Tang">BYD Tang</option>
-                                        <option value="BYD Yuan Plus">BYD Yuan Plus</option>
-                                        <option value="BYD Sea Lion 07">BYD Sea Lion 07</option>
-                                        <option value="BYD Denza D9">BYD Denza D9</option>
-                                        <option value="BYD Xia">BYD Xia</option>
-                                        <option value="BYD Shark">BYD Shark</option>
-                                        <option value="BYD Fangchengbao Bao 5">BYD Fangchengbao Bao 5</option>
-                                        <option value="D9">D9</option>
-                                        <option value="N7">N7</option>
-                                        <option value="Z9 GT">Z9 GT</option>
-                                        <option value="Yangwang U8">Yangwang U8</option>
-                                        <option value="Yangwang U9">Yangwang U9</option>
+                                        <option value="BYD DOLPHIN">BYD DOLPHIN</option>
+                                        <option value="BYD ATTO 3">BYD ATTO 3</option>
+                                        <option value="BYD SEAL">BYD SEAL</option>
+                                        <option value="BYD SEALION 7">BYD SEALION 7</option>
                                     </select>
                                 </div>
                             </li>
@@ -105,9 +111,16 @@
                                 <div class="input">
                                     <select name="testDriveTime">
                                         <option value="">선택해 주세요.</option>
-                                        <option value="09:00">09:00</option>
                                         <option value="10:00">10:00</option>
                                         <option value="11:00">11:00</option>
+                                        <option value="12:00">12:00</option>
+                                        <option value="13:00">13:00</option>
+                                        <option value="14:00">14:00</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="16:00">16:00</option>
+                                        <option value="17:00">17:00</option>
+                                        <option value="18:00">18:00</option>
+                                        <option value="19:00">19:00</option>
                                     </select>
                                 </div>
                             </li>
@@ -149,5 +162,89 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
 
+    <script>
+        const shopData = {
+            "서울": [
+                "BYD 강동",
+                "BYD 강서",
+                "BYD 마포",
+                "BYD 목동",
+                "BYD 서초",
+                "BYD 송파",
+                "BYD 용산"
+            ],
+            "경기": [
+                "BYD 김포",
+                "BYD 동탄",
+                "BYD 부천",
+                "BYD 분당",
+                "BYD 수원",
+                "BYD 스타필드 안성",
+                "BYD 스타필드 운정",
+                "BYD 스타필드 일산",
+                "BYD 스타필드 하남",
+                "BYD 안양",
+                "BYD 의정부",
+                "BYD 일산"
+            ],
+            "인천": [
+                "BYD 서해구",
+                "BYD 송도"
+            ],
+            "강원": [
+                "BYD 원주"
+            ],
+            "충청/대전": [
+                "BYD 대전",
+                "BYD 천안",
+                "BYD 청주"
+            ],
+            "전라/광주": [
+                "BYD 광주",
+                "BYD 전주"
+            ],
+            "경상/대구/부산": [
+                "BYD 대구",
+                "BYD 부산 동래",
+                "BYD 수영",
+                "BYD 스타필드 명지",
+                "BYD 창원",
+                "BYD 포항"
+            ],
+            "제주": [
+                "BYD 제주"
+            ]
+        };
+
+        function updateShops() {
+            const regionSelect = document.getElementById("regionSelect");
+            const shopSelect = document.getElementById("shopSelect");
+            const selectedRegion = regionSelect.value;
+
+            // 전시장 셀렉트 박스 초기화
+            shopSelect.innerHTML = '<option value="">전시장 선택</option>';
+
+            if (selectedRegion && shopData[selectedRegion]) {
+                const shops = shopData[selectedRegion];
+                shops.forEach(function(shop) {
+                    const option = document.createElement("option");
+                    option.value = shop;
+                    option.text = shop;
+                    shopSelect.appendChild(option);
+                });
+            }
+        }
+
+        // 폼 제출 시 유효성 검사
+        function validateForm() {
+            const shopSelect = document.getElementById("shopSelect");
+            if(shopSelect.value === "") {
+                alert("전시장 정보를 선택해 주세요.");
+                shopSelect.focus();
+                return false;
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>
