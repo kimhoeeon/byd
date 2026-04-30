@@ -199,26 +199,29 @@ public class AdminMngController {
                 }
             }
 
+            // 요청하신 순서와 명칭에 맞추어 맵핑을 수정/추가합니다.
             row.put("문의일자", regDateStr);
-            row.put("전시장 코드", getShopCode(vo.getShopInfo()));
-            row.put("전시장명", vo.getShopInfo());
+            row.put("전시장코드", getShopCode(vo.getShopInfo()));
+            row.put("전시장명", vo.getShopInfo() != null ? vo.getShopInfo() : "");
 
-            row.put("유입경로 코드", "4040");
+            row.put("유입경로코드", "4040");
             row.put("유입경로명", "오프라인");
 
             row.put("고객명", vo.getName());
             row.put("연락처", vo.getPhone());
 
-            row.put("관심모델그룹 코드", getCarModelCode(vo.getCarModel()));
-            row.put("관심모델명", vo.getCarModel());
+            row.put("관심모델그룹코드", getCarModelCode(vo.getCarModel()));
+            row.put("관심모델그룹코드명", vo.getCarModel() != null ? vo.getCarModel() : ""); // 명칭 수정
 
-            row.put("시승타임 선택", vo.getTestDriveTime());
-            row.put("개인정보 동의여부", "Y");
-            row.put("마케팅 동의여부", vo.getMktAgree() != null ? vo.getMktAgree() : "N");
+            row.put("시승시간", vo.getTestDriveTime() != null ? vo.getTestDriveTime() : "");
+            row.put("개인정보동의여부", "Y");
+            row.put("마케팅동의여부", vo.getMktAgree() != null ? vo.getMktAgree() : "N");
 
-            // 챌린지 및 시승 참여 여부를 분리된 컬럼으로 출력
-            row.put("챌린지 참여", vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N");
-            row.put("시승 참여", vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N");
+            row.put("챌린지참여", vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N");
+            row.put("시승참여", vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N");
+
+            // 주소 항목 신규 추가
+            row.put("주소", vo.getAddress() != null ? vo.getAddress() : "");
 
             excelData.add(row);
         }

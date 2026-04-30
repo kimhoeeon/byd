@@ -36,6 +36,10 @@
     <style>
         .select-group { display: flex; gap: 10px; }
         .select-group select { flex: 1; }
+
+        /* 주소찾기 버튼 전용 스타일 */
+        .btn-search-addr { background: #343a40; color: #fff; border: none; padding: 0 15px; border-radius: 4px; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; }
+        .btn-search-addr:hover { background: #23272b; }
     </style>
 
 </head>
@@ -87,7 +91,14 @@
                             </li>
                             <li>
                                 <div class="gubun">주소</div>
-                                <div class="input"><input type="text" name="address" value="${data.address}" placeholder="입력해 주세요." required></div>
+                                <div class="input">
+                                    <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                                        <input type="text" id="baseAddress" value="${data.address}" placeholder="주소찾기를 진행해 주세요." readonly style="background-color:#f5f5f5; flex: 1;">
+                                        <button type="button" class="btn-search-addr" onclick="execDaumPostcode()">주소 찾기</button>
+                                    </div>
+                                    <input type="text" id="detailAddress" placeholder="새로 주소를 검색할 경우 상세 주소를 입력해 주세요.">
+                                    <input type="hidden" name="address" id="fullAddress" value="${data.address}">
+                                </div>
                             </li>
                             <li>
                                 <div class="gubun">전시장 정보</div>
@@ -179,6 +190,10 @@
     <script src="/js/jquery.cookie.min.js"></script>
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
+
+    <!-- Daum 우편번호 API -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
     <script>
         const shopData = {
             "서울": [ "BYD 강동", "BYD 강서", "BYD 마포", "BYD 목동", "BYD 서초", "BYD 송파", "BYD 용산" ],
@@ -231,6 +246,25 @@
                 }
             });
         });
+
+        // Daum 주소 찾기 실행 함수
+        function execDaumPostcode() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    var addr = '';
+
+                    if (data.userSelectedType === 'R') {
+                        addr = data.roadAddress;
+                    } else {
+                        addr = data.jibunAddress;
+                    }
+
+                    document.getElementById("baseAddress").value = addr;
+                    document.getElementById("detailAddress").value = "";
+                    document.getElementById("detailAddress").focus();
+                }
+            }).open();
+        }
 
         // 저장된 지점명으로 지역을 찾아 Select Box를 세팅하는 함수
         function initRegionAndShop() {
@@ -287,13 +321,28 @@
             const regionSelect = document.getElementById("regionSelect");
             const shopSelect = document.getElementById("shopSelect");
             const carModel = document.querySelector("select[name='carModel']");
-            const address = document.querySelector("input[name='address']");
+            const baseAddress = document.getElementById("baseAddress").value.trim();
+            const detailAddress = document.getElementById("detailAddress").value.trim();
 
-            if(address.value.trim() === "") {
-                alert("주소를 입력해 주세요.");
-                address.focus();
+            if(baseAddress === "") {
+                alert("주소 찾기를 진행해 주세요.");
                 return false;
             }
+
+            // 기존 주소에서 새롭게 주소를 검색(변경)한 경우 상세주소를 필수 입력받음
+            if(baseAddress !== originalAddress && detailAddress === "") {
+                alert("상세 주소를 입력해 주세요.");
+                document.getElementById("detailAddress").focus();
+                return false;
+            }
+
+            // 변경된 상세주소가 있으면 합치고, 없으면 기본 baseAddress(또는 기존 주소)만 전송
+            if(detailAddress !== "") {
+                document.getElementById("fullAddress").value = baseAddress + " " + detailAddress;
+            } else {
+                document.getElementById("fullAddress").value = baseAddress;
+            }
+
             if(regionSelect.value === "") {
                 alert("지역을 선택해 주세요.");
                 regionSelect.focus();
