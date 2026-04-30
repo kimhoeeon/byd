@@ -9,6 +9,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -72,7 +73,7 @@ public class EventController {
 
     // 최종 제출 처리
     @PostMapping("/applyProcess")
-    public String applyProcess(ParticipantVO participantVO, HttpSession session, HttpServletRequest request) {
+    public String applyProcess(ParticipantVO participantVO, HttpSession session, HttpServletRequest request, RedirectAttributes rttr) {
         ParticipantVO step1Info = (ParticipantVO) session.getAttribute("tempInfo");
         if (step1Info == null) {
             log.warn("세션 만료 또는 1단계 정보 누락으로 인한 비정상 접근");
@@ -84,8 +85,12 @@ public class EventController {
 
         try {
             eventService.insertParticipant(participantVO);
+        } catch (IllegalStateException e) {
+            // [추가] 백엔드 시간대 마감 검증에서 걸러진 경우
+            log.warn("시승 시간 마감: {}", e.getMessage());
+            rttr.addFlashAttribute("errorMsg", "선택하신 시간대는 인원이 마감되었습니다. 다른 시간을 선택해 주세요.");
+            return "redirect:/apply/step2";
         } catch (DuplicateKeyException e) {
-            // [방어 로직 수정] 1단계 검증과 동일하게 '오늘' 중복 신청 여부 기준으로 조회
             log.warn("중복 시승 신청 감지 (DB Unique Key 방어): {}", participantVO.getPhone());
             ParticipantVO existing = eventService.getParticipantByPhoneToday(participantVO.getPhone());
             if (existing != null) {
@@ -119,6 +124,39 @@ public class EventController {
         }
 
         return "redirect:/apply/complete";
+    }
+
+    // 마이페이지 정보 수정 프로세스
+    @PostMapping("/updateProcess")
+    public String updateProcess(ParticipantVO participantVO, RedirectAttributes rttr) {
+        try {
+            // 시간 변경 시 마감 여부 재검증
+            if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
+                ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
+                if(existing != null && !existing.getTestDriveTime().equals(participantVO.getTestDriveTime())) {
+                    int count = eventService.getDriveTimeCount(participantVO.getTestDriveTime());
+                    if(count >= 4) {
+                        rttr.addFlashAttribute("errorMsg", "선택하신 시간대는 이미 마감되었습니다.");
+
+                        // 다시 마이페이지 티켓 화면으로 되돌리기 위해 토큰 재발행
+                        AES128 aes128 = new AES128(SECRET_KEY);
+                        String token = aes128.encrypt(String.valueOf(participantVO.getSeq()));
+                        return "redirect:/apply/ticket?token=" + token;
+                    }
+                }
+            }
+
+            eventService.updateParticipant(participantVO);
+
+            AES128 aes128 = new AES128(SECRET_KEY);
+            String token = aes128.encrypt(String.valueOf(participantVO.getSeq()));
+            rttr.addFlashAttribute("successMsg", "정보 수정이 완료되었습니다.");
+            return "redirect:/apply/ticket?token=" + token;
+
+        } catch (Exception e) {
+            log.error("정보 수정 중 오류 발생: ", e);
+            return "error/400";
+        }
     }
 
     // 3. 완료 페이지 매핑 추가

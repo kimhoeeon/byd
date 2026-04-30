@@ -33,4 +33,22 @@
                  )
     </insert>
 
+    <select id="getDriveTimeCount" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM event_participant
+        WHERE DATE(reg_date) = CURDATE()
+          AND test_drive_time = #{testDriveTime}
+    </select>
+
+    <update id="updateParticipant" parameterType="com.byd.vo.ParticipantVO">
+        UPDATE event_participant
+        SET address = #{address},
+            shop_info = #{shopInfo},
+            car_model = #{carModel},
+            test_drive_time = #{testDriveTime},
+            mkt_agree = #{mktAgree},
+            safety_agree = #{safetyAgree}
+        WHERE seq = #{seq}
+    </update>
+
 </mapper>

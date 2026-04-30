@@ -39,16 +39,38 @@ public class EventService {
         return resultMap;
     }
 
+    public int getDriveTimeCount(String testDriveTime) {
+        return eventMapper.getDriveTimeCount(testDriveTime);
+    }
+
     public void insertParticipant(ParticipantVO participantVO) {
+
+        // [추가] 백엔드 단위 4명 정원 검증 로직
+        if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
+            int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime());
+            if(currentCount >= 4) {
+                throw new IllegalStateException("해당 시간대는 이미 마감되었습니다.");
+            }
+        }
+
         // QR 코드 보안을 위해 난수(UUID) 토큰 생성 후 저장
         String qrToken = UUID.randomUUID().toString().replace("-", "");
         participantVO.setQrCodeUrl(qrToken);
+
+        // [추가] 유입경로 기본값 세팅
+        if(participantVO.getEntryType() == null || participantVO.getEntryType().isEmpty()){
+            participantVO.setEntryType("오프라인코드 4040");
+        }
 
         eventMapper.insertParticipant(participantVO);
     }
 
     public ParticipantVO getParticipantBySeq(int seq) {
         return eventMapper.getParticipantBySeq(seq);
+    }
+
+    public void updateParticipant(ParticipantVO participantVO) {
+        eventMapper.updateParticipant(participantVO);
     }
 
     // Aligo API SMS 발송 로직
