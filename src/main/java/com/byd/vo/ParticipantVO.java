@@ -15,6 +15,7 @@ public class ParticipantVO {
     private String mktAgree;       // 마케팅 동의 (Y/N)
     private String safetyAgree;    // 시승 안전 동의 (Y/N)
     private String qrCodeUrl;      // QR 코드 URL
-    private String qrScanTime;     // QR 스캔(현장 확인) 일시
+    private String challengeCheckYn; // 챌린지 행사 도착 여부 (Y/N)
+    private String driveCheckYn;     // 시승 행사 도착 여부 (Y/N)
     private String regDate;        // 등록 일시
 }

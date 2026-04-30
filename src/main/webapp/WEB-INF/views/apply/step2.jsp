@@ -34,14 +34,10 @@
     <title>BYD</title>
 
     <style>
-        /* 셀렉트 박스 나란히 배치를 위한 CSS */
-        .select-group {
-            display: flex;
-            gap: 10px;
-        }
-        .select-group select {
-            flex: 1; /* 동일한 너비로 50%씩 차지 */
-        }
+        .select-group { display: flex; gap: 10px; }
+        .select-group select { flex: 1; }
+        /* 시승 안전 동의 숨김 처리를 위한 클래스 */
+        .hidden { display: none !important; }
     </style>
 </head>
 
@@ -109,8 +105,8 @@
                             <li>
                                 <div class="gubun">시승 시간 선택</div>
                                 <div class="input">
-                                    <select name="testDriveTime" required>
-                                        <option value="">선택해 주세요.</option>
+                                    <select name="testDriveTime" id="testDriveTime" onchange="toggleSafetyAgree()" required>
+                                        <option value="시승 미신청" selected>시승 미신청</option>
                                         <option value="10:00">10:00</option>
                                         <option value="11:00">11:00</option>
                                         <option value="12:00">12:00</option>
@@ -133,9 +129,9 @@
                             </label>
                             <p>선택하신 정보는 마케팅 정보 제공을 위해 활용되며, <br />동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
                         </div>
-                        <div class="terms-check">
+                        <div class="terms-check hidden" id="safetyAgreeDiv">
                             <label>
-                                <input type="checkbox" name="safetyAgree" value="Y" required>
+                                <input type="checkbox" name="safetyAgree" id="safetyAgreeCheckbox" value="Y">
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">시승 안전 동의</span>
                             </label>
@@ -164,83 +160,78 @@
 
     <script>
         const shopData = {
-            "서울": [
-                "BYD 강동",
-                "BYD 강서",
-                "BYD 마포",
-                "BYD 목동",
-                "BYD 서초",
-                "BYD 송파",
-                "BYD 용산"
-            ],
-            "경기": [
-                "BYD 김포",
-                "BYD 동탄",
-                "BYD 부천",
-                "BYD 분당",
-                "BYD 수원",
-                "BYD 스타필드 안성",
-                "BYD 스타필드 운정",
-                "BYD 스타필드 일산",
-                "BYD 스타필드 하남",
-                "BYD 안양",
-                "BYD 의정부",
-                "BYD 일산"
-            ],
-            "인천": [
-                "BYD 서해구",
-                "BYD 송도"
-            ],
-            "강원": [
-                "BYD 원주"
-            ],
-            "충청/대전": [
-                "BYD 대전",
-                "BYD 천안",
-                "BYD 청주"
-            ],
-            "전라/광주": [
-                "BYD 광주",
-                "BYD 전주"
-            ],
-            "경상/대구/부산/창원": [
-                "BYD 대구",
-                "BYD 부산 동래",
-                "BYD 수영",
-                "BYD 스타필드 명지",
-                "BYD 창원",
-                "BYD 포항"
-            ],
-            "제주": [
-                "BYD 제주"
-            ]
+            "서울": [ "BYD 강동", "BYD 강서", "BYD 마포", "BYD 목동", "BYD 서초", "BYD 송파", "BYD 용산" ],
+            "경기": [ "BYD 김포", "BYD 동탄", "BYD 부천", "BYD 분당", "BYD 수원", "BYD 스타필드 안성", "BYD 스타필드 운정", "BYD 스타필드 일산", "BYD 스타필드 하남", "BYD 안양", "BYD 의정부", "BYD 일산" ],
+            "인천": [ "BYD 서해구", "BYD 송도" ],
+            "강원": [ "BYD 원주" ],
+            "충청/대전": [ "BYD 대전", "BYD 천안", "BYD 청주" ],
+            "전라/광주": [ "BYD 광주", "BYD 전주" ],
+            "경상/대구/부산/창원": [ "BYD 대구", "BYD 부산 동래", "BYD 수영", "BYD 스타필드 명지", "BYD 창원", "BYD 포항" ],
+            "제주": [ "BYD 제주" ]
         };
 
+        $(document).ready(function() {
+            // 페이지 로드 시 예약 현황 체크
+            checkDriveTimeAvailability();
+        });
+
+        // 전시장 업데이트
         function updateShops() {
             const regionSelect = document.getElementById("regionSelect");
             const shopSelect = document.getElementById("shopSelect");
             const selectedRegion = regionSelect.value;
-
-            // 전시장 셀렉트 박스 초기화
             shopSelect.innerHTML = '<option value="">전시장 선택</option>';
-
             if (selectedRegion && shopData[selectedRegion]) {
-                const shops = shopData[selectedRegion];
-                shops.forEach(function(shop) {
+                shopData[selectedRegion].forEach(function(shop) {
                     const option = document.createElement("option");
-                    option.value = shop;
-                    option.text = shop;
+                    option.value = shop; option.text = shop;
                     shopSelect.appendChild(option);
                 });
             }
         }
 
+        // 시승 시간 선택에 따른 안전동의 영역 제어
+        function toggleSafetyAgree() {
+            const timeSelect = document.getElementById("testDriveTime").value;
+            const safetyDiv = document.getElementById("safetyAgreeDiv");
+            const safetyCheckbox = document.getElementById("safetyAgreeCheckbox");
+
+            if (timeSelect === "시승 미신청") {
+                safetyDiv.classList.add("hidden");
+                safetyCheckbox.required = false;
+                safetyCheckbox.checked = false; // 체크 해제
+            } else {
+                safetyDiv.classList.remove("hidden");
+                safetyCheckbox.required = true;
+            }
+        }
+
+        // Ajax로 시간대별 예약자 4명 마감 여부 확인
+        function checkDriveTimeAvailability() {
+            $.ajax({
+                url: "/apply/getDriveTimeStatus",
+                type: "GET",
+                success: function(response) {
+                    // response 예시: { "10:00": 4, "11:00": 2, ... }
+                    $('#testDriveTime option').each(function() {
+                        var timeVal = $(this).val();
+                        if(timeVal !== "시승 미신청" && response[timeVal] >= 4) {
+                            $(this).prop('disabled', true);
+                            $(this).text(timeVal + ' (마감)');
+                        }
+                    });
+                },
+                error: function(err) {
+                    console.log("시간대 조회 실패");
+                }
+            });
+        }
+        
         // 폼 제출 시 유효성 검사
         function validateForm() {
             const regionSelect = document.getElementById("regionSelect");
             const shopSelect = document.getElementById("shopSelect");
             const carModel = document.querySelector("select[name='carModel']");
-            const testDriveTime = document.querySelector("select[name='testDriveTime']");
             const address = document.querySelector("input[name='address']");
 
             if(address.value.trim() === "") {
@@ -263,9 +254,14 @@
                 carModel.focus();
                 return false;
             }
-            if(testDriveTime.value === "") {
-                alert("시승 시간을 선택해 주세요.");
-                testDriveTime.focus();
+
+            const timeSelect = document.getElementById("testDriveTime").value;
+            const safetyCheckbox = document.getElementById("safetyAgreeCheckbox");
+
+            // 시승 시간을 선택했는데 안전 동의를 체크하지 않은 경우
+            if (timeSelect !== "시승 미신청" && !safetyCheckbox.checked) {
+                alert("시승 안전 동의 항목에 체크해 주세요.");
+                safetyCheckbox.focus();
                 return false;
             }
 

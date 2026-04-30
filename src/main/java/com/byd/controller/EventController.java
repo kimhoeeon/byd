@@ -8,13 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -36,7 +34,7 @@ public class EventController {
     // 1페이지 제출 시 기존 정보 확인 및 분기 처리
     @PostMapping("/checkParticipant")
     public String checkParticipant(@RequestParam String name, @RequestParam String phone, HttpSession session, Model model) {
-        ParticipantVO existing = eventService.getParticipantByPhone(phone);
+        ParticipantVO existing = eventService.getParticipantByPhoneToday(phone);
 
         if (existing != null) {
             try {
@@ -48,12 +46,21 @@ public class EventController {
                 return "error/400";
             }
         } else {
+            // 오늘 내역이 없으면(어제 신청했더라도) 신규 신청으로 간주
             ParticipantVO newInfo = new ParticipantVO();
             newInfo.setName(name);
             newInfo.setPhone(phone);
             session.setAttribute("tempInfo", newInfo);
             return "redirect:/apply/step2";
         }
+    }
+
+    // [추가됨] 시승 시간대별 마감 현황 조회 (Ajax용 API)
+    @ResponseBody
+    @GetMapping("/getDriveTimeStatus")
+    public Map<String, Integer> getDriveTimeStatus() {
+        // "오늘" 신청된 시간대별 카운트를 DB에서 조회하여 Map으로 반환
+        return eventService.getDriveTimeCountToday();
     }
 
     // 시승 신청 2페이지 (상세 정보 입력)

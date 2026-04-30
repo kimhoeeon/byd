@@ -11,9 +11,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +21,22 @@ public class EventService {
 
     public ParticipantVO getParticipantByPhone(String phone){
         return eventMapper.getParticipantByPhone(phone);
+    }
+
+    public ParticipantVO getParticipantByPhoneToday(String phone){
+        return eventMapper.getParticipantByPhoneToday(phone);
+    }
+
+    public Map<String, Integer> getDriveTimeCountToday() {
+        List<Map<String, Object>> countList = eventMapper.getDriveTimeCountToday();
+        Map<String, Integer> resultMap = new HashMap<>();
+
+        for(Map<String, Object> map : countList) {
+            String time = (String) map.get("testDriveTime");
+            Number cnt = (Number) map.get("cnt");
+            resultMap.put(time, cnt.intValue());
+        }
+        return resultMap;
     }
 
     public void insertParticipant(ParticipantVO participantVO) {
