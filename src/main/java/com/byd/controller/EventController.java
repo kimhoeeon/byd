@@ -55,7 +55,7 @@ public class EventController {
         }
     }
 
-    // [추가됨] 시승 시간대별 마감 현황 조회 (Ajax용 API)
+    // 시승 시간대별 마감 현황 조회 (Ajax용 API)
     @ResponseBody
     @GetMapping("/getDriveTimeStatus")
     public Map<String, Integer> getDriveTimeStatus() {
@@ -74,17 +74,20 @@ public class EventController {
     @PostMapping("/applyProcess")
     public String applyProcess(ParticipantVO participantVO, HttpSession session, HttpServletRequest request) {
         ParticipantVO step1Info = (ParticipantVO) session.getAttribute("tempInfo");
-        if (step1Info != null) {
-            participantVO.setName(step1Info.getName());
-            participantVO.setPhone(step1Info.getPhone());
+        if (step1Info == null) {
+            log.warn("세션 만료 또는 1단계 정보 누락으로 인한 비정상 접근");
+            return "redirect:/apply/step1";
         }
+
+        participantVO.setName(step1Info.getName());
+        participantVO.setPhone(step1Info.getPhone());
 
         try {
             eventService.insertParticipant(participantVO);
         } catch (DuplicateKeyException e) {
-            // [방어 로직] DB의 UNIQUE KEY 제약조건에 의해 중복 삽입이 막힌 경우 (ex: 뒤로가기 후 재제출)
+            // [방어 로직 수정] 1단계 검증과 동일하게 '오늘' 중복 신청 여부 기준으로 조회
             log.warn("중복 시승 신청 감지 (DB Unique Key 방어): {}", participantVO.getPhone());
-            ParticipantVO existing = eventService.getParticipantByPhone(participantVO.getPhone());
+            ParticipantVO existing = eventService.getParticipantByPhoneToday(participantVO.getPhone());
             if (existing != null) {
                 try {
                     AES128 aes128 = new AES128(SECRET_KEY);

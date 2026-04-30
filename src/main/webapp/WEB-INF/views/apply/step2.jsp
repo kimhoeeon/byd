@@ -62,7 +62,7 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
-                    <form action="/apply/applyProcess" method="post" id="applyForm2">
+                    <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="return validateForm();">
 
                         <ul class="form_box">
                             <li>
