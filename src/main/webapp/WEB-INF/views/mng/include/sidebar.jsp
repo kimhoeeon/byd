@@ -1,5 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
+<!-- 현재 접속 중인 URL을 추출하여 currentUrl 변수에 저장 -->
+<c:set var="currentUrl" value="${requestScope['javax.servlet.forward.servlet_path']}" />
+<c:if test="${empty currentUrl}">
+    <c:set var="currentUrl" value="${pageContext.request.requestURI}" />
+</c:if>
 
 <div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
 
@@ -21,7 +28,8 @@
             <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold px-3" id="#kt_app_sidebar_menu" data-kt-menu="true">
 
                 <div class="menu-item">
-                    <a class="menu-link ${requestScope['javax.servlet.forward.servlet_path'] eq '/WEB-INF/views/mng/main.jsp' ? 'active' : ''}" href="/mng/main">
+                    <!-- /mng/main 경로와 일치할 때 active 클래스 부여 -->
+                    <a class="menu-link ${currentUrl eq '/mng/main' ? 'active' : ''}" href="/mng/main">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-element-11 fs-2">
                                 <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
@@ -38,8 +46,8 @@
                 </div>
 
                 <div class="menu-item">
-                    <a class="menu-link ${requestScope['javax.servlet.forward.servlet_path'] eq '/WEB-INF/views/mng/participant/list.jsp' ? 'active' : ''}" href="/mng/participant/list">
-                       href="/mng/participant/list">
+                    <!-- /mng/participant 가 포함된 경로(목록, 상세페이지 모두)에서 active 클래스 부여 -->
+                    <a class="menu-link ${fn:contains(currentUrl, '/mng/participant') ? 'active' : ''}" href="/mng/participant/list">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-address-book fs-2">
                                 <span class="path1"></span>

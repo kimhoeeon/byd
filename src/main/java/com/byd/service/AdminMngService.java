@@ -55,17 +55,17 @@ public class AdminMngService {
     }
 
     public Map<String, Object> getChartData() {
+        Map<String, Object> chartMap = new HashMap<>();
+
+        // 1. 기존 7일 추이
         List<String> labels = new ArrayList<>();
         List<Integer> data = new ArrayList<>();
-
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
-
         for (int i = 6; i >= 0; i--) {
             labels.add(today.minusDays(i).format(formatter));
             data.add(0);
         }
-
         List<DailyStatsVO> dbStats = adminMngMapper.getDailyStats();
         for (DailyStatsVO stat : dbStats) {
             int index = labels.indexOf(stat.getRegDateStr());
@@ -73,10 +73,26 @@ public class AdminMngService {
                 data.set(index, stat.getCnt());
             }
         }
+        chartMap.put("dailyLabels", labels);
+        chartMap.put("dailyData", data);
 
-        Map<String, Object> chartMap = new HashMap<>();
-        chartMap.put("labels", labels);
-        chartMap.put("data", data);
+        // 2. 신규 대시보드 통계 추가
+        chartMap.put("carStats", adminMngMapper.getCarModelStats());
+        chartMap.put("timeStats", adminMngMapper.getTimeStats());
+        chartMap.put("shopStats", adminMngMapper.getShopStats());
+
+        // Null 방어 처리
+        Map<String, Object> att = adminMngMapper.getAttendanceStats();
+        if (att == null) {
+            att = new HashMap<>();
+            att.put("challengeCnt", 0);
+            att.put("driveCnt", 0);
+        } else {
+            att.put("challengeCnt", att.get("challengeCnt") != null ? att.get("challengeCnt") : 0);
+            att.put("driveCnt", att.get("driveCnt") != null ? att.get("driveCnt") : 0);
+        }
+        chartMap.put("attStats", att);
+
         return chartMap;
     }
 }

@@ -88,4 +88,34 @@
         GROUP BY DATE_FORMAT(reg_date, '%m.%d')
     </select>
 
+    <select id="getCarModelStats" resultType="java.util.LinkedHashMap">
+        SELECT IFNULL(NULLIF(car_model, ''), '미지정') AS label, COUNT(*) AS cnt
+        FROM event_participant
+        GROUP BY car_model
+        ORDER BY cnt DESC
+    </select>
+
+    <select id="getTimeStats" resultType="java.util.LinkedHashMap">
+        SELECT IFNULL(NULLIF(test_drive_time, ''), '미지정') AS label, COUNT(*) AS cnt
+        FROM event_participant
+        WHERE test_drive_time != '시승 미신청' AND test_drive_time IS NOT NULL AND test_drive_time != ''
+        GROUP BY test_drive_time
+        ORDER BY test_drive_time ASC
+    </select>
+
+    <select id="getShopStats" resultType="java.util.LinkedHashMap">
+        SELECT IFNULL(NULLIF(shop_info, ''), '미지정') AS label, COUNT(*) AS cnt
+        FROM event_participant
+        GROUP BY shop_info
+        ORDER BY cnt DESC
+        LIMIT 10
+    </select>
+
+    <select id="getAttendanceStats" resultType="java.util.LinkedHashMap">
+        SELECT
+            SUM(CASE WHEN challenge_check_yn = 'Y' THEN 1 ELSE 0 END) AS challengeCnt,
+            SUM(CASE WHEN drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS driveCnt
+        FROM event_participant
+    </select>
+
 </mapper>

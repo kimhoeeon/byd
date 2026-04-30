@@ -4,16 +4,12 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="format-detection" content="telephone=no,email=no,address=no" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="robots" content="noindex, nofollow">
 
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="/favicon.ico"/>
+    <link rel="shortcut icon" href="/favicon.ico"/>
 
     <title>관리자 로그인 | BYD</title>
 
@@ -21,71 +17,107 @@
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
 
     <style>
-        body { background: #0f1014; }
+        /* 어두운 테마 배경 적용 */
+        body {
+            background-color: #151521;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        /* 로그인 카드 UI (화이트 로고가 잘 보이도록 다크톤 유지) */
         .login-card {
-            background: rgba(30, 32, 44, 0.8);
-            backdrop-filter: blur(10px);
+            background-color: #1e1e2d;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 450px;
+            padding: 50px 40px;
         }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-area img {
+            height: 45px;
+        }
+
+        .system-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        /* 입력창 디자인 (다크 테마용) */
         .form-control {
-            background: rgba(255, 255, 255, 0.05) !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: #fff !important;
+            color: #ffffff !important;
+            padding: 12px 15px;
         }
-        .form-control:focus { border-color: #009ef7 !important; }
-        .btn-primary { background-color: #009ef7 !important; }
-        .text-gray-dark { color: #a1a5b7; }
+
+        .form-control:focus {
+            border-color: #009ef7 !important;
+            background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .btn-primary {
+            background-color: #009ef7 !important;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #008be0 !important;
+        }
     </style>
 </head>
 
-<body id="kt_body" class="app-blank">
+<body id="kt_body">
 
-    <div class="d-flex flex-column flex-root" id="kt_app_root">
-        <div class="d-flex flex-column flex-column-fluid flex-lg-row">
-            <div class="d-flex flex-center w-lg-50 pt-15 pt-lg-0 px-10">
-                <div class="d-flex flex-center flex-lg-start flex-column">
-                    <a href="#" class="mb-7"><img alt="Logo" src="/img/logo.svg" class="h-60px" /></a>
-                    <h2 class="text-white fw-normal m-0">BYD 하이록스 홍보 부스 통합 관리 시스템</h2>
-                </div>
-            </div>
-            <div class="d-flex flex-column-fluid flex-lg-row-auto justify-content-center p-12">
-                <div class="bg-body d-flex flex-column flex-center rounded-4 w-md-600px p-10 login-card">
-                    <div class="d-flex flex-center flex-column align-items-stretch w-md-400px">
-                        <div class="text-center mb-11">
-                            <h1 class="text-white fw-bolder mb-3 font-interstate">ADMIN LOGIN</h1>
-                            <div class="text-gray-dark fw-semibold fs-6">관리자 계정으로 로그인하세요.</div>
-                        </div>
-
-                        <c:if test="${not empty errorMessage}">
-                            <div class="alert alert-dismissible bg-light-danger d-flex flex-column flex-sm-row p-5 mb-10">
-                                <div class="d-flex flex-column pe-0 pe-sm-10">
-                                    <span class="text-danger fw-bold">${errorMessage}</span>
-                                </div>
-                            </div>
-                        </c:if>
-
-                        <form class="form w-100" action="/mng/loginProcess" method="post">
-                            <div class="fv-row mb-8">
-                                <input type="text" placeholder="ID" name="adminId" autocomplete="off" class="form-control bg-transparent" required />
-                            </div>
-                            <div class="fv-row mb-10">
-                                <input type="password" placeholder="Password" name="adminPw" autocomplete="off" class="form-control bg-transparent" required />
-                            </div>
-                            <div class="d-grid mb-10">
-                                <button type="submit" class="btn btn-primary">
-                                    <span class="indicator-label fw-bold fs-5">로그인</span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="login-card">
+    <div class="logo-area">
+        <!-- 하얀색 로고 파일 경로 (확장자 주의) -->
+        <img alt="Logo" src="/img/logo.png"/>
     </div>
 
-    <script src="/assets/plugins/global/plugins.bundle.js"></script>
-    <script src="/assets/js/scripts.bundle.js"></script>
+    <div class="system-title">
+        BYD 이벤트 통합 관리 시스템
+    </div>
+
+    <c:if test="${not empty errorMessage}">
+        <div class="alert alert-danger d-flex align-items-center p-3 mb-5"
+             style="background-color: rgba(241, 65, 108, 0.1); border: 1px solid rgba(241, 65, 108, 0.3); color: #f1416c;">
+            <span class="fw-bold" style="font-size: 13px;">${errorMessage}</span>
+        </div>
+    </c:if>
+
+    <form action="/mng/loginProcess" method="post">
+        <div class="mb-5">
+            <input type="text" placeholder="아이디를 입력하세요" name="adminId" autocomplete="off" class="form-control"
+                   required/>
+        </div>
+        <div class="mb-10">
+            <input type="password" placeholder="비밀번호를 입력하세요" name="adminPw" autocomplete="off" class="form-control"
+                   required/>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary fw-bold">로그인</button>
+        </div>
+    </form>
+</div>
+
+<script src="/assets/plugins/global/plugins.bundle.js"></script>
+<script src="/assets/js/scripts.bundle.js"></script>
 </body>
 </html>

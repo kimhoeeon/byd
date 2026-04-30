@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface AdminMngMapper {
@@ -37,4 +38,11 @@ public interface AdminMngMapper {
     // 출석 상태 취소 (토글 OFF)
     void cancelArrivalStatus(@Param("seq") int seq, @Param("columnName") String columnName);
 
+    List<Map<String, Object>> getCarModelStats();
+
+    List<Map<String, Object>> getTimeStats();
+
+    List<Map<String, Object>> getShopStats();
+
+    Map<String, Object> getAttendanceStats();
 }

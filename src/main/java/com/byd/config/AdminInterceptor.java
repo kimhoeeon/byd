@@ -17,9 +17,11 @@ public class AdminInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestURI = request.getRequestURI();
 
-        // 1. 로그인 페이지 및 리소스는 검사 제외
-        // (Context Path 문제를 막기 위해 contains 사용 + /error 페이지 무한루프 제외)
-        if (requestURI.contains("/mng/index") || requestURI.contains("/mng/login")
+        // 1. 로그인 페이지 및 정적 리소스는 검사 제외
+        // (WebMvcConfig에서도 제외하지만 이중 안전장치)
+        if (requestURI.equals("/mng") || requestURI.equals("/mng/")
+                || requestURI.contains("/mng/index") || requestURI.contains("/mng/login") || requestURI.contains("loginProcess")
+                || requestURI.contains("/mng/scanner") || requestURI.contains("/mng/inquiry") || requestURI.contains("/mng/api/")
                 || requestURI.contains("/assets/") || requestURI.contains("/css/")
                 || requestURI.contains("/js/") || requestURI.contains("/img/")
                 || requestURI.equals("/error")) {
@@ -29,8 +31,8 @@ public class AdminInterceptor implements HandlerInterceptor {
         // 2. 세션 체크 (로그인 여부 확인)
         HttpSession session = request.getSession(false);
 
-        // AdminController에서 session.setAttribute("admin", admin); 로 저장된 실제 객체 확인
-        if (session == null || session.getAttribute("admin") == null) {
+        // 수정: AdminMngController에서 저장한 실제 객체명인 "adminInfo"로 검증
+        if (session == null || session.getAttribute("adminInfo") == null) {
 
             // 문자열만 살아남은 '반쪽짜리 세션'이 무한루프를 만들지 않도록 세션을 완전히 파괴!
             if (session != null) {
@@ -56,7 +58,8 @@ public class AdminInterceptor implements HandlerInterceptor {
 
             out.println("<script>");
             out.println("alert('로그인이 필요한 서비스입니다.');");
-            out.println("location.href='" + request.getContextPath() + "/mng/index.do';");
+            // 수정: 존재하지 않는 index.do 대신 정상적인 루트 경로로 이동
+            out.println("location.href='" + request.getContextPath() + "/mng/index';");
             out.println("</script>");
 
             out.flush();
@@ -68,7 +71,7 @@ public class AdminInterceptor implements HandlerInterceptor {
         return true; // 통과
     }
 
-    // 클라이언트 IP 추출 유틸 (로그용으로만 남겨둠)
+    // 클라이언트 IP 추출 유틸
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {

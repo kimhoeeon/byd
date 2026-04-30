@@ -26,7 +26,7 @@ public class AdminMngController {
 
     private final AdminMngService adminMngService;
 
-    @GetMapping({"", "/", "/login"})
+    @GetMapping({"/", "/index", "/login"})
     public String loginPage(HttpSession session) {
         // 이미 로그인된 상태라면 대시보드로 즉시 이동
         if (session.getAttribute("adminInfo") != null) {

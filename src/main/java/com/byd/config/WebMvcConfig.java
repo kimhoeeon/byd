@@ -18,7 +18,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 1. HTTPS 리다이렉트 (보안 - 최우선 실행)
-        // .well-known은 SSL 인증서 발급 시 사용되므로 제외
         registry.addInterceptor(httpsRedirectInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/.well-known/**");
@@ -52,8 +51,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/mng/css/**",
                         "/mng/js/**",
                         "/mng/img/**",
+                        "/mng",               // 루트 경로 제외
+                        "/mng/",              // 루트 경로 제외
+                        "/mng/index",         // 로그인 페이지 제외
                         "/mng/login",         // 로그인 페이지 제외
-                        "/mng/loginProcess"    // 로그인 처리 API 제외
+                        "/mng/loginProcess",  // 로그인 처리 API 제외
+                        "/mng/scanner",       // 태블릿 QR 스캐너 화면 제외
+                        "/mng/inquiry",       // 태블릿 수동 조회 화면 제외
+                        "/mng/api/**"         // 태블릿에서 호출하는 API 제외
                 );
 
     }
