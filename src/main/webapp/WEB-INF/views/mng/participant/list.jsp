@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="/assets/plugins/global/plugins.bundle.css">
     <link rel="stylesheet" href="/assets/css/style.bundle.css">
     <style>
-        /* 토글 스위치 CSS */
         .toggle-switch { position: relative; display: inline-block; width: 46px; height: 24px; vertical-align: middle; margin: 0; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e4e6ef; transition: .4s; border-radius: 24px; }
@@ -22,7 +21,6 @@
         .link-name { color: #009ef7; font-weight: bold; text-decoration: underline; cursor: pointer; }
         .link-name:hover { color: #007bb5; }
 
-        /* 페이징 커스텀 추가 */
         .pagination { justify-content: center; margin-top: 20px; gap: 5px;}
         .page-item .page-link { border-radius: 4px !important; color: #333; border: 1px solid #dee2e6; }
         .page-item.active .page-link { background-color: #202020; border-color: #202020; color: #fff; }
@@ -69,74 +67,80 @@
                         <div class="card-header border-0 pt-6">
                             <div class="card-title"><h3 class="fw-bold m-0">시승 관리</h3></div>
                         </div>
-                        <div class="card-body pt-0">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable">
+                        <div class="card-body pt-0" style="overflow-x: auto;">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable" style="min-width: 1200px;">
                                 <thead>
-                                <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                                    <th class="text-center">도착확인</th>
-                                    <th class="text-center">연번</th>
-                                    <th class="text-center">이름</th>
-                                    <th class="text-center">연락처</th>
-                                    <th class="text-center">주소</th>
-                                    <th class="text-center">전시장정보</th>
-                                    <th class="text-center">관심차량정보</th>
-                                    <th class="text-center">마케팅수신동의</th>
-                                    <th class="text-center">시승안전동의</th>
-                                </tr>
+                                    <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                        <th class="text-center">챌린지 도착</th>
+                                        <th class="text-center">시승 도착</th>
+                                        <th class="text-center">이름</th>
+                                        <th class="text-center">연락처</th>
+                                        <th class="text-center">주소</th>
+                                        <th class="text-center">전시장정보</th>
+                                        <th class="text-center">관심/시승차량</th>
+                                        <th class="text-center">예약시간</th>
+                                        <th class="text-center">마케팅동의</th>
+                                        <th class="text-center">안전동의</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <c:choose>
-                                    <c:when test="${empty list}">
-                                        <tr>
-                                            <td colspan="9" class="text-center text-muted py-10">검색된 신청 내역이 없습니다.</td>
-                                        </tr>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <c:forEach items="${list}" var="item">
-                                            <tr class="text-center">
-                                                <td>
-                                                    <label class="toggle-switch">
-                                                        <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" ${not empty item.qrScanTime ? 'checked' : ''}>
-                                                        <span class="slider"></span>
-                                                    </label>
-                                                </td>
-                                                <td>${item.seq}</td>
-                                                <td><a href="/mng/participant/detail?seq=${item.seq}&pageNum=${cri.pageNum}&searchType=${cri.searchType}&keyword=${cri.keyword}" class="link-name">${item.name}</a></td>
-                                                <td>${item.phone}</td>
-                                                <td>${empty item.address ? '-' : item.address}</td>
-                                                <td>${empty item.shopInfo ? '-' : item.shopInfo}</td>
-                                                <td>${empty item.carModel ? '-' : item.carModel}</td>
-                                                <td>
-                                                    <span class="badge ${item.mktAgree eq 'Y' ? 'badge-light-primary' : 'badge-light-danger'}">${item.mktAgree}</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge ${item.safetyAgree eq 'Y' ? 'badge-light-primary' : 'badge-light-danger'}">${item.safetyAgree}</span>
-                                                </td>
+                                    <c:choose>
+                                        <c:when test="${empty list}">
+                                            <tr>
+                                                <td colspan="10" class="text-center text-muted py-10">검색된 신청 내역이 없습니다.</td>
                                             </tr>
-                                        </c:forEach>
-                                    </c:otherwise>
-                                </c:choose>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:forEach items="${list}" var="item">
+                                                <tr class="text-center">
+                                                    <!-- 챌린지 도착 토글 -->
+                                                    <td>
+                                                        <label class="toggle-switch">
+                                                            <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="challenge" ${item.challengeCheckYn eq 'Y' ? 'checked' : ''}>
+                                                            <span class="slider"></span>
+                                                        </label>
+                                                    </td>
+                                                    <!-- 시승 도착 토글 -->
+                                                    <td>
+                                                        <label class="toggle-switch">
+                                                            <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="drive" ${item.driveCheckYn eq 'Y' ? 'checked' : ''}>
+                                                            <span class="slider"></span>
+                                                        </label>
+                                                    </td>
+                                                    <td><a href="/mng/participant/detail?seq=${item.seq}&pageNum=${cri.pageNum}&searchType=${cri.searchType}&keyword=${cri.keyword}" class="link-name">${item.name}</a></td>
+                                                    <td>${item.phone}</td>
+                                                    <td>${empty item.address ? '-' : item.address}</td>
+                                                    <td>${empty item.shopInfo ? '-' : item.shopInfo}</td>
+                                                    <td>${empty item.carModel ? '-' : item.carModel}</td>
+                                                    <td><span class="text-primary fw-bold">${item.testDriveTime}</span></td>
+                                                    <td>
+                                                        <span class="badge ${item.mktAgree eq 'Y' ? 'badge-light-primary' : 'badge-light-danger'}">${item.mktAgree}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge ${item.safetyAgree eq 'Y' ? 'badge-light-primary' : 'badge-light-danger'}">${item.safetyAgree}</span>
+                                                    </td>
+                                                </tr>
+                                            </c:forEach>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </tbody>
                             </table>
 
                             <!-- 페이징 (Pagination) 영역 -->
                             <c:if test="${pageMaker.total > 0}">
                                 <ul class="pagination">
-                                    <!-- 이전 버튼 -->
                                     <c:if test="${pageMaker.prev}">
                                         <li class="page-item">
                                             <a href="javascript:void(0);" onclick="goPage(${pageMaker.startPage - 1})" class="page-link">&laquo; 이전</a>
                                         </li>
                                     </c:if>
 
-                                    <!-- 페이지 번호 -->
                                     <c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
                                         <li class="page-item ${pageMaker.cri.pageNum == num ? 'active' : ''}">
                                             <a href="javascript:void(0);" onclick="goPage(${num})" class="page-link">${num}</a>
                                         </li>
                                     </c:forEach>
 
-                                    <!-- 다음 버튼 -->
                                     <c:if test="${pageMaker.next}">
                                         <li class="page-item">
                                             <a href="javascript:void(0);" onclick="goPage(${pageMaker.endPage + 1})" class="page-link">다음 &raquo;</a>
@@ -154,9 +158,7 @@
 
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
-    <!-- 서버사이드 페이징과 충돌 방지를 위해 DataTables 라이브러리는 스타일용으로만 남기고 페이징/검색/정렬 기능은 false 처리합니다. -->
     <script src="/assets/plugins/custom/datatables/datatables.bundle.js"></script>
-    <!-- 엑셀 다운로드를 위한 SheetJS 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -167,15 +169,16 @@
                 "ordering": false
             });
 
-            // 토글 버튼 수동 도착 처리
+            // 도착 처리 토글 액션 (챌린지/시승 분리)
             $(document).on('change', '.arrival-toggle', function () {
                 let seq = $(this).data('seq');
+                let type = $(this).data('type'); // 'challenge' 또는 'drive'
                 let isChecked = $(this).is(':checked');
 
                 $.ajax({
                     url: '/mng/api/manualArrival',
                     type: 'POST',
-                    data: { seq: seq, status: isChecked },
+                    data: { seq: seq, status: isChecked, type: type },
                     success: function(res) {
                         if(!res.success) {
                             alert("상태 변경에 실패했습니다.");
@@ -190,24 +193,19 @@
             });
         });
 
-        // 검색 버튼 클릭 시 (1페이지부터 다시 검색)
         function searchData() {
             document.getElementById('pageNum').value = 1;
             document.getElementById('searchForm').submit();
         }
 
-        // 페이징 번호 클릭 시 이동
         function goPage(page) {
             document.getElementById('pageNum').value = page;
             document.getElementById('searchForm').submit();
         }
 
-        // 엑셀 다운로드 함수
         function downloadExcel() {
-            // 1. 검색 폼 파라미터를 한 번에 가져오기
             var searchData = $('#searchForm').serialize();
 
-            // 2. 백엔드 API 호출하여 매핑 완료된 데이터 가져오기
             $.ajax({
                 url: '/mng/api/participant/excelData',
                 type: 'GET',
@@ -218,10 +216,8 @@
                         return;
                     }
 
-                    // 3. SheetJS를 이용해 JSON 데이터를 엑셀 시트로 변환
                     var ws = XLSX.utils.json_to_sheet(res);
 
-                    // 4. 컬럼 너비 지정 (코드 우측에 코드명이 나오도록 보기 좋게)
                     var wscols = [
                         {wch: 20}, // 문의일자
                         {wch: 20}, // 전시장 코드
@@ -243,7 +239,6 @@
                     var wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, "참여자목록");
 
-                    // 5. 파일명 생성 및 다운로드 실행
                     var today = new Date();
                     var month = ('0' + (today.getMonth() + 1)).slice(-2);
                     var day = ('0' + today.getDate()).slice(-2);

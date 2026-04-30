@@ -57,15 +57,18 @@
         SELECT * FROM event_participant WHERE qr_code_url = #{qrCodeUrl}
     </select>
 
-    <update id="updateArrivalStatus" parameterType="int">
+    <update id="updateArrivalStatus">
         UPDATE event_participant
-        SET qr_scan_time = NOW()
+        <set>
+            <if test="adminCode == '101'">challenge_check_yn = 'Y'</if>
+            <if test="adminCode == '202'">drive_check_yn = 'Y'</if>
+        </set>
         WHERE seq = #{seq}
     </update>
 
-    <update id="cancelArrivalStatus" parameterType="int">
+    <update id="cancelArrivalStatus">
         UPDATE event_participant
-        SET qr_scan_time = NULL
+        SET ${columnName} = 'N'
         WHERE seq = #{seq}
     </update>
 
@@ -73,8 +76,8 @@
         SELECT
             COUNT(*) AS totalCnt,
             SUM(CASE WHEN DATE(reg_date) = CURDATE() THEN 1 ELSE 0 END) AS todayCnt,
-            SUM(CASE WHEN qr_scan_time IS NOT NULL THEN 1 ELSE 0 END) AS qrCheckCnt,
-            SUM(CASE WHEN qr_scan_time IS NULL THEN 1 ELSE 0 END) AS driveWaitCnt
+            SUM(CASE WHEN challenge_check_yn = 'Y' OR drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS qrCheckCnt,
+            SUM(CASE WHEN challenge_check_yn = 'N' AND drive_check_yn = 'N' THEN 1 ELSE 0 END) AS driveWaitCnt
         FROM event_participant
     </select>
 

@@ -30,12 +30,12 @@ public class AdminMngService {
         return adminMngMapper.getParticipantByQrCodeUrl(qrCodeUrl);
     }
 
-    public void updateArrivalStatus(int seq) {
-        adminMngMapper.updateArrivalStatus(seq);
+    public void updateArrivalStatus(int seq, String adminCode) {
+        adminMngMapper.updateArrivalStatus(seq, adminCode);
     }
 
-    public void cancelArrivalStatus(int seq) {
-        adminMngMapper.cancelArrivalStatus(seq);
+    public void cancelArrivalStatus(int seq, String columnName) {
+        adminMngMapper.cancelArrivalStatus(seq, columnName);
     }
 
     public List<ParticipantVO> getList(Criteria cri) {

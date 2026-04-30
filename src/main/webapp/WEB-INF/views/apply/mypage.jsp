@@ -212,11 +212,15 @@
 
                         $.ajax({
                             type: "POST",
-                            url: "/api/testdrive/update", // 실제 Spring Boot 업데이트 처리 API 경로로 변경
+                            url: "/apply/updateAjax", // EventController에 추가된 AJAX 전용 API 호출
                             data: formData,
                             success: function(response) {
-                                alert("정보가 성공적으로 수정되었습니다.");
-                                location.reload(); // 성공 시 페이지 새로고침하여 변경된 내용 갱신
+                                if(response.success) {
+                                    alert(response.message);
+                                    location.reload(); // 성공 시 페이지 새로고침하여 변경된 내용 갱신
+                                } else {
+                                    alert(response.message); // 정원 초과 등 백엔드 검증 실패 메시지 노출
+                                }
                             },
                             error: function(xhr, status, error) {
                                 alert("수정 중 오류가 발생했습니다. 다시 시도해주세요.");

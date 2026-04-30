@@ -101,31 +101,35 @@ public class AdminMngController {
     // 현장 스태프 도착 확인 API
     @PostMapping("/api/checkArrival")
     @ResponseBody
-    public ResponseDTO checkArrival(@RequestParam("qrToken") String qrToken) {
+    public ResponseDTO checkArrival(@RequestParam("qrToken") String qrToken,
+                                    @RequestParam(value = "adminCode", required = false, defaultValue = "101") String adminCode) {
         ResponseDTO response = new ResponseDTO();
 
         try {
             ParticipantVO participant = adminMngService.getParticipantByQrCodeUrl(qrToken);
 
-            // 1. 존재하지 않는 회원인 경우
             if (participant == null) {
                 response.setSuccess(false);
                 response.setMessage("유효하지 않은 QR 코드입니다.");
                 return response;
             }
 
-            if (participant.getQrScanTime() != null) {
+            // 분기별 이미 출석 처리된 경우 방어
+            if ("101".equals(adminCode) && "Y".equals(participant.getChallengeCheckYn())) {
                 response.setSuccess(false);
-                response.setMessage("이미 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
+                response.setMessage("이미 챌린지 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
+                return response;
+            } else if ("202".equals(adminCode) && "Y".equals(participant.getDriveCheckYn())) {
+                response.setSuccess(false);
+                response.setMessage("이미 시승 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
                 return response;
             }
 
-            // 3. 정상 출석 처리 (qr_scan_time 업데이트)
-            adminMngService.updateArrivalStatus(participant.getSeq());
+            adminMngService.updateArrivalStatus(participant.getSeq(), adminCode);
 
-            // 4. 성공 응답 (스태프가 화면에서 확인할 수 있도록 차량/시간 정보 함께 전송)
+            String eventType = "101".equals(adminCode) ? "챌린지" : "시승";
             response.setSuccess(true);
-            response.setMessage("출석 처리 완료! [ " + participant.getName() + "님 / " + participant.getCarModel() + " / " + participant.getTestDriveTime() + " ]");
+            response.setMessage(eventType + " 출석 완료! [ " + participant.getName() + "님 / " + participant.getCarModel() + " / " + participant.getTestDriveTime() + " ]");
 
         } catch (Exception e) {
             response.setSuccess(false);
@@ -139,13 +143,18 @@ public class AdminMngController {
     // 수동 도착 확인/취소 토글 API
     @PostMapping("/api/manualArrival")
     @ResponseBody
-    public ResponseDTO manualArrival(@RequestParam("seq") int seq, @RequestParam("status") boolean status) {
+    public ResponseDTO manualArrival(@RequestParam("seq") int seq,
+                                     @RequestParam("status") boolean status,
+                                     @RequestParam("type") String type) {
         ResponseDTO response = new ResponseDTO();
         try {
+            String columnName = "challenge".equals(type) ? "challenge_check_yn" : "drive_check_yn";
+            String adminCode = "challenge".equals(type) ? "101" : "202";
+
             if (status) {
-                adminMngService.updateArrivalStatus(seq); // 토글 ON (도착)
+                adminMngService.updateArrivalStatus(seq, adminCode);
             } else {
-                adminMngService.cancelArrivalStatus(seq); // 토글 OFF (취소)
+                adminMngService.cancelArrivalStatus(seq, columnName);
             }
             response.setSuccess(true);
         } catch (Exception e) {
@@ -155,7 +164,7 @@ public class AdminMngController {
     }
 
     // ==========================================
-    // 📊 [추가] 엑셀 다운로드를 위한 전체 목록 조회 API
+    // 엑셀 다운로드를 위한 전체 목록 조회 API
     // ==========================================
     @GetMapping("/api/participant/excelData")
     @ResponseBody
@@ -166,38 +175,34 @@ public class AdminMngController {
         for (ParticipantVO vo : list) {
             Map<String, String> row = new LinkedHashMap<>();
 
-            // 1. 날짜 처리 (형변환 에러 해결: getRegDate()가 String이거나 Date일 경우 모두 대응)
             String regDateStr = "";
             if (vo.getRegDate() != null) {
-                regDateStr = vo.getRegDate().toString(); // String으로 바로 변환
-                // 만약 DB에서 "2024-05-12 14:22:00.0" 처럼 뒤에 .0이 붙는다면 잘라냄
+                regDateStr = vo.getRegDate().toString();
                 if (regDateStr.endsWith(".0")) {
                     regDateStr = regDateStr.substring(0, regDateStr.length() - 2);
                 }
             }
 
-            // 2. 항목 맵핑 (코드명 컬럼 추가)
             row.put("문의일자", regDateStr);
             row.put("전시장 코드", getShopCode(vo.getShopInfo()));
-            row.put("전시장명", vo.getShopInfo()); // 맵핑된 전시장 이름
+            row.put("전시장명", vo.getShopInfo());
 
             row.put("유입경로 코드", "4040");
-            row.put("유입경로명", "오프라인"); // 4040에 해당하는 이름
+            row.put("유입경로명", "오프라인");
 
             row.put("고객명", vo.getName());
             row.put("연락처", vo.getPhone());
 
             row.put("관심모델그룹 코드", getCarModelCode(vo.getCarModel()));
-            row.put("관심모델명", vo.getCarModel()); // 맵핑된 차량 이름
+            row.put("관심모델명", vo.getCarModel());
 
             row.put("시승타임 선택", vo.getTestDriveTime());
             row.put("개인정보 동의여부", "Y");
             row.put("마케팅 동의여부", vo.getMktAgree() != null ? vo.getMktAgree() : "N");
 
-            // 3. 챌린지/시승참여 (QR 스캔 여부에 따라 Y/N)
-            String isParticipated = vo.getQrScanTime() != null ? "Y" : "N";
-            row.put("챌린지 참여", isParticipated);
-            row.put("시승 참여", isParticipated);
+            // 챌린지 및 시승 참여 여부를 분리된 컬럼으로 출력
+            row.put("챌린지 참여", vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N");
+            row.put("시승 참여", vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N");
 
             excelData.add(row);
         }
@@ -243,11 +248,10 @@ public class AdminMngController {
             case "BYD 광주": return "APKR0006AW0003SW";
             case "BYD 대전": return "APKR0006AW0001SW";
             case "BYD 전주": return "APKR0006AW0005SW";
-            default: return ""; // 매핑이 안되면 빈값 처리
+            default: return "";
         }
     }
 
-    // 엑셀 맵핑용 - 관심모델그룹 코드 변환 함수
     private String getCarModelCode(String carModel) {
         if (carModel == null || carModel.trim().isEmpty()) return "";
         switch (carModel.trim().toUpperCase()) {

@@ -3,13 +3,10 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <!-- 모바일 기기에서 화면 확대 방지 및 꽉 찬 화면 유지 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>QR 스캐너 - BYD 출석체크</title>
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- 인식률이 가장 뛰어난 html5-qrcode 라이브러리 CDN -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
@@ -40,7 +37,33 @@
             font-size: 0.9em;
         }
 
-        /* 스캐너 화면을 꽉 차게, 안내선은 뚜렷하게 세팅 */
+        /* 스캐너 모드 선택 토글 UI */
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-toggle input[type="radio"] {
+            display: none;
+        }
+
+        .mode-toggle label {
+            padding: 10px 20px;
+            background-color: #e4e6ef;
+            color: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-toggle input[type="radio"]:checked + label {
+            background-color: #009ef7;
+            color: #fff;
+        }
+
         #reader {
             width: 100%;
             max-width: 500px;
@@ -49,7 +72,6 @@
             background: #000;
         }
 
-        /* 피드백 박스 UI */
         .status-box {
             margin-top: 20px;
             padding: 15px;
@@ -95,19 +117,24 @@
         <p>고객의 QR 코드를 사각형 안내선 안에 맞춰주세요.</p>
     </div>
 
-    <!-- 카메라 화면 출력 영역 -->
-    <div id="reader"></div>
+    <!-- 스캐너 모드 선택 (챌린지 vs 시승) -->
+    <div class="mode-toggle">
+        <input type="radio" id="mode101" name="adminCode" value="101" checked>
+        <label for="mode101">챌린지 입장 (101)</label>
 
-    <!-- 결과 알림 노출 영역 -->
+        <input type="radio" id="mode202" name="adminCode" value="202">
+        <label for="mode202">시승 입장 (202)</label>
+    </div>
+
+    <div id="reader"></div>
     <div id="statusBox" class="status-box"></div>
 
     <a href="/mng/main" class="btn-back">대시보드로 돌아가기</a>
 
     <script>
-        let isScanning = false; // 중복 스캔 방지용 플래그
+        let isScanning = false;
         const html5QrCode = new Html5Qrcode("reader");
 
-        // [효과음] 스캔 성공 시 삑 소리 재생
         function playBeep() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -122,41 +149,40 @@
             }
         }
 
-        // [알럿] 상태 메시지 노출 컨트롤
         function showStatus(msg, type) {
             const $box = $('#statusBox');
             $box.removeClass('success error').addClass(type).html(msg).fadeIn(200);
         }
 
-        // 스캔 성공 시 실행되는 함수
         function onScanSuccess(decodedText, decodedResult) {
-            // 이미 처리 중이면 추가 스캔 방지
             if (isScanning) return;
             isScanning = true;
 
-            playBeep(); // 삑!
+            playBeep();
             showStatus("데이터 조회 중...", "success");
-
-            // 안정적인 처리를 위해 잠시 스캐너 화면 정지
             html5QrCode.pause();
 
-            // 서버로 출석 정보 전송
+            // 현재 선택된 모드 값(101 또는 202) 가져오기
+            const selectedAdminCode = $('input[name="adminCode"]:checked').val();
+
             $.ajax({
                 url: '/mng/api/checkArrival',
                 type: 'POST',
-                data: {qrToken: decodedText}, // Controller에 맞춘 qrToken 파라미터
+                data: {
+                    qrToken: decodedText,
+                    adminCode: selectedAdminCode // 추가된 파라미터 전송
+                },
                 success: function (response) {
                     if (response.success) {
-                        showStatus(response.message, "success"); // "출석 처리 완료! [홍길동님...]"
+                        showStatus(response.message, "success");
                     } else {
-                        showStatus("❌ " + response.message, "error"); // "이미 출석 처리됨" 등
+                        showStatus("❌ " + response.message, "error");
                     }
                 },
                 error: function () {
                     showStatus("❌ 서버 통신 오류가 발생했습니다. 다시 시도해주세요.", "error");
                 },
                 complete: function () {
-                    // 스태프가 결과를 확인할 수 있도록 2.5초 대기 후 스캐너 재가동
                     setTimeout(function () {
                         $('#statusBox').fadeOut(200);
                         html5QrCode.resume();
@@ -167,18 +193,15 @@
         }
 
         function onScanFailure(error) {
-            // 인식 실패는 프레임 단위로 수십 번 발생하므로 조용히 무시합니다.
         }
 
-        // 스캐너 최적화 세팅
         const config = {
-            fps: 15, // 프레임 레이트를 높여 스치기만 해도 인식되게 설정
-            qrbox: {width: 250, height: 250}, // 사용자에게 초점을 맞출 사각형 가이드라인 제공
-            aspectRatio: 1.0, // 정사각형 비율 유지
-            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] // QR만 집중 스캔하여 성능 극대화
+            fps: 15,
+            qrbox: {width: 250, height: 250},
+            aspectRatio: 1.0,
+            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
         };
 
-        // 스캐너 실행 (모바일 환경에서 무조건 후면 카메라 강제)
         html5QrCode.start({facingMode: "environment"}, config, onScanSuccess, onScanFailure)
             .catch((err) => {
                 alert("카메라를 실행할 수 없습니다.\n브라우저의 카메라 권한을 허용해주세요.");

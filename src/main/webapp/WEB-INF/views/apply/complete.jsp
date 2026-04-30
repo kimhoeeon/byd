@@ -38,7 +38,6 @@
 
 <body class="success">
 
-    <!-- 다른 페이지와 동일한 공통 헤더 영역 -->
     <header id="header">
         <div class="inner">
             <a href="/apply/step1" class="logo">
@@ -47,20 +46,15 @@
         </div>
     </header>
 
-    <!-- 헤더 높이(60px)만큼 패딩을 주어 본문 겹침 방지 -->
     <div id="container" style="padding-top: 60px;">
-
-        <!-- step1, step2와 동일한 info_box 래퍼 사용 -->
         <div class="info_box padding_tb" style="color: #fff;">
             <div class="inner" style="text-align: center;">
 
-                <!-- 상단 타이틀 영역 -->
                 <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
                 <div class="bd_tit" style="color: #bb0a0a;">
                     신청 완료
                 </div>
 
-                <!-- 텍스트 영역 (style.css의 .bd_txt_w 적용) -->
                 <div class="bd_txt_w" style="margin-top: 20px;">
                     <div class="big">시승 신청이 성공적으로 접수되었습니다.</div>
                     <p style="color: #CBCBCA; line-height: 1.6; margin-top: 15px;">
@@ -71,7 +65,6 @@
                     </p>
                 </div>
 
-                <!-- 안내사항 영역 (style.css의 .success .nt_box 스타일 완벽 적용) -->
                 <div class="nt_box" style="text-align: left; background-color: #202020; padding: 25px 20px; border-radius: 10px;">
                     <div class="txt">
                         <p>문자를 받지 못하셨다면 스팸 메일함을 확인해 주세요.</p>
@@ -79,14 +72,12 @@
                     </div>
                 </div>
 
-                <!-- 하단 버튼 영역 -->
                 <div class="btn_box" style="margin-top: 40px;">
                     <a href="/apply/step1" class="btn_st01">처음으로 돌아가기</a>
                 </div>
 
             </div>
         </div>
-
     </div>
 
 </body>

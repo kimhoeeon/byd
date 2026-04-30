@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -60,7 +61,6 @@ public class EventController {
     @ResponseBody
     @GetMapping("/getDriveTimeStatus")
     public Map<String, Integer> getDriveTimeStatus() {
-        // "오늘" 신청된 시간대별 카운트를 DB에서 조회하여 Map으로 반환
         return eventService.getDriveTimeCountToday();
     }
 
@@ -86,7 +86,6 @@ public class EventController {
         try {
             eventService.insertParticipant(participantVO);
         } catch (IllegalStateException e) {
-            // [추가] 백엔드 시간대 마감 검증에서 걸러진 경우
             log.warn("시승 시간 마감: {}", e.getMessage());
             rttr.addFlashAttribute("errorMsg", "선택하신 시간대는 인원이 마감되었습니다. 다른 시간을 선택해 주세요.");
             return "redirect:/apply/step2";
@@ -157,6 +156,36 @@ public class EventController {
             log.error("정보 수정 중 오류 발생: ", e);
             return "error/400";
         }
+    }
+
+    // 신규 추가: 마이페이지 정보 수정 프로세스 (AJAX 통신 용도)
+    @PostMapping("/updateAjax")
+    @ResponseBody
+    public Map<String, Object> updateAjax(ParticipantVO participantVO) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (!"시승 미신청".equals(participantVO.getTestDriveTime())) {
+                ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
+                if (existing != null && !existing.getTestDriveTime().equals(participantVO.getTestDriveTime())) {
+                    int count = eventService.getDriveTimeCount(participantVO.getTestDriveTime());
+                    if (count >= 4) {
+                        response.put("success", false);
+                        response.put("message", "선택하신 시간대는 이미 마감되었습니다.");
+                        return response;
+                    }
+                }
+            }
+
+            eventService.updateParticipant(participantVO);
+            response.put("success", true);
+            response.put("message", "정보가 성공적으로 수정되었습니다.");
+
+        } catch (Exception e) {
+            log.error("AJAX 정보 수정 중 오류 발생: ", e);
+            response.put("success", false);
+            response.put("message", "정보 수정 중 서버 오류가 발생했습니다.");
+        }
+        return response;
     }
 
     // 3. 완료 페이지 매핑 추가

@@ -2,6 +2,7 @@ package com.byd.mapper;
 
 import com.byd.vo.*;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -30,9 +31,10 @@ public interface AdminMngMapper {
 
     List<DailyStatsVO> getDailyStats();
 
-    // 출석 상태 변경
-    void updateArrivalStatus(int seq);
+    // 출석 상태 변경 (관리자 코드 101: 챌린지, 202: 시승)
+    void updateArrivalStatus(@Param("seq") int seq, @Param("adminCode") String adminCode);
 
-    void cancelArrivalStatus(int seq);
+    // 출석 상태 취소 (토글 OFF)
+    void cancelArrivalStatus(@Param("seq") int seq, @Param("columnName") String columnName);
 
 }
