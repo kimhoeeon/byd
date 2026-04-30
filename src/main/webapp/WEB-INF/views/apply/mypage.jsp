@@ -33,6 +33,13 @@
 
     <title>BYD</title>
 
+    <style>
+        .select-group { display: flex; gap: 10px; }
+        .select-group select { flex: 1; }
+        /* 시승 안전 동의 숨김 처리를 위한 클래스 */
+        .hidden { display: none !important; }
+    </style>
+
 </head>
 
 <body>
@@ -41,7 +48,7 @@
     <div id="container">
 
         <!-- check-in -->
-        <div class="ck-in">
+        <div class="ck-in center">
 
             <!-- title -->
             <div class="top_tit padding_tb">
@@ -68,51 +75,92 @@
                         </p>
                     </div>
 
-                    <ul class="form_box">
-                        <li>
-                            <div class="gubun">이름</div>
-                            <div class="input"><input type="text" value="${data.name}" readonly style="background-color:#f5f5f5;"></div>
-                        </li>
-                        <li>
-                            <div class="gubun">연락처</div>
-                            <div class="input">
-                                <input type="text" name="phone" value="${data.phone}" readonly style="background-color:#f5f5f5;"></div>
-                        </li>
-                        <li>
-                            <div class="gubun">주소</div>
-                            <div class="input"><input type="text" value="${empty data.address ? '-' : data.address}" readonly style="background-color:#f5f5f5;"></div>
-                        </li>
-                        <li>
-                            <div class="gubun">전시장 정보</div>
-                            <div class="input"><input type="text" value="${empty data.shopInfo ? '-' : data.shopInfo}" readonly style="background-color:#f5f5f5;"></div>
-                        </li>
-                        <li>
-                            <div class="gubun">관심차량 정보</div>
-                            <div class="input"><input type="text" value="${empty data.carModel ? '-' : data.carModel}" readonly style="background-color:#f5f5f5;"></div>
-                        </li>
-                        <li>
-                            <div class="gubun">시승 시간 선택</div>
-                            <div class="input"><input type="text" value="${empty data.testDriveTime ? '-' : data.testDriveTime}" readonly style="background-color:#f5f5f5;"></div>
-                        </li>
-                    </ul>
-                    <div class="terms-check">
-                        <label>
-                            <input type="checkbox" checked disabled>
-                            <span class="terms-check_box" aria-hidden="true"></span>
-                            <span class="terms-check_label">마케팅 수신 동의 <span style="color:#009ef7;">(${data.mktAgree})</span></span>
-                        </label>
-                        <p>선택하신 정보는 마케팅 정보 제공을 위해 활용되며, <br />동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
-                    </div>
-                    <div class="terms-check">
-                        <label>
-                            <input type="checkbox" checked disabled>
-                            <span class="terms-check_box" aria-hidden="true"></span>
-                            <span class="terms-check_label">시승 안전 동의 <span style="color:#009ef7;">(${data.safetyAgree})</span></span>
-                        </label>
-                        <p>시승 안전 안내 및 유의사항을 충분히 숙지하였으며, <br />이에 동의합니다.</p>
-                    </div>
+                    <form id="updateForm">
+                        <ul class="form_box">
+                            <li>
+                                <div class="gubun">이름</div>
+                                <div class="input"><input type="text" id="name" name="name" value="${data.name}" readonly style="background-color:#f5f5f5;"></div>
+                            </li>
+                            <li>
+                                <div class="gubun">연락처</div>
+                                <div class="input">
+                                    <input type="text" id="phone" name="phone" value="${data.phone}" readonly style="background-color:#f5f5f5;"></div>
+                            </li>
+                            <li>
+                                <div class="gubun">주소</div>
+                                <div class="input"><input type="text" name="address" value="${data.address}" placeholder="입력해 주세요." required></div>
+                            </li>
+                            <li>
+                                <div class="gubun">전시장 정보</div>
+                                <div class="input select-group">
+                                    <select id="regionSelect" onchange="updateShops()" required>
+                                        <option value="">지역 선택</option>
+                                        <option value="서울">서울</option>
+                                        <option value="경기">경기</option>
+                                        <option value="인천">인천</option>
+                                        <option value="강원">강원</option>
+                                        <option value="충청/대전">충청/대전</option>
+                                        <option value="전라/광주">전라/광주</option>
+                                        <option value="경상/대구/부산/창원">경상/대구/부산/창원</option>
+                                        <option value="제주">제주</option>
+                                    </select>
+
+                                    <select name="shopInfo" id="shopSelect" required>
+                                        <option value="">전시장 선택</option>
+                                        <!-- 지역 선택 시 또는 초기화 스크립트를 통해 옵션이 생성됩니다. -->
+                                    </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="gubun">관심차량 정보</div>
+                                <div class="input">
+                                    <select name="carModel" required>
+                                        <option value="">선택해 주세요.</option>
+                                        <option value="BYD DOLPHIN" <c:if test="${data.carModel == 'BYD DOLPHIN'}">selected</c:if>>BYD DOLPHIN</option>
+                                        <option value="BYD ATTO 3" <c:if test="${data.carModel == 'BYD ATTO 3'}">selected</c:if>>BYD ATTO 3</option>
+                                        <option value="BYD SEAL" <c:if test="${data.carModel == 'BYD SEAL'}">selected</c:if>>BYD SEAL</option>
+                                        <option value="BYD SEALION 7" <c:if test="${data.carModel == 'BYD SEALION 7'}">selected</c:if>>BYD SEALION 7</option>
+                                    </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="gubun">시승 시간 선택</div>
+                                <div class="input">
+                                    <select name="testDriveTime" id="testDriveTime" onchange="toggleSafetyAgree()" required>
+                                        <option value="시승 미신청" <c:if test="${data.testDriveTime == '시승 미신청'}">selected</c:if>>시승 미신청</option>
+                                        <option value="10:00" <c:if test="${data.testDriveTime == '10:00'}">selected</c:if>>10:00</option>
+                                        <option value="11:00" <c:if test="${data.testDriveTime == '11:00'}">selected</c:if>>11:00</option>
+                                        <option value="12:00" <c:if test="${data.testDriveTime == '12:00'}">selected</c:if>>12:00</option>
+                                        <option value="13:00" <c:if test="${data.testDriveTime == '13:00'}">selected</c:if>>13:00</option>
+                                        <option value="14:00" <c:if test="${data.testDriveTime == '14:00'}">selected</c:if>>14:00</option>
+                                        <option value="15:00" <c:if test="${data.testDriveTime == '15:00'}">selected</c:if>>15:00</option>
+                                        <option value="16:00" <c:if test="${data.testDriveTime == '16:00'}">selected</c:if>>16:00</option>
+                                        <option value="17:00" <c:if test="${data.testDriveTime == '17:00'}">selected</c:if>>17:00</option>
+                                        <option value="18:00" <c:if test="${data.testDriveTime == '18:00'}">selected</c:if>>18:00</option>
+                                        <option value="19:00" <c:if test="${data.testDriveTime == '19:00'}">selected</c:if>>19:00</option>
+                                    </select>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="terms-check">
+                            <label>
+                                <input type="checkbox" name="mktAgree" value="Y" <c:if test="${data.mktAgree == 'Y'}">checked</c:if>>
+                                <span class="terms-check_box" aria-hidden="true"></span>
+                                <span class="terms-check_label">마케팅 수신 동의</span>
+                            </label>
+                            <p>선택하신 정보는 마케팅 정보 제공을 위해 활용되며, <br />동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
+                        </div>
+                        <div class="terms-check hidden" id="safetyAgreeDiv">
+                            <label>
+                                <input type="checkbox" name="safetyAgree" id="safetyAgreeCheckbox" value="Y" <c:if test="${data.safetyAgree == 'Y'}">checked</c:if>>
+                                <span class="terms-check_box" aria-hidden="true"></span>
+                                <span class="terms-check_label">시승 안전 동의</span>
+                            </label>
+                            <p>시승 안전 안내 및 유의사항을 충분히 숙지하였으며, <br />이에 동의합니다.</p>
+                        </div>
+                    </form>
                     <div class="btn_box">
-                        <a href="/apply/step1" class="btn_st01">확인 (HOME)</a>
+                        <button type="button" id="btnUpdate" class="btn_st01">정보 수정하기</button>
                     </div>
                 </div>
             </div>
@@ -130,6 +178,160 @@
     <script src="/js/jquery.cookie.min.js"></script>
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
+    <script>
+        const shopData = {
+            "서울": [ "BYD 강동", "BYD 강서", "BYD 마포", "BYD 목동", "BYD 서초", "BYD 송파", "BYD 용산" ],
+            "경기": [ "BYD 김포", "BYD 동탄", "BYD 부천", "BYD 분당", "BYD 수원", "BYD 스타필드 안성", "BYD 스타필드 운정", "BYD 스타필드 일산", "BYD 스타필드 하남", "BYD 안양", "BYD 의정부", "BYD 일산" ],
+            "인천": [ "BYD 서해구", "BYD 송도" ],
+            "강원": [ "BYD 원주" ],
+            "충청/대전": [ "BYD 대전", "BYD 천안", "BYD 청주" ],
+            "전라/광주": [ "BYD 광주", "BYD 전주" ],
+            "경상/대구/부산/창원": [ "BYD 대구", "BYD 부산 동래", "BYD 수영", "BYD 스타필드 명지", "BYD 창원", "BYD 포항" ],
+            "제주": [ "BYD 제주" ]
+        };
 
+        // 서버에서 받아온 기존 지점 데이터
+        const currentShopInfo = "${data.shopInfo}";
+
+        $(document).ready(function() {
+            // 1. 기존 데이터에 맞춰 지역 및 전시장 초기화
+            initRegionAndShop();
+
+            // 2. 예약 현황 체크 및 안전동의 영역 가시성 초기화
+            checkDriveTimeAvailability();
+            toggleSafetyAgree();
+
+            // 3. 정보 수정 버튼 클릭 이벤트
+            $("#btnUpdate").on("click", function(e) {
+                e.preventDefault();
+
+                // 폼 유효성 검사 통과 시
+                if(validateCombinedForm()) {
+                    if(confirm("입력하신 정보로 시승 예약을 수정하시겠습니까?")) {
+                        var formData = $("#updateForm").serialize();
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/api/testdrive/update", // 실제 Spring Boot 업데이트 처리 API 경로로 변경
+                            data: formData,
+                            success: function(response) {
+                                alert("정보가 성공적으로 수정되었습니다.");
+                                location.reload(); // 성공 시 페이지 새로고침하여 변경된 내용 갱신
+                            },
+                            error: function(xhr, status, error) {
+                                alert("수정 중 오류가 발생했습니다. 다시 시도해주세요.");
+                                console.error("Error:", error);
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        // 저장된 지점명으로 지역을 찾아 Select Box를 세팅하는 함수
+        function initRegionAndShop() {
+            if (currentShopInfo) {
+                for (const region in shopData) {
+                    if (shopData[region].includes(currentShopInfo)) {
+                        $("#regionSelect").val(region); // 지역 세팅
+                        updateShops(); // 지점 목록 생성
+                        $("#shopSelect").val(currentShopInfo); // 지점 세팅
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 전시장 업데이트
+        function updateShops() {
+            const regionSelect = document.getElementById("regionSelect");
+            const shopSelect = document.getElementById("shopSelect");
+            const selectedRegion = regionSelect.value;
+            shopSelect.innerHTML = '<option value="">전시장 선택</option>';
+            if (selectedRegion && shopData[selectedRegion]) {
+                shopData[selectedRegion].forEach(function(shop) {
+                    const option = document.createElement("option");
+                    option.value = shop; option.text = shop;
+                    shopSelect.appendChild(option);
+                });
+            }
+        }
+
+        // 시승 시간 선택에 따른 안전동의 영역 제어
+        function toggleSafetyAgree() {
+            const timeSelect = document.getElementById("testDriveTime").value;
+            const safetyDiv = document.getElementById("safetyAgreeDiv");
+            const safetyCheckbox = document.getElementById("safetyAgreeCheckbox");
+
+            if (timeSelect === "시승 미신청" || timeSelect === "") {
+                safetyDiv.classList.add("hidden");
+                safetyCheckbox.required = false;
+            } else {
+                safetyDiv.classList.remove("hidden");
+                safetyCheckbox.required = true;
+            }
+        }
+
+        // Ajax로 시간대별 예약자 4명 마감 여부 확인
+        function checkDriveTimeAvailability() {
+            $.ajax({
+                url: "/apply/getDriveTimeStatus",
+                type: "GET",
+                success: function(response) {
+                    $('#testDriveTime option').each(function() {
+                        var timeVal = $(this).val();
+                        // 내 기존 예약 시간은 disabled 처리하지 않음
+                        if(timeVal !== "시승 미신청" && timeVal !== "${data.testDriveTime}" && response[timeVal] >= 4) {
+                            $(this).prop('disabled', true);
+                            $(this).text(timeVal + ' (마감)');
+                        }
+                    });
+                },
+                error: function(err) {
+                    console.log("시간대 조회 실패");
+                }
+            });
+        }
+
+        // 폼 통합 유효성 검사 (이름, 연락처 검증 제외)
+        function validateCombinedForm() {
+            const regionSelect = document.getElementById("regionSelect");
+            const shopSelect = document.getElementById("shopSelect");
+            const carModel = document.querySelector("select[name='carModel']");
+            const address = document.querySelector("input[name='address']");
+
+            if(address.value.trim() === "") {
+                alert("주소를 입력해 주세요.");
+                address.focus();
+                return false;
+            }
+            if(regionSelect.value === "") {
+                alert("지역을 선택해 주세요.");
+                regionSelect.focus();
+                return false;
+            }
+            if(shopSelect.value === "") {
+                alert("전시장 정보를 선택해 주세요.");
+                shopSelect.focus();
+                return false;
+            }
+            if(carModel.value === "") {
+                alert("관심차량 정보를 선택해 주세요.");
+                carModel.focus();
+                return false;
+            }
+
+            const timeSelect = document.getElementById("testDriveTime").value;
+            const safetyCheckbox = document.getElementById("safetyAgreeCheckbox");
+
+            if (timeSelect !== "시승 미신청" && timeSelect !== "" && !safetyCheckbox.checked) {
+                alert("시승 안전 동의 항목에 체크해 주세요.");
+                safetyCheckbox.focus();
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 </body>
 </html>
