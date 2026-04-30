@@ -36,8 +36,6 @@
     <style>
         .select-group { display: flex; gap: 10px; }
         .select-group select { flex: 1; }
-        /* 시승 안전 동의 숨김 처리를 위한 클래스 */
-        .hidden { display: none !important; }
     </style>
 
 </head>
@@ -66,12 +64,13 @@
 
                     <h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">모바일 시승 티켓</h2>
 
-                    <!-- QR 코드 영역 -->
+                    <!-- QR 코드 영역 및 1회 참여 조건 문구 -->
                     <div style="text-align: center; background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
                         <p style="color: #333; font-weight: bold; margin-bottom: 10px;">현장 데스크에 아래 QR 코드를 제시해 주세요.</p>
                         <img src="${qrCodeImgUrl}" alt="QR Code" style="width: 200px; height: 200px;"/>
-                        <p style="color: #e50000; font-size: 14px; margin-top: 10px; font-weight:bold;">
-                            [유효기간] 예약하신 시승 시간 (${data.testDriveTime}) 까지 유효합니다.
+                        <p style="color: #e50000; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
+                            [유효기간] 예약하신 시승 시간 (${data.testDriveTime}) 까지 유효합니다.<br><br>
+                            ※ 챌린지 및 시승 행사는 행사 기간(3일) 중<br>각각 1회에 한하여 참여 가능합니다.
                         </p>
                     </div>
 
@@ -126,7 +125,7 @@
                             <li>
                                 <div class="gubun">시승 시간 선택</div>
                                 <div class="input">
-                                    <select name="testDriveTime" id="testDriveTime" onchange="toggleSafetyAgree()" required>
+                                    <select name="testDriveTime" id="testDriveTime" required>
                                         <option value="시승 미신청" <c:if test="${data.testDriveTime == '시승 미신청'}">selected</c:if>>시승 미신청</option>
                                         <option value="10:00" <c:if test="${data.testDriveTime == '10:00'}">selected</c:if>>10:00</option>
                                         <option value="11:00" <c:if test="${data.testDriveTime == '11:00'}">selected</c:if>>11:00</option>
@@ -144,19 +143,21 @@
                         </ul>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" name="mktAgree" value="Y" <c:if test="${data.mktAgree == 'Y'}">checked</c:if>>
+                                <input type="checkbox" checked disabled>
+                                <input type="hidden" name="privacyAgree" value="Y">
                                 <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">마케팅 수신 동의</span>
+                                <span class="terms-check_label">개인정보 수집 및 이용 동의 (필수)</span>
                             </label>
-                            <p>선택하신 정보는 마케팅 정보 제공을 위해 활용되며, <br />동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
+                            <p>행사 참여 및 본인 확인을 위해 개인정보를 수집 및 이용합니다.</p>
                         </div>
-                        <div class="terms-check hidden" id="safetyAgreeDiv">
+                        <div class="terms-check">
                             <label>
-                                <input type="checkbox" name="safetyAgree" id="safetyAgreeCheckbox" value="Y" <c:if test="${data.safetyAgree == 'Y'}">checked</c:if>>
+                                <input type="checkbox" checked disabled>
+                                <input type="hidden" name="mktAgree" value="Y">
                                 <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">시승 안전 동의</span>
+                                <span class="terms-check_label">마케팅 정보 수신 동의 (필수)</span>
                             </label>
-                            <p>시승 안전 안내 및 유의사항을 충분히 숙지하였으며, <br />이에 동의합니다.</p>
+                            <p>행사 안내 및 원활한 이벤트 정보 제공을 위해 마케팅 정보를 수신합니다.</p>
                         </div>
                     </form>
                     <div class="btn_box">
@@ -199,7 +200,6 @@
 
             // 2. 예약 현황 체크 및 안전동의 영역 가시성 초기화
             checkDriveTimeAvailability();
-            toggleSafetyAgree();
 
             // 3. 정보 수정 버튼 클릭 이벤트
             $("#btnUpdate").on("click", function(e) {
@@ -261,21 +261,6 @@
             }
         }
 
-        // 시승 시간 선택에 따른 안전동의 영역 제어
-        function toggleSafetyAgree() {
-            const timeSelect = document.getElementById("testDriveTime").value;
-            const safetyDiv = document.getElementById("safetyAgreeDiv");
-            const safetyCheckbox = document.getElementById("safetyAgreeCheckbox");
-
-            if (timeSelect === "시승 미신청" || timeSelect === "") {
-                safetyDiv.classList.add("hidden");
-                safetyCheckbox.required = false;
-            } else {
-                safetyDiv.classList.remove("hidden");
-                safetyCheckbox.required = true;
-            }
-        }
-
         // Ajax로 시간대별 예약자 4명 마감 여부 확인
         function checkDriveTimeAvailability() {
             $.ajax({
@@ -322,15 +307,6 @@
             if(carModel.value === "") {
                 alert("관심차량 정보를 선택해 주세요.");
                 carModel.focus();
-                return false;
-            }
-
-            const timeSelect = document.getElementById("testDriveTime").value;
-            const safetyCheckbox = document.getElementById("safetyAgreeCheckbox");
-
-            if (timeSelect !== "시승 미신청" && timeSelect !== "" && !safetyCheckbox.checked) {
-                alert("시승 안전 동의 항목에 체크해 주세요.");
-                safetyCheckbox.focus();
                 return false;
             }
 

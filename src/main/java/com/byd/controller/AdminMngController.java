@@ -98,6 +98,22 @@ public class AdminMngController {
         return "mng/scanner"; // mng/scanner.jsp 렌더링
     }
 
+    // 수동 참가자 조회 화면 (QR 분실 시)
+    @GetMapping("/inquiry")
+    public String tabletInquiryPage() {
+        return "mng/inquiry";
+    }
+
+    // 태블릿 조회 화면용 고객 비동기 검색 API
+    @GetMapping("/api/searchParticipant")
+    @ResponseBody
+    public List<ParticipantVO> searchParticipant(Criteria cri) {
+        // 태블릿 팝업에서는 페이징 없이 최대 30개 정도만 넉넉히 가져와서 뿌려줌
+        cri.setPageNum(1);
+        cri.setAmount(30);
+        return adminMngService.getList(cri);
+    }
+
     // 현장 스태프 도착 확인 API
     @PostMapping("/api/checkArrival")
     @ResponseBody

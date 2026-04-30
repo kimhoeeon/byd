@@ -36,8 +36,7 @@
     <style>
         .select-group { display: flex; gap: 10px; }
         .select-group select { flex: 1; }
-        /* 시승 안전 동의 숨김 처리를 위한 클래스 */
-        .hidden { display: none !important; }
+        .notice-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #e50000; font-weight: bold; text-align: center; line-height: 1.4; border: 1px solid #ffcccc; }
     </style>
 </head>
 
@@ -62,6 +61,11 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
+
+                    <div class="notice-box">
+                        ※ 챌린지 및 시승 행사는 행사 기간(3일) 중<br>각각 1회에 한하여 참여 가능합니다.
+                    </div>
+
                     <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="return validateForm();">
 
                         <ul class="form_box">
@@ -105,7 +109,7 @@
                             <li>
                                 <div class="gubun">시승 시간 선택</div>
                                 <div class="input">
-                                    <select name="testDriveTime" id="testDriveTime" onchange="toggleSafetyAgree()" required>
+                                    <select name="testDriveTime" id="testDriveTime" required>
                                         <option value="시승 미신청" selected>시승 미신청</option>
                                         <option value="10:00">10:00</option>
                                         <option value="11:00">11:00</option>
@@ -123,22 +127,22 @@
                         </ul>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" name="mktAgree" value="Y">
+                                <input type="checkbox" name="privacyAgree" id="privacyAgreeCheckbox" value="Y" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">마케팅 수신 동의</span>
+                                <span class="terms-check_label">개인정보 수집 및 이용 동의 (필수)</span>
                             </label>
-                            <p>선택하신 정보는 마케팅 정보 제공을 위해 활용되며, <br />동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
+                            <p>행사 참여 및 본인 확인을 위해 개인정보를 수집 및 이용합니다.</p>
                         </div>
-                        <div class="terms-check hidden" id="safetyAgreeDiv">
+                        <div class="terms-check">
                             <label>
-                                <input type="checkbox" name="safetyAgree" id="safetyAgreeCheckbox" value="Y">
+                                <input type="checkbox" name="mktAgree" id="mktAgreeCheckbox" value="Y" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">시승 안전 동의</span>
+                                <span class="terms-check_label">마케팅 정보 수신 동의 (필수)</span>
                             </label>
-                            <p>시승 안전 안내 및 유의사항을 충분히 숙지하였으며, <br />이에 동의합니다.</p>
+                            <p>행사 안내 및 원활한 이벤트 정보 제공을 위해 마케팅 정보를 수신합니다.</p>
                         </div>
                         <div class="btn_box">
-                            <button type="submit" class="btn_st01">시승 신청 완료하기</button>
+                            <button type="submit" class="btn_st01">제출</button>
                         </div>
                     </form>
                 </div>
@@ -190,29 +194,12 @@
             }
         }
 
-        // 시승 시간 선택에 따른 안전동의 영역 제어
-        function toggleSafetyAgree() {
-            const timeSelect = document.getElementById("testDriveTime").value;
-            const safetyDiv = document.getElementById("safetyAgreeDiv");
-            const safetyCheckbox = document.getElementById("safetyAgreeCheckbox");
-
-            if (timeSelect === "시승 미신청") {
-                safetyDiv.classList.add("hidden");
-                safetyCheckbox.required = false;
-                safetyCheckbox.checked = false; // 체크 해제
-            } else {
-                safetyDiv.classList.remove("hidden");
-                safetyCheckbox.required = true;
-            }
-        }
-
-        // Ajax로 시간대별 예약자 4명 마감 여부 확인
+        // Ajax로 시간대별 예약자 마감 여부 확인
         function checkDriveTimeAvailability() {
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
                 type: "GET",
                 success: function(response) {
-                    // response 예시: { "10:00": 4, "11:00": 2, ... }
                     $('#testDriveTime option').each(function() {
                         var timeVal = $(this).val();
                         if(timeVal !== "시승 미신청" && response[timeVal] >= 4) {
@@ -233,6 +220,8 @@
             const shopSelect = document.getElementById("shopSelect");
             const carModel = document.querySelector("select[name='carModel']");
             const address = document.querySelector("input[name='address']");
+            const privacyCheckbox = document.getElementById("privacyAgreeCheckbox");
+            const mktCheckbox = document.getElementById("mktAgreeCheckbox");
 
             if(address.value.trim() === "") {
                 alert("주소를 입력해 주세요.");
@@ -255,13 +244,15 @@
                 return false;
             }
 
-            const timeSelect = document.getElementById("testDriveTime").value;
-            const safetyCheckbox = document.getElementById("safetyAgreeCheckbox");
+            if (!privacyCheckbox.checked) {
+                alert("개인정보 수집 및 이용 동의(필수)에 체크해 주세요.");
+                privacyCheckbox.focus();
+                return false;
+            }
 
-            // 시승 시간을 선택했는데 안전 동의를 체크하지 않은 경우
-            if (timeSelect !== "시승 미신청" && !safetyCheckbox.checked) {
-                alert("시승 안전 동의 항목에 체크해 주세요.");
-                safetyCheckbox.focus();
+            if (!mktCheckbox.checked) {
+                alert("마케팅 정보 수신 동의(필수)에 체크해 주세요.");
+                mktCheckbox.focus();
                 return false;
             }
 
