@@ -244,4 +244,10 @@ public class EventController {
 
         return "apply/mypage";
     }
+
+    // 타이머 화면 라우팅
+    @GetMapping("/timer")
+    public String timerPage() {
+        return "timer";
+    }
 }

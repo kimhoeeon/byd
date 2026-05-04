@@ -8,12 +8,16 @@ import com.byd.vo.Criteria;
 import com.byd.vo.ParticipantVO;
 import com.byd.vo.StatsVO;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -182,51 +186,103 @@ public class AdminMngController {
     // ==========================================
     // 엑셀 다운로드를 위한 전체 목록 조회 API
     // ==========================================
-    @GetMapping("/api/participant/excelData")
-    @ResponseBody
-    public List<Map<String, String>> getExcelData(Criteria cri) {
+    @GetMapping("/api/participant/excelDownload")
+    public void downloadExcel(Criteria cri, HttpServletResponse response) throws Exception {
+        // 검색 조건에 맞는 전체 목록 조회
         List<ParticipantVO> list = adminMngService.getAllList(cri);
-        List<Map<String, String>> excelData = new ArrayList<>();
 
-        for (ParticipantVO vo : list) {
-            Map<String, String> row = new LinkedHashMap<>();
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("참여자 목록");
 
-            String regDateStr = "";
-            if (vo.getRegDate() != null) {
-                regDateStr = vo.getRegDate().toString();
-                if (regDateStr.endsWith(".0")) {
-                    regDateStr = regDateStr.substring(0, regDateStr.length() - 2);
-                }
-            }
+        // 1. 헤더 스타일 지정 (회색 배경, 굵은 글씨, 가운데 정렬, 테두리)
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
 
-            // 요청하신 순서와 명칭에 맞추어 맵핑을 수정/추가합니다.
-            row.put("문의일자", regDateStr);
-            row.put("전시장코드", getShopCode(vo.getShopInfo()));
-            row.put("전시장명", vo.getShopInfo() != null ? vo.getShopInfo() : "");
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
 
-            row.put("유입경로코드", "4040");
-            row.put("유입경로명", "오프라인");
+        // 2. 데이터 스타일 지정 (테두리, 세로 가운데 정렬)
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-            row.put("고객명", vo.getName());
-            row.put("연락처", vo.getPhone());
+        // 3. 헤더 행 생성
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보동의여부", "마케팅동의여부", "챌린지참여", "시승참여", "주소"};
 
-            row.put("관심모델그룹코드", getCarModelCode(vo.getCarModel()));
-            row.put("관심모델그룹코드명", vo.getCarModel() != null ? vo.getCarModel() : ""); // 명칭 수정
-
-            row.put("시승시간", vo.getTestDriveTime() != null ? vo.getTestDriveTime() : "");
-            row.put("개인정보동의여부", "Y");
-            row.put("마케팅동의여부", "Y");
-
-            row.put("챌린지참여", vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N");
-            row.put("시승참여", vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N");
-
-            // 주소 항목 신규 추가
-            row.put("주소", vo.getAddress() != null ? vo.getAddress() : "");
-
-            excelData.add(row);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
         }
 
-        return excelData;
+        // 4. 데이터 행 생성
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        int rowNum = 1;
+
+        for (ParticipantVO vo : list) {
+            Row row = sheet.createRow(rowNum++);
+
+            // 날짜 포맷 적용
+            String regDateStr = "";
+            if (vo.getRegDate() != null) {
+                regDateStr = sdf.format(vo.getRegDate());
+            }
+
+            String[] rowData = {
+                    regDateStr,
+                    getShopCode(vo.getShopInfo()),
+                    vo.getShopInfo() != null ? vo.getShopInfo() : "",
+                    "4040",
+                    "오프라인",
+                    vo.getName(),
+                    vo.getPhone(),
+                    getCarModelCode(vo.getCarModel()),
+                    vo.getCarModel() != null ? vo.getCarModel() : "",
+                    vo.getTestDriveTime() != null ? vo.getTestDriveTime() : "",
+                    "Y",
+                    "Y",
+                    vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N",
+                    vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N",
+                    vo.getAddress() != null ? vo.getAddress() : ""
+            };
+
+            for (int i = 0; i < rowData.length; i++) {
+                Cell cell = row.createCell(i);
+                cell.setCellValue(rowData[i]);
+                cell.setCellStyle(dataStyle);
+            }
+        }
+
+        // 5. 컬럼 너비 자동 조정
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            sheet.setColumnWidth(i, (sheet.getColumnWidth(i)) + (short) 1024);
+        }
+
+        // 6. 브라우저 응답 설정 및 파일 전송
+        SimpleDateFormat fileDateFmt = new SimpleDateFormat("yyyyMMdd");
+        String today = fileDateFmt.format(new java.util.Date());
+        String fileName = "BYD_참여자_" + today + ".xlsx";
+        // 한글 파일명 깨짐 방지
+        fileName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
 
     // 엑셀 맵핑용 - 전시장 코드 변환 함수

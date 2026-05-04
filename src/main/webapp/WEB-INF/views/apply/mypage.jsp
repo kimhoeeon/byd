@@ -103,7 +103,7 @@
                                         </label>
                                     </div>
                                     <div class="input mt-10">
-                                        <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요.">
+                                        <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요." autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
                                     </div>
                                 </div>
 

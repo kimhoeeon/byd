@@ -31,6 +31,10 @@ dependencies {
 	// 3. Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// 4. Apache POI (엑셀 생성 라이브러리)
+	implementation 'org.apache.poi:poi:5.2.3'        // 구버전 xls용 및 공통
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'  // 최신 xlsx용
 }
 
 // 카페24 톰캣 배포 시 기본 루트("/") 경로로 인식되도록 파일명을 ROOT.war로 고정

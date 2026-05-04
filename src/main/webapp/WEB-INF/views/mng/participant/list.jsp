@@ -278,54 +278,17 @@
     }
 
     function downloadExcel() {
-        var searchData = $('#searchForm').serialize();
+        // 기존 검색 폼의 파라미터(pageNum, searchType, keyword 등)를 유지한 채,
+        // 다운로드 전용 URL로 폼을 제출하여 파일을 내려받습니다.
+        var form = document.getElementById('searchForm');
+        var originalAction = form.action; // 원래 action (목록 조회) 저장
 
-        $.ajax({
-            url: '/mng/api/participant/excelData',
-            type: 'GET',
-            data: searchData,
-            success: function(res) {
-                if(res.length === 0) {
-                    alert("다운로드할 데이터가 없습니다.");
-                    return;
-                }
+        // 폼 액션을 엑셀 다운로드 API 주소로 변경 후 제출
+        form.action = '/mng/api/participant/excelDownload';
+        form.submit();
 
-                var ws = XLSX.utils.json_to_sheet(res);
-
-                var wscols = [
-                    {wch: 20}, // 문의일자
-                    {wch: 20}, // 전시장코드
-                    {wch: 15}, // 전시장명
-                    {wch: 15}, // 유입경로코드
-                    {wch: 15}, // 유입경로명
-                    {wch: 15}, // 고객명
-                    {wch: 15}, // 연락처
-                    {wch: 20}, // 관심모델그룹코드
-                    {wch: 20}, // 관심모델그룹코드명
-                    {wch: 15}, // 시승시간
-                    {wch: 15}, // 개인정보동의여부
-                    {wch: 15}, // 마케팅동의여부
-                    {wch: 12}, // 챌린지참여
-                    {wch: 12}, // 시승참여
-                    {wch: 40}  // 주소
-                ];
-                ws['!cols'] = wscols;
-
-                var wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "참여자목록");
-
-                var today = new Date();
-                var month = ('0' + (today.getMonth() + 1)).slice(-2);
-                var day = ('0' + today.getDate()).slice(-2);
-                var filename = "BYD_Event_참여자_" + today.getFullYear() + month + day + ".xlsx";
-
-                XLSX.writeFile(wb, filename);
-            },
-            error: function(err) {
-                alert("엑셀 데이터를 생성하는 중 오류가 발생했습니다.");
-                console.error(err);
-            }
-        });
+        // 제출 후 폼 액션을 다시 원래대로(목록 조회용) 복구
+        form.action = originalAction;
     }
 </script>
 </body>
