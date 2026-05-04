@@ -61,7 +61,7 @@
 
                     <!-- QR 코드 영역 및 1회 참여 조건 문구 -->
                     <div style="text-align: center; background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-                        <p style="color: #333; font-weight: bold; margin-bottom: 10px;">현장 데스크에 아래 QR 코드를 제시해 주세요.</p>
+                        <p style="color: #333; font-weight: bold; margin-bottom: 10px;">아래 QR 코드를 제시해 주세요.</p>
 
                         <!-- 구글 API 이미지 태그 삭제 후 클라이언트 렌더링용 div 추가 -->
                         <div id="qrcode" style="display: flex; justify-content: center; margin: 15px 0;"></div>
@@ -72,29 +72,33 @@
                     </div>
 
                     <form id="updateForm">
+                        <input type="hidden" name="seq" value="${data.seq}">
+
                         <ul class="form_box">
                             <li>
                                 <div class="gubun">이름</div>
-                                <div class="input"><input type="text" id="name" name="name" value="${data.name}" readonly style="background-color:#f5f5f5;"></div>
+                                <div class="input"><input type="text" id="name" name="name" value="${data.name}" readonly style="color: #888;"></div>
                             </li>
                             <li>
                                 <div class="gubun">연락처</div>
                                 <div class="input">
-                                    <input type="text" id="phone" name="phone" value="${data.phone}" readonly style="background-color:#f5f5f5;"></div>
+                                    <input type="text" id="phone" name="phone" value="${data.phone}" readonly style="color: #888;"></div>
                             </li>
                             <li>
                                 <div class="gubun">주소</div>
                                 <!-- 1. 현재 등록된 주소 노출 영역 -->
-                                <div class="input" id="currentAddressArea" style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="text" value="${data.address}" readonly style="background-color:#f5f5f5; flex: 1; color: #666;">
-                                    <button type="button" class="search-btn" onclick="enableAddressEdit()" style="white-space: nowrap;">주소 변경</button>
+                                <div class="input" id="currentAddressArea">
+                                    <label>
+                                        <input type="text" value="${data.address}" readonly>
+                                        <button type="button" class="search-btn" onclick="enableAddressEdit()"><img src="/img/ico_search.png" alt="검색"></button>
+                                    </label>
                                 </div>
 
                                 <!-- 2. 주소 변경 활성화 시 나타나는 영역 (기본은 숨김) -->
                                 <div id="editAddressArea" style="display: none; margin-top: 10px;">
                                     <div class="input">
                                         <label for="baseAddress">
-                                            <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly style="background-color:#e8f0fe; flex: 1;">
+                                            <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly>
                                             <button type="button" class="search-btn" onclick="execDaumPostcode()">주소 찾기</button>
                                         </label>
                                     </div>

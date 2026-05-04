@@ -3,10 +3,12 @@ body {background: #252728;}
 
 img {max-width: 100%;}
 
-input, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; -webkit-border-radius: 0; } 
-select {-webkit-appearance: none; -moz-appearance: none; appearance: none;
+input, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; -webkit-border-radius: 0; }
+select {
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
     padding: 15px 30px 15px 15px; border: 1px solid #CBCBCA; color: #CBCBCA;
-    background: transparent url('../img/icon_select_arrow.svg') no-repeat 95% center;} 
+    background: #252728 url('../img/icon_select_arrow.svg') no-repeat 95% center;
+}
 
 input[type="text"],
 input[type="password"],
@@ -14,7 +16,10 @@ input[type="date"],
 input[type="email"],
 input[type="tel"],
 textarea {border: 0; border: 1px solid #CBCBCA; padding: 15px; background: none; color: #CBCBCA;}
-select option {color: #111; background: #CBCBCA;}
+select option {
+    color: #fff;
+    background: #252728;
+}
 
 input::placeholder,
 textarea::placeholder {color: #CBCBCA;}
