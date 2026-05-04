@@ -251,10 +251,10 @@
         });
     }
 
-    // 수동 출석 처리 실행 (기존 Controller의 /api/manualArrival 활용)
+    // 수동 출석 처리 실행
     function processCheckIn(seq, name) {
         const eventType = $('input[name="eventType"]:checked').val();
-        const typeText = eventType === 'challenge' ? '챌린지(101)' : '시승(202)';
+        const typeText = eventType === 'challenge' ? '챌린지' : '시승체험';
 
         if (!confirm(name + ' 고객님을 [' + typeText + '] 출석 처리하시겠습니까?')) {
             return;
