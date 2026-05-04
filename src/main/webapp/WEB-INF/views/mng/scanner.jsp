@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QR 스캐너 - BYD 출석체크</title>
+    <title>${eventName} 전용 스캐너 - BYD 출석체크</title>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
-        /* 태블릿 최적화를 위한 Flex 레이아웃 적용 */
         body {
             margin: 0;
             padding: 0;
@@ -35,36 +34,19 @@
             color: #333;
         }
 
-        /* 스캐너 모드 선택 토글 UI 여백 조정 */
-        .mode-toggle {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 15px 0;
-        }
-
-        .mode-toggle input[type="radio"] {
-            display: none;
-        }
-
-        .mode-toggle label {
-            padding: 12px 25px; /* 터치 영역 확대 */
-            background-color: #e4e6ef;
-            color: #333;
-            border-radius: 8px;
-            cursor: pointer;
+        /* 컨트롤러에서 전달받은 테마 컬러로 뱃지 스타일링 */
+        .event-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 25px;
+            background-color: ${themeColor};
+            color: white;
+            font-size: 1.3em;
             font-weight: bold;
-            font-size: 1.1em;
-            transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
 
-        .mode-toggle input[type="radio"]:checked + label {
-            background-color: #009ef7;
-            color: #fff;
-        }
-
-        /* 카메라 영역이 태블릿 화면을 최대한 꽉 채우도록 유동적 높이 설정 */
         .scanner-container {
             flex-grow: 1;
             display: flex;
@@ -73,19 +55,20 @@
             justify-content: center;
             position: relative;
             padding: 0 15px;
+            margin-top: 20px;
         }
 
         #reader {
             width: 100%;
-            max-width: 600px; /* 태블릿을 고려해 최대 너비 증가 */
-            border: 2px solid #ccc !important;
+            max-width: 600px;
+            /* 카메라 테두리도 각 테마 컬러로 표시하여 직관성 극대화 */
+            border: 5px solid ${themeColor} !important;
             border-radius: 12px;
             overflow: hidden;
             background: #000;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* 알림창을 카메라 영역 위에 띄워서 시선 분산 방지 */
         .status-box {
             position: absolute;
             top: 50%;
@@ -100,7 +83,7 @@
             display: none;
             word-break: keep-all;
             z-index: 100;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
         .success {
@@ -117,7 +100,7 @@
 
         .btn-back {
             display: block;
-            margin: 15px auto;
+            margin: 20px auto;
             padding: 15px 30px;
             background-color: #343a40;
             color: white;
@@ -134,22 +117,19 @@
 
 <div class="header-box">
     <h2>현장 출석 스캐너</h2>
-    <!-- 모드 토글을 헤더 바로 아래로 올려서 가로모드 시 공간 절약 -->
-    <div class="mode-toggle">
-        <input type="radio" id="mode101" name="adminCode" value="101" checked>
-        <label for="mode101">챌린지</label>
-
-        <input type="radio" id="mode202" name="adminCode" value="202">
-        <label for="mode202">시승체험</label>
-    </div>
+    <p>고객의 QR 코드를 사각형 안내선 안에 맞춰주세요.</p>
+    <div class="event-badge">${eventName} 전용 (코드: ${adminCode})</div>
 </div>
+
+<!-- 백엔드에서 전달받은 스캐너 용도 고정 코드 -->
+<input type="hidden" id="adminCode" value="${adminCode}">
 
 <div class="scanner-container">
     <div id="reader"></div>
     <div id="statusBox" class="status-box"></div>
 </div>
 
-<a href="/mng/main" class="btn-back">대시보드로 돌아가기</a>
+<a href="/mng/inquiry" class="btn-back">수동 조회 화면으로 이동</a>
 
 <script>
     let isScanning = false;
@@ -182,14 +162,15 @@
         showStatus("데이터 조회 중...", "success");
         html5QrCode.pause();
 
-        const selectedAdminCode = $('input[name="adminCode"]:checked').val();
+        // 히든 인풋에서 고정된 adminCode를 가져옴
+        const currentAdminCode = $('#adminCode').val();
 
         $.ajax({
             url: '/mng/api/checkArrival',
             type: 'POST',
             data: {
                 qrToken: decodedText,
-                adminCode: selectedAdminCode
+                adminCode: currentAdminCode
             },
             success: function (response) {
                 if (response.success) {
@@ -215,15 +196,13 @@
     }
 
     function onScanFailure(error) {
-        // 실패 로그 무시 (반복적으로 에러가 찍히므로)
+        // 실패 로그 무시
     }
 
-    // 태블릿 해상도를 고려한 반응형 카메라 설정
     const config = {
         fps: 15,
-        qrbox: {width: 250, height: 250},
-        // aspectRatio 속성 제거: 라이브러리가 기기의 기본 카메라 비율(4:3 또는 16:9)을 자동으로 따르도록 하여 찌그러짐 방지
-        disableFlip: false // 전면 카메라 사용 시 좌우 반전 방지 옵션 (후면 카메라에서는 영향 없음)
+        qrbox: { width: 250, height: 250 },
+        disableFlip: false
     };
 
     html5QrCode.start({facingMode: "environment"}, config, onScanSuccess, onScanFailure)

@@ -57,7 +57,7 @@
             <div class="info_box padding_b">
                 <div class="inner">
 
-                    <h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">모바일 시승 티켓</h2>
+                    <h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">이벤트 참여 티켓</h2>
 
                     <!-- QR 코드 영역 및 1회 참여 조건 문구 -->
                     <div style="text-align: center; background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">

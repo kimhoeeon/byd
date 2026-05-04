@@ -36,7 +36,6 @@
             font-size: 0.9em;
         }
 
-        /* 스캐너 모드 선택 토글 UI (scanner_2.jsp 와 동일한 디자인) */
         .mode-toggle {
             display: flex;
             justify-content: center;
@@ -63,7 +62,6 @@
             color: #fff;
         }
 
-        /* 검색 영역 */
         .search-area {
             background: #fff;
             margin: 0 15px 20px 15px;
@@ -101,7 +99,6 @@
             cursor: pointer;
         }
 
-        /* 검색 결과 리스트 */
         .result-list {
             padding: 0 15px;
             text-align: left;
@@ -145,7 +142,7 @@
             background-color: #218838;
         }
 
-        /* 하단 고정 스캐너 전환 버튼 */
+        /* 하단 고정 스캐너 전환 버튼 컨테이너 (버튼 2개 배치) */
         .floating-bottom {
             position: fixed;
             bottom: 0;
@@ -154,17 +151,20 @@
             background: #fff;
             padding: 15px 0;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
         }
 
         .btn-scanner-link {
             display: inline-block;
-            padding: 12px 30px;
-            background-color: #009ef7;
+            padding: 12px 20px;
             color: white;
             text-decoration: none;
             border-radius: 30px;
             font-weight: bold;
             font-size: 1.1em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -175,7 +175,6 @@
     <p>QR 코드가 없는 고객을 검색하여 출석 처리합니다.</p>
 </div>
 
-<!-- 처리할 담당 코드 선택 -->
 <div class="mode-toggle">
     <input type="radio" id="modeChallenge" name="eventType" value="challenge" checked>
     <label for="modeChallenge">챌린지</label>
@@ -194,19 +193,19 @@
 </div>
 
 <div id="resultList" class="result-list">
-    <!-- 검색 결과가 여기에 표시됩니다. -->
     <div style="text-align: center; color: #888; margin-top: 30px;">
         고객의 <strong>전체 이름</strong> 또는 <strong>연락처 뒷자리 4자리</strong>를 검색해주세요.<br>
         (예: 홍길동, 1234)
     </div>
 </div>
 
+<!-- 분리된 스캐너 링크 버튼 -->
 <div class="floating-bottom">
-    <a href="/mng/scanner" class="btn-scanner-link">📷 QR 스캐너 화면으로 전환</a>
+    <a href="/mng/scanner?type=challenge" class="btn-scanner-link" style="background-color: #009ef7;">📷 챌린지 스캐너</a>
+    <a href="/mng/scanner?type=drive" class="btn-scanner-link" style="background-color: #28a745;">📷 시승 스캐너</a>
 </div>
 
 <script>
-    // 검색 실행
     function searchData() {
         const searchType = $('#searchType').val();
         const keyword = $('#keyword').val().trim();
@@ -219,7 +218,6 @@
 
         $('#resultList').html('<div style="text-align:center;">검색 중...</div>');
 
-        // [추가] 현재 선택된 탭(챌린지 vs 시승체험) 값을 미리 가져옵니다.
         const currentEventType = $('input[name="eventType"]:checked').val();
 
         $.ajax({
@@ -242,9 +240,6 @@
                         html += '    <p>관심모델: ' + item.carModel + ' | 시간: ' + (item.testDriveTime ? item.testDriveTime : '미지정') + '</p>';
                         html += '  </div>';
 
-                        // ==========================================
-                        // 현재 탭에 맞는 출석 여부를 검사하여 버튼 상태 결정
-                        // ==========================================
                         let isAlreadyChecked = false;
                         if (currentEventType === 'challenge' && item.challengeCheckYn === 'Y') {
                             isAlreadyChecked = true;
@@ -253,10 +248,8 @@
                         }
 
                         if (isAlreadyChecked) {
-                            // 이미 출석 완료된 경우: 회색 버튼, 비활성화(disabled)
                             html += '  <button class="btn-checkin" style="background-color: #6c757d; cursor: not-allowed;" disabled>출석 완료됨</button>';
                         } else {
-                            // 출석 전인 경우: 기존 녹색 버튼
                             html += '  <button class="btn-checkin" onclick="processCheckIn(' + item.seq + ', \'' + item.name + '\')">출석 처리</button>';
                         }
 
@@ -272,7 +265,6 @@
         });
     }
 
-    // 수동 출석 처리 실행
     function processCheckIn(seq, name) {
         const eventType = $('input[name="eventType"]:checked').val();
         const typeText = eventType === 'challenge' ? '챌린지' : '시승체험';
@@ -287,15 +279,15 @@
             data: {
                 seq: seq,
                 type: eventType,
-                status: true // true = 출석완료 처리
+                status: true
             },
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
                     alert('✅ ' + typeText + ' 출석 처리가 완료되었습니다.');
-                    searchData(); // 리스트 갱신
+                    searchData();
                 } else {
-                    alert('❌ 처리 중 오류가 발생했습니다.');
+                    alert('❌ ' + response.message);
                 }
             },
             error: function () {
@@ -304,7 +296,6 @@
         });
     }
 
-    // 엔터키 검색 지원
     $('#keyword').on('keypress', function (e) {
         if (e.which === 13) {
             searchData();

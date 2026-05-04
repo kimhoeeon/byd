@@ -98,8 +98,17 @@ public class AdminMngController {
     }
 
     @GetMapping("/scanner")
-    public String qrScannerPage() {
-        return "mng/scanner"; // mng/scanner.jsp 렌더링
+    public String qrScannerPage(@RequestParam(value = "type", defaultValue = "challenge") String type, Model model) {
+        if ("drive".equals(type)) {
+            model.addAttribute("adminCode", "202");
+            model.addAttribute("eventName", "시승체험");
+            model.addAttribute("themeColor", "#28a745"); // 초록색 테마
+        } else {
+            model.addAttribute("adminCode", "101");
+            model.addAttribute("eventName", "챌린지");
+            model.addAttribute("themeColor", "#009ef7"); // 파란색 테마
+        }
+        return "mng/scanner";
     }
 
     // 수동 참가자 조회 화면 (QR 분실 시)
