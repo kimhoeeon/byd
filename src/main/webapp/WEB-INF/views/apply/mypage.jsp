@@ -99,7 +99,7 @@
                                     <div class="input">
                                         <label for="baseAddress">
                                             <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly>
-                                            <button type="button" class="search-btn" onclick="execDaumPostcode()">주소 찾기</button>
+                                            <button type="button" class="search-btn" onclick="execDaumPostcode()"><img src="/img/ico_search.png" alt="검색"></button>
                                         </label>
                                     </div>
                                     <div class="input mt-10">

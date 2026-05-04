@@ -66,7 +66,7 @@
                             <li>
                                 <div class="gubun">연락처</div>
                                 <div class="input">
-                                    <input type="text" id="phone" name="phone" placeholder="입력해 주세요. (숫자만)" class="onlyTel" required>
+                                    <input type="tel" id="phone" name="phone" placeholder="입력해 주세요. (숫자만)" class="onlyTel" maxlength="13" required>
                                 </div>
                             </li>
                         </ul>
@@ -91,6 +91,34 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
     <script>
+
+        $(document).ready(function() {
+            // 연락처 입력 시 자동 하이픈 및 숫자 이외의 문자 입력 방지
+            $('#phone').on('input', function() {
+                // 입력된 값에서 숫자 이외의 문자 모두 제거
+                var val = $(this).val().replace(/[^0-9]/g, '');
+
+                // 최대 11자리까지만 입력 허용
+                if (val.length > 11) {
+                    val = val.substring(0, 11);
+                }
+
+                var formatted = '';
+                if (val.length < 4) {
+                    formatted = val;
+                } else if (val.length < 7) {
+                    formatted = val.substring(0, 3) + '-' + val.substring(3);
+                } else if (val.length < 11) {
+                    formatted = val.substring(0, 3) + '-' + val.substring(3, 6) + '-' + val.substring(6);
+                } else {
+                    formatted = val.substring(0, 3) + '-' + val.substring(3, 7) + '-' + val.substring(7);
+                }
+
+                // 변환된 값을 다시 인풋 박스에 세팅
+                $(this).val(formatted);
+            });
+        });
+
         function submitStep1() {
             var name = document.getElementById("name").value.trim();
             var phone = document.getElementById("phone").value.trim();
@@ -107,7 +135,7 @@
                 return false;
             }
 
-            // 연락처 숫자만 입력되었는지 간단한 정규식 체크 (선택 사항)
+            // 연락처 숫자만 입력되었는지 간단한 정규식 체크 (하이픈 제외 후 검증)
             var phoneRegex = /^[0-9]{10,11}$/;
             if (!phoneRegex.test(phone.replace(/-/g, ''))) {
                 alert("올바른 연락처 형식이 아닙니다.");

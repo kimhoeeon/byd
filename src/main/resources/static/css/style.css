@@ -145,7 +145,7 @@ label:last-child {margin-right: 0;}
 }
 .form_box .input.mt-10{margin-top: 10px;}
 .form_box .input label{position: relative;}
-.form_box .input .search-btn{cursor: pointer; font-size: 0;background: 0; border: 0; position: absolute; top: 50%; transform: translateY(-50%); right: 10px;}
+.form_box .input .search-btn{cursor: pointer;font-size: 0;background: 0;border: 0;position: absolute;top: 50%;transform: translateY(-50%);right: 10px;width: 100%;text-align: right;}
 .form_box .input .search-btn img{width:32px; height: 32px;}
 
 #header {
