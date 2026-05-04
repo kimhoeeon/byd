@@ -11,7 +11,7 @@
 <div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
 
     <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
-        <a href="/mng/main" class="d-flex align-items-center">
+        <a href="javascript:void(0);" class="d-flex align-items-center cursor-default">
             <img alt="Logo" src="/img/logo.svg" class="h-25px app-sidebar-logo-default" />
             <span class="text-white fw-bolder fs-4 ms-3 font-interstate">ADMIN</span>
         </a>

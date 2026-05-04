@@ -39,7 +39,9 @@ public class EventController {
 
     // 1페이지 제출 시 기존 정보 확인 및 분기 처리
     @PostMapping("/checkParticipant")
-    public String checkParticipant(@RequestParam String name, @RequestParam String phone, HttpSession session, Model model) {
+    @ResponseBody
+    public Map<String, Object> checkParticipant(@RequestParam String name, @RequestParam String phone, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
         ParticipantVO existing = eventService.getParticipantByPhoneToday(phone);
 
         if (existing != null) {
@@ -48,10 +50,12 @@ public class EventController {
                 String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
                 // URL 인코딩 적용
                 String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
-                return "redirect:/apply/ticket?token=" + encodedToken;
+
+                response.put("exists", true);
+                response.put("redirectUrl", "/apply/ticket?token=" + encodedToken);
             } catch (Exception e) {
                 log.error("중복 신청자 토큰 생성 오류: ", e);
-                return "error/400";
+                response.put("error", true);
             }
         } else {
             // 오늘 내역이 없으면(어제 신청했더라도) 신규 신청으로 간주
@@ -59,8 +63,10 @@ public class EventController {
             newInfo.setName(name);
             newInfo.setPhone(phone);
             session.setAttribute("tempInfo", newInfo);
-            return "redirect:/apply/step2";
+
+            response.put("exists", false);
         }
+        return response;
     }
 
     // 시승 시간대별 마감 현황 조회 (Ajax용 API)

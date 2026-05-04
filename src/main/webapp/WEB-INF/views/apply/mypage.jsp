@@ -275,17 +275,12 @@
             });
         });
 
-        // 주소 변경 버튼 클릭 시 입력 폼 노출
+        // 주소 변경 버튼 클릭 시 (팝업만 먼저 띄움)
         function enableAddressEdit() {
-            isAddressEditing = true;
-            document.getElementById("currentAddressArea").style.display = "none";
-            document.getElementById("editAddressArea").style.display = "block";
-
-            // 주소 찾기 팝업 바로 띄우기 (선택 사항)
             execDaumPostcode();
         }
 
-        // Daum 주소 찾기 실행 함수
+        // Daum 주소 찾기 실행 함수 (팝업에서 주소를 골랐을 때만 화면 전환)
         function execDaumPostcode() {
             new daum.Postcode({
                 oncomplete: function(data) {
@@ -297,10 +292,17 @@
                         addr = data.jibunAddress;
                     }
 
+                    // 1. 주소를 성공적으로 골랐으므로 변경 모드 활성화 및 화면 전환
+                    isAddressEditing = true;
+                    document.getElementById("currentAddressArea").style.display = "none";
+                    document.getElementById("editAddressArea").style.display = "block";
+
+                    // 2. 선택한 주소 데이터 바인딩 및 상세 주소로 포커스
                     document.getElementById("baseAddress").value = addr;
                     document.getElementById("detailAddress").value = "";
                     document.getElementById("detailAddress").focus();
                 }
+                // onclose 이벤트를 생략하면 창을 그냥 닫았을 때 아무 일도 일어나지 않습니다 (정상 유지)
             }).open();
         }
 
@@ -362,7 +364,7 @@
             const baseAddress = document.getElementById("baseAddress").value.trim();
             const detailAddress = document.getElementById("detailAddress").value.trim();
 
-            // [수정] 주소 변경 모드를 활성화한 경우에만 주소 유효성 검사 수행
+            // 주소 변경 모드를 활성화한 경우에만 주소 유효성 검사 수행
             if(isAddressEditing) {
                 if(baseAddress === "") {
                     alert("주소 찾기를 진행해 주세요.");

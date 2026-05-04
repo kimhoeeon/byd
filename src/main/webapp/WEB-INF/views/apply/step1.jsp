@@ -56,7 +56,7 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
-                    <form action="/apply/checkParticipant" method="post" id="applyForm">
+                    <form id="applyForm" onsubmit="event.preventDefault(); submitStep1();">
 
                         <ul class="form_box">
                             <li>
@@ -115,7 +115,34 @@
                 return false;
             }
 
-            document.getElementById("applyForm").submit();
+            // 폼 서밋 대신 AJAX 통신으로 서버에 확인
+            $.ajax({
+                type: "POST",
+                url: "/apply/checkParticipant",
+                data: {
+                    name: name,
+                    phone: phone
+                },
+                dataType: "json",
+                success: function(response) {
+                    if(response.error) {
+                        alert("처리 중 서버 오류가 발생했습니다.");
+                        return;
+                    }
+
+                    if(response.exists) {
+                        // 기존 신청자일 경우 Alert 띄우고 전달받은 URL로 이동
+                        alert("이미 시승 신청이 완료된 고객입니다.\n모바일 티켓 화면으로 이동합니다.");
+                        location.href = response.redirectUrl;
+                    } else {
+                        // 신규 신청자일 경우 step2 페이지로 이동
+                        location.href = "/apply/step2";
+                    }
+                },
+                error: function() {
+                    alert("서버와의 통신에 실패했습니다. 다시 시도해 주세요.");
+                }
+            });
         }
     </script>
 </body>
