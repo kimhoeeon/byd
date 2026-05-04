@@ -69,15 +69,22 @@
                                 <a href="/mng/participant/list" class="btn btn-light">초기화</a>
                             </form>
                         </div>
-                        <div class="card-footer d-flex justify-content-end">
-                            <button type="button" class="btn btn-success" onclick="downloadExcel()">엑셀 다운로드</button>
-                        </div>
                     </div>
 
                     <!-- 데이터 목록 카드 -->
                     <div class="card shadow-sm border-0">
                         <div class="card-header border-0 pt-6">
                             <div class="card-title"><h3 class="fw-bold m-0">시승 관리</h3></div>
+
+                            <!-- 엑셀 다운로드 버튼을 우측 상단으로 이동 -->
+                            <div class="card-toolbar">
+                                <button type="button" class="btn btn-success fw-bold" onclick="downloadExcel()">
+                                    <i class="ki-duotone ki-file-down fs-2">
+                                        <span class="path1"></span><span class="path2"></span>
+                                    </i>
+                                    엑셀 다운로드
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body pt-0" style="overflow-x: auto;">
                             <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable" style="min-width: 1300px;">

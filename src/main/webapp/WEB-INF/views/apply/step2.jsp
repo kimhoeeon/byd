@@ -37,10 +37,6 @@
         .select-group { display: flex; gap: 10px; }
         .select-group select { flex: 1; }
         .notice-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #e50000; font-weight: bold; text-align: center; line-height: 1.4; border: 1px solid #ffcccc; }
-
-        /* 주소찾기 버튼 전용 스타일 */
-        .btn-search-addr { background: #343a40; color: #fff; border: none; padding: 0 15px; border-radius: 4px; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; }
-        .btn-search-addr:hover { background: #23272b; }
     </style>
 </head>
 
@@ -76,33 +72,38 @@
                             <li>
                                 <div class="gubun">주소</div>
                                 <div class="input">
-                                    <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-                                        <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly style="background-color:#f5f5f5; flex: 1;">
-                                        <button type="button" class="btn-search-addr" onclick="execDaumPostcode()">주소 찾기</button>
+                                    <label for="baseAddress">
+                                        <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly style="background-color:#f5f5f5;">
+                                        <button type="button" class="search-btn" onclick="execDaumPostcode()"><img src="/img/ico_search.png" alt="검색"></button>
+                                    </label>
+                                    <div class="input mt-10">
+                                        <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요.">
+                                        <input type="hidden" name="address" id="fullAddress">
                                     </div>
-                                    <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요.">
-                                    <input type="hidden" name="address" id="fullAddress">
                                 </div>
                             </li>
                             <li>
                                 <div class="gubun">전시장 정보</div>
-                                <div class="input select-group">
-                                    <select id="regionSelect" onchange="updateShops()" required>
-                                        <option value="">지역 선택</option>
-                                        <option value="서울">서울</option>
-                                        <option value="경기">경기</option>
-                                        <option value="인천">인천</option>
-                                        <option value="강원">강원</option>
-                                        <option value="충청/대전">충청/대전</option>
-                                        <option value="전라/광주">전라/광주</option>
-                                        <option value="경상/대구/부산/창원">경상/대구/부산/창원</option>
-                                        <option value="제주">제주</option>
-                                    </select>
-
-                                    <select name="shopInfo" id="shopSelect" required>
-                                        <option value="">전시장 선택</option>
-                                        <!-- 지역 선택 시 여기에 옵션이 동적으로 생성됩니다. -->
-                                    </select>
+                                <div class="row">
+                                    <div class="input">
+                                        <select id="regionSelect" onchange="updateShops()" required>
+                                            <option value="">지역 선택</option>
+                                            <option value="서울">서울</option>
+                                            <option value="경기">경기</option>
+                                            <option value="인천">인천</option>
+                                            <option value="강원">강원</option>
+                                            <option value="충청/대전">충청/대전</option>
+                                            <option value="전라/광주">전라/광주</option>
+                                            <option value="경상/대구/부산/창원">경상/대구/부산/창원</option>
+                                            <option value="제주">제주</option>
+                                        </select>
+                                    </div>
+                                    <div class="input">
+                                        <select name="shopInfo" id="shopSelect" required>
+                                            <option value="">전시장 선택</option>
+                                            <!-- 지역 선택 시 여기에 옵션이 동적으로 생성됩니다. -->
+                                        </select>
+                                    </div>
                                 </div>
                             </li>
                             <li>

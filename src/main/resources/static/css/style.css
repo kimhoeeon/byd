@@ -130,6 +130,8 @@ label:last-child {margin-right: 0;}
 .bd_txt_b .eng.viewEng {margin-top: 30px; display: none;}
 
 .form_box li {margin-top: 20px; color: #fff;}
+.form_box li .row{display: flex;width: 100%; gap: 10px;}
+.form_box li .row .input{width: 100%;}
 .form_box .gubun {margin-bottom: 5px; font-size: 1.6rem; line-height: 2.2rem;}
 .form_box .input input[type="text"],
 .form_box .input input[type="tel"],
@@ -138,7 +140,10 @@ label:last-child {margin-right: 0;}
 .form_box .cmnt::before {
     display: block; content: "*"; position: absolute; left: 0; top: 2px;
 }
-
+.form_box .input.mt-10{margin-top: 10px;}
+.form_box .input label{position: relative;}
+.form_box .input .search-btn{cursor: pointer; font-size: 0;background: 0; border: 0; position: absolute; top: 50%; transform: translateY(-50%); right: 10px;}
+.form_box .input .search-btn img{width:32px; height: 32px;}
 
 #header {
     max-width: 1000px; width: 101%; height: 60px; margin:0 auto; background:#202020;
@@ -266,6 +271,7 @@ label:last-child {margin-right: 0;}
 .terms-check {margin-top: 20px;}
 .terms-check input{margin-left: 0;}
 .terms-check p{margin-top: 5px; font-size: 13px; color: #CBCBCA;line-height: 18px;}
+.terms-check textarea{text-align: left; padding: 10px;min-height: 100px; font-size: 14px;margin-top: 10px;}
 
 .qr_box{margin-top: 100px; text-align: center;}
 .qr_code{margin-top: 50px;}
