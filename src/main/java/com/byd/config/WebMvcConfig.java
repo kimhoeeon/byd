@@ -15,28 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
-        // 2. 유지보수 모드 (백도어 기능 포함)
-        registry.addInterceptor(new MaintenanceInterceptor())
-                .addPathPatterns("/**")
-                .excludePathPatterns(
-                        "/maintenance",
-                        "/assets/**",
-                        "/css/**",
-                        "/js/**",
-                        "/img/**",
-                        "/fonts/**",
-                        "/favicon.ico",
-                        "/site.webmanifest",
-                        "/api/test/**",
-                        "/api/v1/system/init",
-                        "/api/common/upload/editor",
-                        "/error",
-                        "/.well-known/**",
-                        "/upload/**",
-                        "/mng/**" // 관리자 페이지는 점검 모드 영향 안 받도록 설정
-                );
-
-        // 3. 관리자 권한 체크 (관리자 경로만 적용)
+        // 관리자 권한 체크 (관리자 경로만 적용)
         registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/mng/**")
                 .excludePathPatterns(
