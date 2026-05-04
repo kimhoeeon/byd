@@ -69,7 +69,7 @@
                 <div class="inner">
 
                     <div class="notice-box">
-                        ※ 챌린지 및 시승 행사는 행사 기간(3일) 중<br>각각 1회에 한하여 참여 가능합니다.
+                        ※ 챌린지 및 시승체험은 행사 기간(3일) 중<br>각각 1회에 한하여 참여 가능합니다.
                     </div>
 
                     <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="return validateForm();">

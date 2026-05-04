@@ -178,10 +178,10 @@
 <!-- 처리할 담당 코드 선택 -->
 <div class="mode-toggle">
     <input type="radio" id="modeChallenge" name="eventType" value="challenge" checked>
-    <label for="modeChallenge">챌린지 (101)</label>
+    <label for="modeChallenge">챌린지</label>
 
     <input type="radio" id="modeDrive" name="eventType" value="drive">
-    <label for="modeDrive">시승 (202)</label>
+    <label for="modeDrive">시승체험</label>
 </div>
 
 <div class="search-area">

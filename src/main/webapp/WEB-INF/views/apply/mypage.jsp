@@ -67,7 +67,7 @@
                         <div id="qrcode" style="display: flex; justify-content: center; margin: 15px 0;"></div>
 
                         <p style="color: #e50000; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
-                            ※ 챌린지 및 시승 행사는 행사 기간(3일) 중<br>각각 1회에 한하여 참여 가능합니다.
+                            ※ 챌린지 및 시승체험은 행사 기간(3일) 중<br>각각 1회에 한하여 참여 가능합니다.
                         </p>
                     </div>
 
