@@ -196,7 +196,8 @@
 <div id="resultList" class="result-list">
     <!-- 검색 결과가 여기에 표시됩니다. -->
     <div style="text-align: center; color: #888; margin-top: 30px;">
-        고객명 또는 연락처를 검색해주세요.
+        고객의 <strong>전체 이름</strong> 또는 <strong>연락처 뒷자리 4자리</strong>를 검색해주세요.<br>
+        (예: 홍길동, 1234)
     </div>
 </div>
 

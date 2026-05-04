@@ -137,7 +137,7 @@
                         </ul>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" name="privacyAgree" id="privacyAgreeCheckbox" value="Y" required>
+                                <input type="checkbox" id="privacyAgreeCheckbox" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">개인정보 수집 및 이용 동의 (필수)</span>
                             </label>
@@ -145,7 +145,7 @@
                         </div>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" name="mktAgree" id="mktAgreeCheckbox" value="Y" required>
+                                <input type="checkbox" id="mktAgreeCheckbox" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">마케팅 정보 수신 동의 (필수)</span>
                             </label>
@@ -188,8 +188,13 @@
         };
 
         $(document).ready(function() {
-            // 페이지 로드 시 예약 현황 체크
+            // 1. 페이지 로드 시 예약 현황 체크
             checkDriveTimeAvailability();
+
+            // 2. [추가] 백엔드 유효성 검사 실패 시 에러 메시지 출력
+            <c:if test="${not empty errorMsg}">
+                alert("${errorMsg}");
+            </c:if>
         });
 
         // Daum 주소 찾기 실행 함수

@@ -27,9 +27,9 @@
 
     <insert id="insertParticipant" parameterType="com.byd.vo.ParticipantVO" useGeneratedKeys="true" keyProperty="seq">
         INSERT INTO event_participant (
-            entry_type, name, phone, address, shop_info, car_model, test_drive_time, mkt_agree, safety_agree, qr_code_url, challenge_check_yn, drive_check_yn, reg_date
+            entry_type, name, phone, address, shop_info, car_model, test_drive_time, qr_code_url, challenge_check_yn, drive_check_yn, reg_date
         ) VALUES (
-                     #{entryType}, #{name}, #{phone}, #{address}, #{shopInfo}, #{carModel}, #{testDriveTime}, #{mktAgree}, #{safetyAgree}, #{qrCodeUrl}, 'N', 'N', NOW()
+                     #{entryType}, #{name}, #{phone}, #{address}, #{shopInfo}, #{carModel}, #{testDriveTime}, #{qrCodeUrl}, 'N', 'N', NOW()
                  )
     </insert>
 
@@ -45,9 +45,7 @@
         SET address = #{address},
             shop_info = #{shopInfo},
             car_model = #{carModel},
-            test_drive_time = #{testDriveTime},
-            mkt_agree = #{mktAgree},
-            safety_agree = #{safetyAgree}
+            test_drive_time = #{testDriveTime}
         WHERE seq = #{seq}
     </update>
 

@@ -215,7 +215,7 @@ public class AdminMngController {
 
             row.put("시승시간", vo.getTestDriveTime() != null ? vo.getTestDriveTime() : "");
             row.put("개인정보동의여부", "Y");
-            row.put("마케팅동의여부", vo.getMktAgree() != null ? vo.getMktAgree() : "N");
+            row.put("마케팅동의여부", "Y");
 
             row.put("챌린지참여", vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N");
             row.put("시승참여", vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N");

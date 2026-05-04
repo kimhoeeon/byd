@@ -151,7 +151,6 @@
                         <div class="terms-check">
                             <label>
                                 <input type="checkbox" checked disabled>
-                                <input type="hidden" name="privacyAgree" value="Y">
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">개인정보 수집 및 이용 동의 (필수)</span>
                             </label>
@@ -160,7 +159,6 @@
                         <div class="terms-check">
                             <label>
                                 <input type="checkbox" checked disabled>
-                                <input type="hidden" name="mktAgree" value="Y">
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">마케팅 정보 수신 동의 (필수)</span>
                             </label>

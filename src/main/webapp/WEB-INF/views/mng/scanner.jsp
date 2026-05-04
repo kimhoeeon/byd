@@ -182,12 +182,17 @@
                 error: function () {
                     showStatus("❌ 서버 통신 오류가 발생했습니다. 다시 시도해주세요.", "error");
                 },
-                complete: function () {
+                complete: function (jqXHR) {
+                    // response JSON 파싱
+                    const res = jqXHR.responseJSON;
+                    // 실패(이미 찍었거나 없는 QR)일 경우 1.5초, 성공일 경우 2.5초 대기
+                    const delay = (res && !res.success) ? 1500 : 2500;
+
                     setTimeout(function () {
                         $('#statusBox').fadeOut(200);
                         html5QrCode.resume();
                         isScanning = false;
-                    }, 2500);
+                    }, delay);
                 }
             });
         }

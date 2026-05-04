@@ -186,7 +186,7 @@
                                             <span class="badge badge-light-primary">Y</span>
                                         </td>
                                         <td>
-                                            <span class="badge ${item.mktAgree eq 'Y' ? 'badge-light-primary' : 'badge-light-danger'}">${item.mktAgree}</span>
+                                            <span class="badge badge-light-primary">Y</span>
                                         </td>
                                     </tr>
                                 </c:forEach>
