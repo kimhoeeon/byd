@@ -118,7 +118,7 @@
 <div class="header-box">
     <h2>현장 출석 스캐너</h2>
     <p>고객의 QR 코드를 사각형 안내선 안에 맞춰주세요.</p>
-    <div class="event-badge">${eventName} 전용 (코드: ${adminCode})</div>
+    <div class="event-badge">${eventName} 전용<%-- (코드: ${adminCode})--%></div>
 </div>
 
 <!-- 백엔드에서 전달받은 스캐너 용도 고정 코드 -->
