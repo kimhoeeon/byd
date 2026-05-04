@@ -2,6 +2,7 @@ package com.byd.mapper;
 
 import com.byd.vo.ParticipantVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -22,5 +23,7 @@ public interface EventMapper {
     int getDriveTimeCount(String testDriveTime);
 
     void updateParticipant(ParticipantVO participantVO);
+
+    int checkTestDriveHistory(@Param("phone") String phone, @Param("seq") Integer seq);
 
 }

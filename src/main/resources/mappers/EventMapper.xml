@@ -51,4 +51,14 @@
         WHERE seq = #{seq}
     </update>
 
+    <select id="checkTestDriveHistory" resultType="int">
+        SELECT COUNT(*)
+        FROM event_participant
+        WHERE phone = #{phone}
+        AND test_drive_time != '시승 미신청'
+        <if test="seq != null and seq > 0">
+            AND seq != #{seq}
+        </if>
+    </select>
+
 </mapper>

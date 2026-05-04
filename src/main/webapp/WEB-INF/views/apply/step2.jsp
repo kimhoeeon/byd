@@ -34,8 +34,6 @@
     <title>BYD</title>
 
     <style>
-        .select-group { display: flex; gap: 10px; }
-        .select-group select { flex: 1; }
         .notice-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #e50000; font-weight: bold; text-align: center; line-height: 1.4; border: 1px solid #ffcccc; }
     </style>
 </head>

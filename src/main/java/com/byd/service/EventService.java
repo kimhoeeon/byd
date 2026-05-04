@@ -45,11 +45,17 @@ public class EventService {
 
     public void insertParticipant(ParticipantVO participantVO) {
 
-        // [추가] 백엔드 단위 4명 정원 검증 로직
+        // 백엔드 단위 4명 정원 검증 로직
         if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
             int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime());
             if(currentCount >= 4) {
                 throw new IllegalStateException("해당 시간대는 이미 마감되었습니다.");
+            }
+
+            // 2. 3일간 시승 행사 1회 참여 제한 검증 (이전 날짜 포함)
+            int historyCount = eventMapper.checkTestDriveHistory(participantVO.getPhone(), null);
+            if(historyCount > 0) {
+                throw new IllegalArgumentException("행사 기간 중 시승 신청은 1회만 가능합니다.");
             }
         }
 
@@ -57,7 +63,7 @@ public class EventService {
         String qrToken = UUID.randomUUID().toString().replace("-", "");
         participantVO.setQrCodeUrl(qrToken);
 
-        // [추가] 유입경로 기본값 세팅
+        // 유입경로 기본값 세팅
         if(participantVO.getEntryType() == null || participantVO.getEntryType().isEmpty()){
             participantVO.setEntryType("오프라인코드 4040");
         }
@@ -70,6 +76,15 @@ public class EventService {
     }
 
     public void updateParticipant(ParticipantVO participantVO) {
+
+        // 정보 수정 시에도 시승을 새롭게 신청/변경하는 경우 1회 제한 검증
+        if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
+            int historyCount = eventMapper.checkTestDriveHistory(participantVO.getPhone(), participantVO.getSeq());
+            if(historyCount > 0) {
+                throw new IllegalArgumentException("행사 기간 중 시승 신청은 1회만 가능합니다.");
+            }
+        }
+
         eventMapper.updateParticipant(participantVO);
     }
 

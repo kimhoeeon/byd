@@ -85,6 +85,11 @@ public class EventController {
 
         try {
             eventService.insertParticipant(participantVO);
+        } catch (IllegalArgumentException e) {
+            // 3일간 1회 참여 제한에 걸렸을 경우 사용자에게 알림
+            log.warn("행사 기간 중 시승 신청 1회 초과: {}", participantVO.getPhone());
+            rttr.addFlashAttribute("errorMsg", e.getMessage());
+            return "redirect:/apply/step2";
         } catch (IllegalStateException e) {
             log.warn("시승 시간 마감: {}", e.getMessage());
             rttr.addFlashAttribute("errorMsg", "선택하신 시간대는 인원이 마감되었습니다. 다른 시간을 선택해 주세요.");
@@ -113,7 +118,7 @@ public class EventController {
             AES128 aes128 = new AES128(SECRET_KEY);
             String encryptedSeq = aes128.encrypt(String.valueOf(participantVO.getSeq()));
 
-            String domain = "https://your-byd-domain.com"; // 실제 도메인으로 변경 필수
+            String domain = "https://meetingtest.store"; // 실제 도메인으로 변경 필수
             String ticketUrl = domain + "/apply/ticket?token=" + encryptedSeq;
 
             eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl);
@@ -123,39 +128,6 @@ public class EventController {
         }
 
         return "redirect:/apply/complete";
-    }
-
-    // 마이페이지 정보 수정 프로세스
-    @PostMapping("/updateProcess")
-    public String updateProcess(ParticipantVO participantVO, RedirectAttributes rttr) {
-        try {
-            // 시간 변경 시 마감 여부 재검증
-            if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
-                ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
-                if(existing != null && !existing.getTestDriveTime().equals(participantVO.getTestDriveTime())) {
-                    int count = eventService.getDriveTimeCount(participantVO.getTestDriveTime());
-                    if(count >= 4) {
-                        rttr.addFlashAttribute("errorMsg", "선택하신 시간대는 이미 마감되었습니다.");
-
-                        // 다시 마이페이지 티켓 화면으로 되돌리기 위해 토큰 재발행
-                        AES128 aes128 = new AES128(SECRET_KEY);
-                        String token = aes128.encrypt(String.valueOf(participantVO.getSeq()));
-                        return "redirect:/apply/ticket?token=" + token;
-                    }
-                }
-            }
-
-            eventService.updateParticipant(participantVO);
-
-            AES128 aes128 = new AES128(SECRET_KEY);
-            String token = aes128.encrypt(String.valueOf(participantVO.getSeq()));
-            rttr.addFlashAttribute("successMsg", "정보 수정이 완료되었습니다.");
-            return "redirect:/apply/ticket?token=" + token;
-
-        } catch (Exception e) {
-            log.error("정보 수정 중 오류 발생: ", e);
-            return "error/400";
-        }
     }
 
     // 신규 추가: 마이페이지 정보 수정 프로세스 (AJAX 통신 용도)
@@ -180,6 +152,11 @@ public class EventController {
             response.put("success", true);
             response.put("message", "정보가 성공적으로 수정되었습니다.");
 
+        } catch (IllegalArgumentException e) {
+            // 마이페이지에서 미신청 -> 시간 선택으로 수정할 때 1회 제한에 걸린 경우 차단
+            log.warn("마이페이지 수정 중 1회 제한 초과 방어: {}", e.getMessage());
+            response.put("success", false);
+            response.put("message", e.getMessage());
         } catch (Exception e) {
             log.error("AJAX 정보 수정 중 오류 발생: ", e);
             response.put("success", false);
