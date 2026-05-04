@@ -95,4 +95,9 @@ public class AdminMngService {
 
         return chartMap;
     }
+
+    public void deleteParticipant(int seq) {
+        adminMngMapper.deleteParticipant(seq);
+    }
+
 }

@@ -134,7 +134,7 @@ public class AdminMngController {
                 return response;
             }
 
-            // 분기별 이미 출석 처리된 경우 방어
+            // 1. 이미 출석 처리된 경우 방어
             if ("101".equals(adminCode) && "Y".equals(participant.getChallengeCheckYn())) {
                 response.setSuccess(false);
                 response.setMessage("이미 챌린지 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
@@ -142,6 +142,15 @@ public class AdminMngController {
             } else if ("202".equals(adminCode) && "Y".equals(participant.getDriveCheckYn())) {
                 response.setSuccess(false);
                 response.setMessage("이미 시승 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
+                return response;
+            }
+
+            // ==========================================
+            // 시승 미신청 고객 QR 스캔 원천 차단
+            // ==========================================
+            if ("202".equals(adminCode) && "시승 미신청".equals(participant.getTestDriveTime())) {
+                response.setSuccess(false);
+                response.setMessage("시승을 신청하지 않은 고객입니다. (" + participant.getName() + "님)");
                 return response;
             }
 
@@ -171,6 +180,18 @@ public class AdminMngController {
             String columnName = "challenge".equals(type) ? "challenge_check_yn" : "drive_check_yn";
             String adminCode = "challenge".equals(type) ? "101" : "202";
 
+            // ==========================================
+            // 관리자 화면 토글 조작 시에도 시승 미신청 고객 방어
+            // ==========================================
+            if (status && "202".equals(adminCode)) {
+                ParticipantVO participant = adminMngService.getParticipantBySeq(seq);
+                if (participant != null && "시승 미신청".equals(participant.getTestDriveTime())) {
+                    response.setSuccess(false);
+                    response.setMessage("시승 미신청 고객은 출석 처리를 할 수 없습니다.");
+                    return response;
+                }
+            }
+
             if (status) {
                 adminMngService.updateArrivalStatus(seq, adminCode);
             } else {
@@ -179,6 +200,22 @@ public class AdminMngController {
             response.setSuccess(true);
         } catch (Exception e) {
             response.setSuccess(false);
+        }
+        return response;
+    }
+
+    // 삭제 기능 API 추가
+    @PostMapping("/api/participant/delete")
+    @ResponseBody
+    public ResponseDTO deleteParticipant(@RequestParam("seq") int seq) {
+        ResponseDTO response = new ResponseDTO();
+        try {
+            adminMngService.deleteParticipant(seq);
+            response.setSuccess(true);
+            response.setMessage("해당 참가자가 삭제되었습니다.");
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("삭제 처리 중 오류가 발생했습니다.");
         }
         return response;
     }

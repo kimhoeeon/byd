@@ -2,15 +2,15 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="telephone=no"/>
     <title>BYD 시승 타이머</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
 
     <link href="/css/reset.css" rel="stylesheet">
@@ -22,6 +22,66 @@
     <script src="/js/jquery.cookie.min.js"></script>
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
+
+    <style>
+        /* ==========================================
+           [추가] 폰트 변경 없이 타이머 흔들림(어지럼증) 방지
+           숫자 하나하나를 고정된 너비의 block 안에 배치합니다.
+           ========================================== */
+        .digit {
+            display: inline-block;
+            width: 0.65em; /* 폰트 크기에 맞춰 가장 넓은 숫자('0'이나 '8')가 들어갈 수 있는 고정 폭 */
+            text-align: center;
+        }
+
+        .colon {
+            display: inline-block;
+            width: 0.3em;
+            text-align: center;
+            position: relative;
+            top: -2px; /* 폰트에 따라 콜론 높낮이가 안 맞으면 이 값을 조절하세요 */
+        }
+
+        /* 우측 하단 조작 가이드 박스 스타일 지정 */
+        .guide-box {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            z-index: 1000;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .guide-box h4 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 8px;
+            color: #fff;
+        }
+
+        .guide-box p {
+            margin: 0;
+            color: #ddd;
+        }
+
+        .guide-box strong {
+            color: #009ef7; /* 파란색 포인트 */
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+
+        .guide-box .key-desc {
+            padding-left: 8px;
+        }
+    </style>
 </head>
 <body>
 
@@ -31,8 +91,11 @@
     <!-- check-in -->
     <div class="ck-in timer_wrap">
         <div class="inner">
-            <!-- 초기 시간 세팅 -->
-            <div class="timer" id="timer">00:00</div>
+            <!-- 초기 시간 세팅 (HTML 로딩 시에도 흔들리지 않도록 span 구조 적용) -->
+            <div class="timer" id="timer">
+                <span class="digit">2</span><span class="digit">0</span><span class="colon">:</span><span class="digit">0</span><span
+                    class="digit">0</span>
+            </div>
             <img src="/img/logo.png" alt="logo">
         </div>
     </div>
@@ -41,8 +104,26 @@
 </div>
 <!-- //container -->
 
+<!-- 우측 하단 조작 가이드 -->
+<div class="guide-box">
+    <h4>🎮 조작 가이드</h4>
+    <p><strong>[시작 / 일시정지]</strong></p>
+    <div class="key-desc">
+        - 프리젠터 : 다음 (Next) 〉<br>
+        - 키보드 : Space, Enter, PageDown, →
+    </div>
+    <p style="margin-top: 15px;"><strong>[타이머 초기화]</strong></p>
+    <div class="key-desc">
+        - 프리젠터 : 이전 (Back) 〈<br>
+        - 키보드 : Backspace, PageUp, ←
+    </div>
+</div>
+
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
+        // 타이머 기본 세팅: 20초 (밀리초 단위)
+        const initialTimeMs = 20 * 1000;
+
         let startTime = 0;
         let elapsedTime = 0;
         let timerInterval;
@@ -50,24 +131,40 @@
 
         const timerDisplay = document.getElementById("timer");
 
-        // 시간을 00:00 형태로 포맷팅
+        // 시간을 구해서 각각의 박스(span)에 담아 리턴하는 함수
         function formatTime(ms) {
-            let totalSeconds = Math.floor(ms / 1000);
-            let minutes = Math.floor(totalSeconds / 60);
-            let seconds = totalSeconds % 60;
+            let seconds = Math.floor(ms / 1000);
+            let centiseconds = Math.floor((ms % 1000) / 10);
 
-            let mDisplay = minutes < 10 ? "0" + minutes : minutes;
-            let sDisplay = seconds < 10 ? "0" + seconds : seconds;
-            return mDisplay + ":" + sDisplay;
+            // 문자열로 변환하고 한 자리면 앞에 0 붙이기
+            let sDisplay = seconds < 10 ? "0" + seconds : seconds.toString();
+            let cDisplay = centiseconds < 10 ? "0" + centiseconds : centiseconds.toString();
+
+            // 숫자를 쪼개서 고정폭 span에 삽입
+            return '<span class="digit">' + sDisplay.charAt(0) + '</span>' +
+                '<span class="digit">' + sDisplay.charAt(1) + '</span>' +
+                '<span class="colon">:</span>' +
+                '<span class="digit">' + cDisplay.charAt(0) + '</span>' +
+                '<span class="digit">' + cDisplay.charAt(1) + '</span>';
         }
 
-        // 타이머 시작 (또는 재개)
+        // 카운트다운 타이머 시작 (또는 재개)
         function startTimer() {
             startTime = Date.now() - elapsedTime;
-            timerInterval = setInterval(function() {
+
+            // 역동적인 밀리초 렌더링을 위해 0.01초(10ms)마다 화면 갱신
+            timerInterval = setInterval(function () {
                 elapsedTime = Date.now() - startTime;
-                timerDisplay.innerHTML = formatTime(elapsedTime);
-            }, 100); // 0.1초마다 화면 갱신
+                let remainingMs = initialTimeMs - elapsedTime;
+
+                if (remainingMs <= 0) {
+                    remainingMs = 0;
+                    stopTimer();
+                }
+
+                timerDisplay.innerHTML = formatTime(remainingMs);
+            }, 10);
+
             isRunning = true;
         }
 
@@ -79,6 +176,8 @@
 
         // 시작/정지 토글
         function toggleTimer() {
+            if (elapsedTime >= initialTimeMs) return;
+
             if (isRunning) {
                 stopTimer();
             } else {
@@ -86,29 +185,26 @@
             }
         }
 
-        // 타이머 초기화 (00:00)
+        // 타이머 초기화
         function resetTimer() {
             stopTimer();
             elapsedTime = 0;
-            timerDisplay.innerHTML = "00:00";
+            // 초기화 시에도 span 구조를 그대로 삽입
+            timerDisplay.innerHTML = '<span class="digit">2</span><span class="digit">0</span><span class="colon">:</span><span class="digit">0</span><span class="digit">0</span>';
         }
 
         // ==========================================
         // [핵심 로직] 로지텍 스포트라이트 (키보드 이벤트) 매핑
         // ==========================================
-        document.addEventListener('keydown', function(event) {
+        document.addEventListener('keydown', function (event) {
 
-            // 1. 프리젠터 '다음(Next)' 버튼 (기본값: PageDown, 방향키 오른쪽)
-            // - 역할: 타이머 시작 / 정지 (토글)
-            // - 참고: 스페이스바, 엔터키로도 작동하게 보조 설정
+            // 1. 프리젠터 '다음(Next)' 버튼 (시작/일시정지)
             if (event.key === 'PageDown' || event.key === 'ArrowRight' || event.key === ' ' || event.key === 'Enter') {
-                event.preventDefault(); // 스크롤이 내려가는 기본 동작 방지
+                event.preventDefault(); // 스크롤 방지
                 toggleTimer();
             }
 
-            // 2. 프리젠터 '이전(Back)' 버튼 (기본값: PageUp, 방향키 왼쪽)
-            // - 역할: 타이머 00:00으로 초기화
-            // - 참고: 백스페이스(Backspace) 키로도 작동하게 보조 설정
+            // 2. 프리젠터 '이전(Back)' 버튼 (초기화)
             else if (event.key === 'PageUp' || event.key === 'ArrowLeft' || event.key === 'Backspace') {
                 event.preventDefault();
                 resetTimer();

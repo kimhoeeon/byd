@@ -6,7 +6,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8"/>
-    <title>BYD ADMIN | 통합 신청 내역</title>
+    <title>BYD ADMIN | 시승 관리</title>
     <link rel="stylesheet" href="/assets/plugins/custom/datatables/datatables.bundle.css">
     <link rel="stylesheet" href="/assets/plugins/global/plugins.bundle.css">
     <link rel="stylesheet" href="/assets/css/style.bundle.css">
@@ -101,6 +101,7 @@
                                     <th class="text-center">예약시간</th>
                                     <th class="text-center">개인정보 동의 여부</th>
                                     <th class="text-center">마케팅 동의 여부</th>
+                                    <th class="text-center">관리</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -188,6 +189,9 @@
                                         <td>
                                             <span class="badge badge-light-primary">Y</span>
                                         </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-light-danger fw-bold" onclick="deleteParticipant(${item.seq})">삭제</button>
+                                        </td>
                                     </tr>
                                 </c:forEach>
                                 </tbody>
@@ -255,8 +259,9 @@
                 data: { seq: seq, status: isChecked, type: type },
                 success: function(res) {
                     if(!res.success) {
-                        alert("상태 변경에 실패했습니다.");
-                        $(this).prop('checked', !isChecked);
+                        // 기본 오류 메시지 대신 서버에서 내려준 상세 메시지 표출
+                        alert(res.message ? res.message : "상태 변경에 실패했습니다.");
+                        $(this).prop('checked', !isChecked); // 토글 원상복구
                     }
                 }.bind(this),
                 error: function() {
@@ -289,6 +294,29 @@
 
         // 제출 후 폼 액션을 다시 원래대로(목록 조회용) 복구
         form.action = originalAction;
+    }
+
+    // 삭제 로직 함수
+    function deleteParticipant(seq) {
+        if(confirm("정말 이 참가자를 삭제하시겠습니까?\n(삭제된 데이터는 복구할 수 없습니다.)")) {
+            $.ajax({
+                url: '/mng/api/participant/delete',
+                type: 'POST',
+                data: { seq: seq },
+                success: function(res) {
+                    if(res.success) {
+                        alert(res.message);
+                        // 삭제 후 현재 페이지 상태 그대로 새로고침(검색 결과 및 페이지 유지)
+                        location.reload();
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function() {
+                    alert("서버 통신 오류가 발생했습니다.");
+                }
+            });
+        }
     }
 </script>
 </body>

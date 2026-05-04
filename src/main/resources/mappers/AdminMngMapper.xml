@@ -118,4 +118,8 @@
         FROM event_participant
     </select>
 
+    <delete id="deleteParticipant" parameterType="int">
+        DELETE FROM event_participant WHERE seq = #{seq}
+    </delete>
+
 </mapper>

@@ -71,7 +71,7 @@
                             </li>
                         </ul>
                         <div class="btn_box">
-                            <button type="button" class="btn_st01" onclick="submitStep1();">NEXT</button>
+                            <button type="button" class="btn_st01" onclick="submitStep1();">다음</button>
                         </div>
                     </form>
                 </div>
@@ -93,6 +93,13 @@
     <script>
 
         $(document).ready(function() {
+
+            // 이름 입력 시 띄어쓰기(공백) 실시간 자동 제거
+            $('#name').on('input', function() {
+                var val = $(this).val().replace(/\s/g, ''); // 정규식을 사용해 모든 공백 제거
+                $(this).val(val);
+            });
+
             // 연락처 입력 시 자동 하이픈 및 숫자 이외의 문자 입력 방지
             $('#phone').on('input', function() {
                 // 입력된 값에서 숫자 이외의 문자 모두 제거

@@ -55,7 +55,7 @@
                                 <span class="path3"></span>
                             </i>
                         </span>
-                        <span class="menu-title">통합 신청 내역</span>
+                        <span class="menu-title">시승 관리</span>
                     </a>
                 </div>
 

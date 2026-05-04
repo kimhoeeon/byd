@@ -219,6 +219,9 @@
 
         $('#resultList').html('<div style="text-align:center;">검색 중...</div>');
 
+        // [추가] 현재 선택된 탭(챌린지 vs 시승체험) 값을 미리 가져옵니다.
+        const currentEventType = $('input[name="eventType"]:checked').val();
+
         $.ajax({
             url: '/mng/api/searchParticipant',
             type: 'GET',
@@ -238,7 +241,25 @@
                         html += '    <strong>' + item.name + '</strong> <span style="font-size:0.85em; color:#999;">(' + item.phone + ')</span>';
                         html += '    <p>관심모델: ' + item.carModel + ' | 시간: ' + (item.testDriveTime ? item.testDriveTime : '미지정') + '</p>';
                         html += '  </div>';
-                        html += '  <button class="btn-checkin" onclick="processCheckIn(' + item.seq + ', \'' + item.name + '\')">출석 처리</button>';
+
+                        // ==========================================
+                        // 현재 탭에 맞는 출석 여부를 검사하여 버튼 상태 결정
+                        // ==========================================
+                        let isAlreadyChecked = false;
+                        if (currentEventType === 'challenge' && item.challengeCheckYn === 'Y') {
+                            isAlreadyChecked = true;
+                        } else if (currentEventType === 'drive' && item.driveCheckYn === 'Y') {
+                            isAlreadyChecked = true;
+                        }
+
+                        if (isAlreadyChecked) {
+                            // 이미 출석 완료된 경우: 회색 버튼, 비활성화(disabled)
+                            html += '  <button class="btn-checkin" style="background-color: #6c757d; cursor: not-allowed;" disabled>출석 완료됨</button>';
+                        } else {
+                            // 출석 전인 경우: 기존 녹색 버튼
+                            html += '  <button class="btn-checkin" onclick="processCheckIn(' + item.seq + ', \'' + item.name + '\')">출석 처리</button>';
+                        }
+
                         html += '</div>';
                     });
                 }

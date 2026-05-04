@@ -45,4 +45,6 @@ public interface AdminMngMapper {
     List<Map<String, Object>> getShopStats();
 
     Map<String, Object> getAttendanceStats();
+
+    void deleteParticipant(int seq);
 }
