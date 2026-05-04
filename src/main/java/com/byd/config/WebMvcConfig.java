@@ -12,15 +12,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private AdminInterceptor adminInterceptor;
 
-    @Autowired
-    private HttpsRedirectInterceptor httpsRedirectInterceptor;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 1. HTTPS 리다이렉트 (보안 - 최우선 실행)
-        registry.addInterceptor(httpsRedirectInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/.well-known/**");
 
         // 2. 유지보수 모드 (백도어 기능 포함)
         registry.addInterceptor(new MaintenanceInterceptor())
