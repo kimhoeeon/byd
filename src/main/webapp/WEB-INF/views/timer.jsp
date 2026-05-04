@@ -25,21 +25,33 @@
 
     <style>
         /* ==========================================
-           [추가] 폰트 변경 없이 타이머 흔들림(어지럼증) 방지
-           숫자 하나하나를 고정된 너비의 block 안에 배치합니다.
+           [수정] 폰트 변경 없이 타이머 흔들림 & 개행 방지
+           Flex 레이아웃으로 한 줄에 고정하고 여유 있는 너비를 줍니다.
            ========================================== */
+        .timer-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Flex 특성상 폭이 좁아도 절대 줄바꿈 되지 않도록 방지 */
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
         .digit {
+            /* 숫자가 들어가는 칸의 가로 폭을 넉넉하게 고정하여 흔들림 방지 */
+            /* LABDigital 폰트 특성에 맞춰 폭을 넓게(0.7em) 설정 */
             display: inline-block;
-            width: 0.65em; /* 폰트 크기에 맞춰 가장 넓은 숫자('0'이나 '8')가 들어갈 수 있는 고정 폭 */
+            width: 0.7em;
             text-align: center;
         }
 
         .colon {
+            /* 콜론(:)이 들어가는 칸의 폭 */
             display: inline-block;
             width: 0.3em;
             text-align: center;
-            position: relative;
-            top: -2px; /* 폰트에 따라 콜론 높낮이가 안 맞으면 이 값을 조절하세요 */
+            /* 폰트에 따라 콜론이 너무 아래에 있으면 이 margin-top을 음수로 조절 (-1vw 등) */
+            margin-top: -1.5vw;
         }
 
         /* 우측 하단 조작 가이드 박스 스타일 지정 */
@@ -73,7 +85,7 @@
         }
 
         .guide-box strong {
-            color: #009ef7; /* 파란색 포인트 */
+            color: #009ef7;
             display: inline-block;
             margin-bottom: 3px;
         }
@@ -91,10 +103,12 @@
     <!-- check-in -->
     <div class="ck-in timer_wrap">
         <div class="inner">
-            <!-- 초기 시간 세팅 (HTML 로딩 시에도 흔들리지 않도록 span 구조 적용) -->
-            <div class="timer" id="timer">
-                <span class="digit">2</span><span class="digit">0</span><span class="colon">:</span><span class="digit">0</span><span
-                    class="digit">0</span>
+            <!-- 기존 timer 클래스 내부에 새로운 Flex 컨테이너 추가 -->
+            <div class="timer">
+                <div class="timer-display" id="timer">
+                    <span class="digit">2</span><span class="digit">0</span><span class="colon">:</span><span
+                        class="digit">0</span><span class="digit">0</span>
+                </div>
             </div>
             <img src="/img/logo.png" alt="logo">
         </div>
@@ -121,7 +135,6 @@
 
 <script>
     $(document).ready(function () {
-        // 타이머 기본 세팅: 20초 (밀리초 단위)
         const initialTimeMs = 20 * 1000;
 
         let startTime = 0;
@@ -136,7 +149,7 @@
             let seconds = Math.floor(ms / 1000);
             let centiseconds = Math.floor((ms % 1000) / 10);
 
-            // 문자열로 변환하고 한 자리면 앞에 0 붙이기
+            // 한 자리면 앞에 0 붙이기
             let sDisplay = seconds < 10 ? "0" + seconds : seconds.toString();
             let cDisplay = centiseconds < 10 ? "0" + centiseconds : centiseconds.toString();
 
@@ -194,17 +207,17 @@
         }
 
         // ==========================================
-        // [핵심 로직] 로지텍 스포트라이트 (키보드 이벤트) 매핑
+        // 프리젠터 & 키보드 매핑 로직
         // ==========================================
         document.addEventListener('keydown', function (event) {
 
-            // 1. 프리젠터 '다음(Next)' 버튼 (시작/일시정지)
+            // 시작/일시정지
             if (event.key === 'PageDown' || event.key === 'ArrowRight' || event.key === ' ' || event.key === 'Enter') {
-                event.preventDefault(); // 스크롤 방지
+                event.preventDefault();
                 toggleTimer();
             }
 
-            // 2. 프리젠터 '이전(Back)' 버튼 (초기화)
+            // 초기화
             else if (event.key === 'PageUp' || event.key === 'ArrowLeft' || event.key === 'Backspace') {
                 event.preventDefault();
                 resetTimer();
