@@ -160,7 +160,7 @@ public class EventController {
         return "redirect:/apply/complete";
     }
 
-    // 신규 추가: 마이페이지 정보 수정 프로세스 (AJAX 통신 용도)
+    // 마이페이지 정보 수정 프로세스 (AJAX 통신 용도)
     @PostMapping("/updateAjax")
     @ResponseBody
     public Map<String, Object> updateAjax(ParticipantVO participantVO) {
@@ -214,7 +214,14 @@ public class EventController {
 
     // 모바일 티켓 (문자 링크 클릭 시 접속)
     @GetMapping("/ticket")
-    public String mobileTicket(@RequestParam("token") String token, Model model) {
+    public String mobileTicket(@RequestParam(value = "token", required = false) String token, Model model) {
+
+        // 파라미터 없이 직접 접근한 경우 에러를 뱉지 않고 step1으로 튕겨냅니다.
+        if (token == null || token.trim().isEmpty()) {
+            log.warn("티켓 접근 오류 - 토큰 파라미터 누락 (비정상 접근 시도)");
+            return "redirect:/apply/step1";
+        }
+
         try {
             // 1. 토큰 복호화
             AES128 aes128 = new AES128(SECRET_KEY);
