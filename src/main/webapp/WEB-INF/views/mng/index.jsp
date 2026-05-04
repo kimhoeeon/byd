@@ -11,7 +11,7 @@
     <link rel="icon" href="/favicon.ico"/>
     <link rel="shortcut icon" href="/favicon.ico"/>
 
-    <title>관리자 로그인 | BYD</title>
+    <title>BYD ADMIN | 로그인</title>
 
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>

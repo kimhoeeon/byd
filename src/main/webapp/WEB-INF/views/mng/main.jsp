@@ -11,7 +11,7 @@
     <link rel="icon" href="/favicon.ico" />
     <link rel="shortcut icon" href="/favicon.ico" />
 
-    <title>관리자 메인 | BYD 통합 관리 시스템</title>
+    <title>BYD ADMIN | 메인대시보드</title>
 
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
