@@ -10,9 +10,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +46,9 @@ public class EventController {
             try {
                 AES128 aes128 = new AES128(SECRET_KEY);
                 String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
-                return "redirect:/apply/ticket?token=" + encryptedSeq;
+                // URL 인코딩 적용
+                String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
+                return "redirect:/apply/ticket?token=" + encodedToken;
             } catch (Exception e) {
                 log.error("중복 신청자 토큰 생성 오류: ", e);
                 return "error/400";
@@ -66,8 +72,18 @@ public class EventController {
 
     // 시승 신청 2페이지 (상세 정보 입력)
     @GetMapping("/step2")
-    public String step2(HttpSession session, Model model) {
-        if (session.getAttribute("tempInfo") == null) return "redirect:/apply/step1";
+    public String step2(HttpSession session, HttpServletResponse response, Model model) throws IOException {
+
+        // 1. 비정상 접근 완벽 차단: 세션에 tempInfo가 없으면
+        if (session.getAttribute("tempInfo") == null) {
+            log.warn("비정상 접근 감지: /apply/step1 을 거치지 않고 /apply/step2 에 직접 접근 시도");
+
+            // 확실하게 브라우저를 튕겨냅니다.
+            response.sendRedirect("/apply/step1");
+            return null; // 뷰를 렌더링하지 않도록 null 반환
+        }
+
+        // 2. 정상 접근일 경우 뷰 렌더링
         return "apply/step2";
     }
 
@@ -101,7 +117,9 @@ public class EventController {
                 try {
                     AES128 aes128 = new AES128(SECRET_KEY);
                     String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
-                    return "redirect:/apply/ticket?token=" + encryptedSeq;
+                    // URL 인코딩 적용
+                    String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
+                    return "redirect:/apply/ticket?token=" + encodedToken;
                 } catch (Exception ex) {
                     return "error/400";
                 }
@@ -118,14 +136,20 @@ public class EventController {
             AES128 aes128 = new AES128(SECRET_KEY);
             String encryptedSeq = aes128.encrypt(String.valueOf(participantVO.getSeq()));
 
-            String domain = "https://meetingtest.store"; // 실제 도메인으로 변경 필수
-            String ticketUrl = domain + "/apply/ticket?token=" + encryptedSeq;
+            // URL 인코딩 적용
+            String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
+
+            String domain = "https://meetingtest.store";
+            String ticketUrl = domain + "/apply/ticket?token=" + encodedToken;
 
             eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl);
 
         } catch (Exception e) {
             log.error("알림 발송 실패 (신청은 완료됨): ", e);
         }
+
+        // 신청이 정상적으로 완료되었음을 증명하는 일회성 토큰(플래그) 발급
+        rttr.addFlashAttribute("applyCompleteFlag", true);
 
         return "redirect:/apply/complete";
     }
@@ -167,7 +191,18 @@ public class EventController {
 
     // 3. 완료 페이지 매핑 추가
     @GetMapping("/complete")
-    public String completePage() {
+    public String completePage(HttpServletRequest request) {
+
+        // 1. applyProcess에서 넘겨준 Flash Attribute 가 있는지 확인
+        Map<String, ?> flashMap = RequestContextUtils.getInputFlashMap(request);
+
+        if (flashMap == null || !flashMap.containsKey("applyCompleteFlag")) {
+            // 플래그가 없으면 (즉, 주소를 직접 치고 들어왔거나 새로고침 한 경우) step1으로 강제 이동
+            log.warn("비정상 접근 감지: /apply/complete 에 직접 접근 시도");
+            return "redirect:/apply/step1";
+        }
+
+        // 2. 정상적인 흐름일 경우 뷰 렌더링
         return "apply/complete";
     }
 

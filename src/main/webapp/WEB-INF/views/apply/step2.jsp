@@ -33,8 +33,16 @@
 
     <title>BYD</title>
 
+    <%-- 추가: 비정상 접근 시 화면 렌더링 전 강제 튕겨내기 --%>
+    <c:if test="${empty sessionScope.tempInfo}">
+        <script>
+            alert("정상적인 접근 경로가 아닙니다.\n이름과 연락처를 먼저 입력해 주세요.");
+            location.replace("/apply/step1");
+        </script>
+    </c:if>
+
     <style>
-        .notice-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #e50000; font-weight: bold; text-align: center; line-height: 1.4; border: 1px solid #ffcccc; }
+        .notice-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; margin-top: 10px; font-size: 14px; color: #e50000; font-weight: bold; text-align: center; line-height: 1.4; border: 1px solid #ffcccc; }
     </style>
 </head>
 
@@ -44,7 +52,7 @@
     <div id="container">
 
         <!-- check-in -->
-        <div class="ck-in center">
+        <div class="ck-in">
 
             <!-- title -->
             <div class="top_tit padding_tb">
@@ -74,10 +82,10 @@
                                         <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly style="background-color:#f5f5f5;">
                                         <button type="button" class="search-btn" onclick="execDaumPostcode()"><img src="/img/ico_search.png" alt="검색"></button>
                                     </label>
-                                    <div class="input mt-10">
-                                        <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요.">
-                                        <input type="hidden" name="address" id="fullAddress">
-                                    </div>
+                                </div>
+                                <div class="input mt-10">
+                                    <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요.">
+                                    <input type="hidden" name="address" id="fullAddress">
                                 </div>
                             </li>
                             <li>
@@ -191,7 +199,7 @@
             // 1. 페이지 로드 시 예약 현황 체크
             checkDriveTimeAvailability();
 
-            // 2. [추가] 백엔드 유효성 검사 실패 시 에러 메시지 출력
+            // 2. 백엔드 유효성 검사 실패 시 에러 메시지 출력
             <c:if test="${not empty errorMsg}">
                 alert("${errorMsg}");
             </c:if>

@@ -65,7 +65,7 @@ public class EventService {
 
         // 유입경로 기본값 세팅
         if(participantVO.getEntryType() == null || participantVO.getEntryType().isEmpty()){
-            participantVO.setEntryType("오프라인코드 4040");
+            participantVO.setEntryType("4040");
         }
 
         eventMapper.insertParticipant(participantVO);

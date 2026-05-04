@@ -41,7 +41,7 @@
     <div id="container">
 
         <!-- check-in -->
-        <div class="ck-in center">
+        <div class="ck-in">
 
             <!-- title -->
             <div class="top_tit padding_tb">
@@ -62,9 +62,11 @@
                     <!-- QR 코드 영역 및 1회 참여 조건 문구 -->
                     <div style="text-align: center; background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
                         <p style="color: #333; font-weight: bold; margin-bottom: 10px;">현장 데스크에 아래 QR 코드를 제시해 주세요.</p>
-                        <img src="${qrCodeImgUrl}" alt="QR Code" style="width: 200px; height: 200px;"/>
+
+                        <!-- 구글 API 이미지 태그 삭제 후 클라이언트 렌더링용 div 추가 -->
+                        <div id="qrcode" style="display: flex; justify-content: center; margin: 15px 0;"></div>
+
                         <p style="color: #e50000; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
-                            [유효기간] 예약하신 시승 시간 (${data.testDriveTime}) 까지 유효합니다.<br><br>
                             ※ 챌린지 및 시승 행사는 행사 기간(3일) 중<br>각각 1회에 한하여 참여 가능합니다.
                         </p>
                     </div>
@@ -82,16 +84,27 @@
                             </li>
                             <li>
                                 <div class="gubun">주소</div>
-                                <div class="input">
-                                    <label for="baseAddress">
-                                        <input type="text" id="baseAddress" value="${data.address}" placeholder="주소찾기를 진행해 주세요." readonly style="background-color:#f5f5f5; flex: 1;">
-                                        <button type="button" class="btn-search-addr" onclick="execDaumPostcode()">주소 찾기</button>
-                                    </label>
+                                <!-- 1. 현재 등록된 주소 노출 영역 -->
+                                <div class="input" id="currentAddressArea" style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="text" value="${data.address}" readonly style="background-color:#f5f5f5; flex: 1; color: #666;">
+                                    <button type="button" class="search-btn" onclick="enableAddressEdit()" style="white-space: nowrap;">주소 변경</button>
+                                </div>
+
+                                <!-- 2. 주소 변경 활성화 시 나타나는 영역 (기본은 숨김) -->
+                                <div id="editAddressArea" style="display: none; margin-top: 10px;">
+                                    <div class="input">
+                                        <label for="baseAddress">
+                                            <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly style="background-color:#e8f0fe; flex: 1;">
+                                            <button type="button" class="search-btn" onclick="execDaumPostcode()">주소 찾기</button>
+                                        </label>
+                                    </div>
                                     <div class="input mt-10">
-                                        <input type="text" id="detailAddress" placeholder="새로 주소를 검색할 경우 상세 주소를 입력해 주세요.">
-                                        <input type="hidden" name="address" id="fullAddress" value="${data.address}">
+                                        <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요.">
                                     </div>
                                 </div>
+
+                                <!-- 실제 서버로 전송되는 값 -->
+                                <input type="hidden" name="address" id="fullAddress" value="${data.address}">
                             </li>
                             <li>
                                 <div class="gubun">전시장 정보</div>
@@ -188,6 +201,9 @@
     <!-- Daum 우편번호 API -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
+    <!-- QR 코드 생성 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <script>
         const shopData = {
             "서울": [ "BYD 강동", "BYD 강서", "BYD 마포", "BYD 목동", "BYD 서초", "BYD 송파", "BYD 용산" ],
@@ -202,15 +218,33 @@
 
         // 서버에서 받아온 기존 지점 데이터
         const currentShopInfo = "${data.shopInfo}";
+        // 주소 변경 체크를 위한 원본 주소
+        const originalAddress = "${data.address}";
+
+        // 주소 변경 모드 활성화 여부
+        let isAddressEditing = false;
 
         $(document).ready(function() {
-            // 1. 기존 데이터에 맞춰 지역 및 전시장 초기화
+            // 1. QR 코드 클라이언트 렌더링
+            var qrUrl = "${data.qrCodeUrl}";
+            if(qrUrl) {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: qrUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+
+            // 2. 기존 데이터에 맞춰 지역 및 전시장 초기화
             initRegionAndShop();
 
-            // 2. 예약 현황 체크 및 안전동의 영역 가시성 초기화
+            // 3. 예약 현황 체크 및 안전동의 영역 가시성 초기화
             checkDriveTimeAvailability();
 
-            // 3. 정보 수정 버튼 클릭 이벤트
+            // 4. 정보 수정 버튼 클릭 이벤트
             $("#btnUpdate").on("click", function(e) {
                 e.preventDefault();
 
@@ -221,7 +255,7 @@
 
                         $.ajax({
                             type: "POST",
-                            url: "/apply/updateAjax", // EventController에 추가된 AJAX 전용 API 호출
+                            url: "/apply/updateAjax",
                             data: formData,
                             success: function(response) {
                                 if(response.success) {
@@ -240,6 +274,16 @@
                 }
             });
         });
+
+        // 주소 변경 버튼 클릭 시 입력 폼 노출
+        function enableAddressEdit() {
+            isAddressEditing = true;
+            document.getElementById("currentAddressArea").style.display = "none";
+            document.getElementById("editAddressArea").style.display = "block";
+
+            // 주소 찾기 팝업 바로 띄우기 (선택 사항)
+            execDaumPostcode();
+        }
 
         // Daum 주소 찾기 실행 함수
         function execDaumPostcode() {
@@ -318,23 +362,21 @@
             const baseAddress = document.getElementById("baseAddress").value.trim();
             const detailAddress = document.getElementById("detailAddress").value.trim();
 
-            if(baseAddress === "") {
-                alert("주소 찾기를 진행해 주세요.");
-                return false;
-            }
+            // [수정] 주소 변경 모드를 활성화한 경우에만 주소 유효성 검사 수행
+            if(isAddressEditing) {
+                if(baseAddress === "") {
+                    alert("주소 찾기를 진행해 주세요.");
+                    return false;
+                }
 
-            // 기존 주소에서 새롭게 주소를 검색(변경)한 경우 상세주소를 필수 입력받음
-            if(baseAddress !== originalAddress && detailAddress === "") {
-                alert("상세 주소를 입력해 주세요.");
-                document.getElementById("detailAddress").focus();
-                return false;
-            }
+                if(detailAddress === "") {
+                    alert("상세 주소를 입력해 주세요.");
+                    document.getElementById("detailAddress").focus();
+                    return false;
+                }
 
-            // 변경된 상세주소가 있으면 합치고, 없으면 기본 baseAddress(또는 기존 주소)만 전송
-            if(detailAddress !== "") {
+                // 새로운 주소 병합
                 document.getElementById("fullAddress").value = baseAddress + " " + detailAddress;
-            } else {
-                document.getElementById("fullAddress").value = baseAddress;
             }
 
             if(regionSelect.value === "") {

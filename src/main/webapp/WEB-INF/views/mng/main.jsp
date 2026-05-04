@@ -189,16 +189,41 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
-    // 5. 전시장별 TOP 10 (가로 바 차트)
+    // 5. 전시장별 TOP 10 (가로 바 차트 - 디자인 개선)
     const shopArr = [<c:forEach items="${chartData.shopStats}" var="item" varStatus="st">{label:'${item.label}', cnt:${item.cnt}}${!st.last?',' : ''}</c:forEach>];
     const shopExt = extractValues(shopArr);
     new Chart(document.getElementById('shopChart'), {
         type: 'bar',
         data: {
             labels: shopExt.labels,
-            datasets: [{ label: '신청 건수', data: shopExt.data, backgroundColor: '#7239ea', borderRadius: 4 }]
+            datasets: [{
+                label: '신청 건수',
+                data: shopExt.data,
+                backgroundColor: '#7239ea',
+                borderRadius: 4,
+                // 막대 두께 강제 지정 (너무 두꺼워지는 것 방지)
+                maxBarThickness: 30
+            }]
         },
-        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            // x축 설정: 데이터가 1건일 때도 여백이 보이도록 최소 최대값 세팅
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1 // 소수점 방지 (1단위로 표시)
+                    },
+                    // 가장 큰 값이 5 미만일 경우 x축을 최소 5까지 그려서 여백 확보
+                    suggestedMax: Math.max(...shopExt.data) < 5 ? 5 : null
+                }
+            }
+        }
     });
 </script>
 </body>

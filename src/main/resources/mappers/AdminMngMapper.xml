@@ -74,10 +74,10 @@
 
     <select id="getDashboardSummary" resultType="com.byd.vo.StatsVO">
         SELECT
-            COUNT(*) AS totalCnt,
-            SUM(CASE WHEN DATE(reg_date) = CURDATE() THEN 1 ELSE 0 END) AS todayCnt,
-            SUM(CASE WHEN challenge_check_yn = 'Y' OR drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS qrCheckCnt,
-            SUM(CASE WHEN challenge_check_yn = 'N' AND drive_check_yn = 'N' THEN 1 ELSE 0 END) AS driveWaitCnt
+        COUNT(*) AS totalCnt,
+        SUM(CASE WHEN DATE(reg_date) = CURDATE() THEN 1 ELSE 0 END) AS todayCnt,
+        SUM(CASE WHEN challenge_check_yn = 'Y' OR drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS qrCheckCnt,
+        SUM(CASE WHEN drive_check_yn = 'N' AND test_drive_time != '시승 미신청' THEN 1 ELSE 0 END) AS driveWaitCnt
         FROM event_participant
     </select>
 

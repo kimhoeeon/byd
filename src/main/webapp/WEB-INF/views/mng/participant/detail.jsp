@@ -105,9 +105,7 @@
                             <tbody>
                             <tr>
                                 <th class="bg-light fw-bold">등록일시</th>
-                                <td colspan="3"><fmt:parseDate value="${data.regDate}" pattern="yyyy-MM-dd'T'HH:mm:ss"
-                                                               var="pDate"/><fmt:formatDate
-                                        pattern="yyyy-MM-dd HH:mm:ss" value="${pDate}"/></td>
+                                <td colspan="3"><fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${data.regDate}"/></td>
                             </tr>
                             <tr>
                                 <th class="bg-light fw-bold">이름</th>
@@ -139,9 +137,7 @@
                                 <th class="bg-light fw-bold">개인정보 동의 여부</th>
                                 <td><span class="badge badge-primary">Y</span></td>
                                 <th class="bg-light fw-bold">마케팅 동의 여부</th>
-                                <td><span
-                                        class="badge ${data.mktAgree eq 'Y' ? 'badge-primary' : 'badge-danger'}">${empty data.mktAgree ? 'N' : data.mktAgree}</span>
-                                </td>
+                                <td><span class="badge badge-primary">Y</span></td>
                             </tr>
 
                             <!-- 챌린지 및 시승 도착 여부 분리 -->

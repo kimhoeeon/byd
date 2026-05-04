@@ -34,6 +34,13 @@
 
     <title>BYD</title>
 
+    <c:if test="${empty applyCompleteFlag}">
+        <script>
+            alert("잘못된 접근입니다.\n신청 페이지로 이동합니다.");
+            location.replace("/apply/step1");
+        </script>
+    </c:if>
+
 </head>
 
 <body class="success">
