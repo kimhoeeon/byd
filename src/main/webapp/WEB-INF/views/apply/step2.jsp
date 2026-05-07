@@ -217,6 +217,15 @@
             <c:if test="${not empty errorMsg}">
                 alert("${errorMsg}");
             </c:if>
+
+            // 이메일 아이디 전체 입력 방지 및 공백 차단
+            $("#emailId").on("input", function() {
+                let val = $(this).val().replace(/\s/g, ''); // 공백 제거
+                if(val.includes('@')) {
+                    val = val.split('@')[0]; // @ 이후 문자열 모두 제거
+                }
+                $(this).val(val);
+            });
         });
 
         // 전시장 업데이트

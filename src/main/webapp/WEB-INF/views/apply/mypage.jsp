@@ -243,6 +243,15 @@
             // 3. 예약 현황 체크 및 안전동의 영역 가시성 초기화
             checkDriveTimeAvailability();
 
+            // 이메일 아이디 전체 입력 방지 및 공백 차단
+            $("#emailId").on("input", function() {
+                let val = $(this).val().replace(/\s/g, ''); // 공백 제거
+                if(val.includes('@')) {
+                    val = val.split('@')[0]; // @ 이후 문자열 모두 제거
+                }
+                $(this).val(val);
+            });
+
             // 4. 정보 수정 버튼 클릭 이벤트
             $("#btnUpdate").on("click", function(e) {
                 e.preventDefault();
