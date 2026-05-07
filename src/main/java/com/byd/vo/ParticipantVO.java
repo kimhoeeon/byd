@@ -11,8 +11,8 @@ public class ParticipantVO {
     private String name;                // 이름 (AES128 암호화/복호화 적용 대상)
     private String phone;               // 연락처 (AES128 암호화/복호화 적용 대상)
     private String email;               // 이메일 (기존 address 대체)
-    private String shopInfo;            // 전시장 정보
-    private String carModel;            // 관심/시승 차량 정보
+    private String shopInfo;            // 방문 가능 전시장
+    private String carModel;            // 관심차량 정보 정보
     private String testDriveTime;       // 시승 신청 시간
     private String privacyAgree;        // 개인정보 수집 및 이용 동의 (Y/N)
     private String mktAgree;            // 마케팅 동의 (Y/N)

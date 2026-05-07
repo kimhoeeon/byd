@@ -12,7 +12,7 @@
 
     <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
         <a href="javascript:void(0);" class="d-flex align-items-center cursor-default">
-            <img alt="Logo" src="/img/logo.svg" class="h-25px app-sidebar-logo-default" />
+            <img alt="Logo" src="/img/logo.png" class="h-15px app-sidebar-logo-default" />
             <span class="text-white fw-bolder fs-4 ms-3 font-interstate">ADMIN</span>
         </a>
         <div id="kt_app_sidebar_toggle" class="app-sidebar-toggle btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary body-bg h-30px w-30px position-absolute top-50 start-100 translate-middle rotate" data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body" data-kt-toggle-name="app-sidebar-minimize">

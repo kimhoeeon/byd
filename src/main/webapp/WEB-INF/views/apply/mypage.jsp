@@ -357,7 +357,7 @@
                 return false;
             }
             if($("#shopSelect").val() === "") {
-                alert("전시장 정보를 선택해 주세요.");
+                alert("방문 가능 전시장를 선택해 주세요.");
                 return false;
             }
             if($("select[name='carModel']").val() === "") {

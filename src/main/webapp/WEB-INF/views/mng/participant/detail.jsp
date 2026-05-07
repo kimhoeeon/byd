@@ -102,13 +102,13 @@
                                 <td colspan="3">${empty data.email ? '-' : data.email}</td>
                             </tr>
                             <tr>
-                                <th class="bg-light fw-bold">전시장 정보</th>
+                                <th class="bg-light fw-bold">방문 가능 전시장</th>
                                 <td class="code-text" title="${data.shopInfo}">${empty data.shopInfo ? '-' : shopCode}</td>
-                                <th class="bg-light fw-bold">관심/시승 차량</th>
+                                <th class="bg-light fw-bold">관심차량 정보</th>
                                 <td class="code-text" title="${data.carModel}">${empty data.carModel ? '-' : carCode}</td>
                             </tr>
                             <tr>
-                                <th class="bg-light fw-bold text-primary">시승 예약시간</th>
+                                <th class="bg-light fw-bold text-primary">시승 시간 선택</th>
                                 <td colspan="3">
                                     <span class="fw-bolder fs-5 text-primary">${empty data.testDriveTime ? '-' : data.testDriveTime}</span>
                                 </td>
@@ -126,14 +126,14 @@
                             </tr>
 
                             <tr>
-                                <th class="bg-light fw-bold">챌린지 도착확인</th>
+                                <th class="bg-light fw-bold">챌린지 도착 확인</th>
                                 <td>
                                     <c:choose>
                                         <c:when test="${data.challengeCheckYn eq 'Y'}"><span class="text-success fw-bold">도착 확인 완료</span></c:when>
                                         <c:otherwise><span class="text-danger fw-bold">미도착</span></c:otherwise>
                                     </c:choose>
                                 </td>
-                                <th class="bg-light fw-bold">시승 도착확인</th>
+                                <th class="bg-light fw-bold">시승 도착 확인</th>
                                 <td>
                                     <c:choose>
                                         <c:when test="${data.driveCheckYn eq 'Y'}"><span class="text-success fw-bold">도착 확인 완료</span></c:when>
