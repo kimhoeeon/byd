@@ -43,6 +43,9 @@
 
     <style>
         .notice-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; margin-top: 10px; font-size: 14px; color: #e50000; font-weight: bold; text-align: center; line-height: 1.4; border: 1px solid #ffcccc; }
+
+        /* readonly 인풋 박스 스타일링 (비활성화 느낌 부여) */
+        input[readonly] { background-color: #2a2a2a !important; color: #888 !important; outline: none; }
     </style>
 </head>
 
@@ -86,8 +89,8 @@
                                 <div class="row email">
                                     <input type="text" id="emailId" placeholder="이메일 주소">
                                     <span>@</span>
-                                    <input type="text" id="customDomain" placeholder="도메인 직접 입력" style="display: none;">
-                                    <div class="input" id="domainSelectWrap">
+                                    <input type="text" id="customDomain" placeholder="도메인 입력" readonly>
+                                    <div class="input">
                                         <select id="emailDomain">
                                             <option>이메일 선택</option>
                                             <option value="naver.com">naver.com</option>
@@ -229,20 +232,19 @@
                 $(this).val(val);
             });
 
-            // 직접 입력 선택 시 셀렉트 박스 숨기고 텍스트 인풋 노출
+            // 셀렉트 박스 변경 시 도메인 인풋 처리 로직 (Show/Hide 대신 Readonly 제어)
             $("#emailDomain").on("change", function() {
-                if($(this).val() === "direct") {
-                    $("#domainSelectWrap").hide();
-                    $("#customDomain").show().focus();
-                }
-            });
+                var selectedVal = $(this).val();
 
-            // 직접 입력 칸을 다 지우고 포커스를 벗어나면 원상복구
-            $("#customDomain").on("blur", function() {
-                if($(this).val().trim() === "") {
-                    $(this).hide();
-                    $("#emailDomain").val(""); // '이메일 선택'으로 초기화
-                    $("#domainSelectWrap").show();
+                if(selectedVal === "direct") {
+                    // 직접 입력 시 readonly 해제 및 포커스, 값 초기화
+                    $("#customDomain").val("").prop("readonly", false).focus();
+                } else if(selectedVal === "") {
+                    // 이메일 선택(빈 값)일 경우
+                    $("#customDomain").val("").prop("readonly", true);
+                } else {
+                    // 특정 도메인 선택 시 해당 값을 넣고 readonly 처리
+                    $("#customDomain").val(selectedVal).prop("readonly", true);
                 }
             });
         });
@@ -285,46 +287,34 @@
         // 폼 제출 시 유효성 검사
         function validateForm() {
             const emailId = $("#emailId").val().trim();
-            const emailDomain = $("#emailDomain").val();
+            const emailDomainSelect = $("#emailDomain").val();
+            const customDomain = $("#customDomain").val().trim();
 
             if(emailId === "") {
                 alert("이메일 아이디를 입력해 주세요.");
                 $("#emailId").focus();
                 return false;
             }
-            if(emailDomain === "") {
-                alert("이메일 도메인을 선택해 주세요.");
-                $("#emailDomain").focus();
+
+            if(customDomain === "") {
+                alert("이메일 도메인을 선택하거나 입력해 주세요.");
+                if(emailDomainSelect === "direct") {
+                    $("#customDomain").focus();
+                } else {
+                    $("#emailDomain").focus();
+                }
                 return false;
             }
 
-            let finalEmail = emailId + "@";
-
-            if(emailDomain === "direct" || $("#customDomain").is(":visible")) {
-                const customDomain = $("#customDomain").val().trim();
-                if(customDomain === "") {
-                    alert("도메인을 직접 입력해 주세요.");
-                    $("#customDomain").focus();
-                    return false;
-                }
-
-                // 도메인 유효성 검사 로직
-                const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if(!domainRegex.test(customDomain)) {
-                    alert("유효한 이메일 도메인 형식이 아닙니다.\n(예: example.com)");
-                    $("#customDomain").focus();
-                    return false;
-                }
-
-                finalEmail += customDomain;
-            } else {
-                if(emailDomain === "") {
-                    alert("이메일 도메인을 선택해 주세요.");
-                    $("#emailDomain").focus();
-                    return false;
-                }
-                finalEmail += emailDomain;
+            // 도메인 유효성 검사 로직
+            const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if(!domainRegex.test(customDomain)) {
+                alert("유효한 이메일 도메인 형식이 아닙니다.\n(예: example.com)");
+                $("#customDomain").focus();
+                return false;
             }
+
+            let finalEmail = emailId + "@" + customDomain;
 
             $("#fullEmail").val(finalEmail);
 
