@@ -27,7 +27,6 @@
         .page-item .page-link { border-radius: 4px !important; color: #333; border: 1px solid #dee2e6; }
         .page-item.active .page-link { background-color: #202020; border-color: #202020; color: #fff; }
 
-        /* 코드가 길어 줄바꿈이 일어나는 것을 방지하고 툴팁 안내를 위한 커서 변경 */
         .code-text { word-break: keep-all; white-space: nowrap; font-family: monospace; font-size: 13px; cursor: help; }
     </style>
 </head>
@@ -95,12 +94,13 @@
                                     <th class="text-center">시승 도착</th>
                                     <th class="text-center">이름</th>
                                     <th class="text-center">연락처</th>
-                                    <th class="text-center">주소</th>
+                                    <th class="text-center">이메일</th>
                                     <th class="text-center">전시장정보</th>
                                     <th class="text-center">관심/시승차량</th>
                                     <th class="text-center">예약시간</th>
-                                    <th class="text-center">개인정보 동의 여부</th>
-                                    <th class="text-center">마케팅 동의 여부</th>
+                                    <th class="text-center">개인정보<br>수집동의</th>
+                                    <th class="text-center">마케팅<br>수신동의</th>
+                                    <th class="text-center">제3자<br>정보제공동의</th>
                                     <th class="text-center">관리</th>
                                 </tr>
                                 </thead>
@@ -108,7 +108,6 @@
                                 <!-- colspan="11" 이 포함된 JSTL empty 조건문을 삭제하여 DataTables 에러를 원천 차단합니다 -->
                                 <c:forEach items="${list}" var="item">
 
-                                    <!-- 전시장 코드 JSTL 매핑 (엑셀 규격과 동일) -->
                                     <c:set var="shopCode" value="${item.shopInfo}" />
                                     <c:choose>
                                         <c:when test="${item.shopInfo eq 'BYD 동탄'}"><c:set var="shopCode" value="APKR0001AW0011SW"/></c:when>
@@ -147,7 +146,6 @@
                                         <c:when test="${item.shopInfo eq 'BYD 전주'}"><c:set var="shopCode" value="APKR0006AW0005SW"/></c:when>
                                     </c:choose>
 
-                                    <!-- 관심모델 코드 JSTL 매핑 (엑셀 규격과 동일) -->
                                     <c:set var="carCode" value="${item.carModel}" />
                                     <c:choose>
                                         <c:when test="${item.carModel eq 'BYD DOLPHIN'}"><c:set var="carCode" value="BYD0004"/></c:when>
@@ -157,17 +155,14 @@
                                     </c:choose>
 
                                     <tr class="text-center">
-                                        <!-- 등록일자 출력 (형식 지정) -->
                                         <td><fmt:formatDate value="${item.regDate}" pattern="yyyy.MM.dd HH:mm"/></td>
 
-                                        <!-- 챌린지 도착 토글 -->
                                         <td>
                                             <label class="toggle-switch">
                                                 <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="challenge" ${item.challengeCheckYn eq 'Y' ? 'checked' : ''}>
                                                 <span class="slider"></span>
                                             </label>
                                         </td>
-                                        <!-- 시승 도착 토글 -->
                                         <td>
                                             <label class="toggle-switch">
                                                 <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="drive" ${item.driveCheckYn eq 'Y' ? 'checked' : ''}>
@@ -176,19 +171,17 @@
                                         </td>
                                         <td><a href="/mng/participant/detail?seq=${item.seq}&pageNum=${cri.pageNum}&searchType=${cri.searchType}&keyword=${cri.keyword}" class="link-name">${item.name}</a></td>
                                         <td>${item.phone}</td>
-                                        <td>${empty item.address ? '-' : item.address}</td>
+                                        <td>${empty item.email ? '-' : item.email}</td>
 
-                                        <!-- 전시장 정보 및 시승차량 정보 (코드로 표기, 툴팁으로 원래 이름 확인) -->
                                         <td class="code-text" title="${item.shopInfo}">${empty item.shopInfo ? '-' : shopCode}</td>
                                         <td class="code-text" title="${item.carModel}">${empty item.carModel ? '-' : carCode}</td>
 
                                         <td><span class="text-primary fw-bold">${item.testDriveTime}</span></td>
-                                        <td>
-                                            <span class="badge badge-light-primary">Y</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-light-primary">Y</span>
-                                        </td>
+
+                                        <td><span class="badge badge-light-primary">${item.privacyAgree}</span></td>
+                                        <td><span class="badge badge-light-primary">${item.mktAgree}</span></td>
+                                        <td><span class="badge badge-light-primary">${item.thirdPartyAgree}</span></td>
+
                                         <td>
                                             <button type="button" class="btn btn-sm btn-light-danger fw-bold" onclick="deleteParticipant(${item.seq})">삭제</button>
                                         </td>
@@ -259,7 +252,6 @@
                 data: { seq: seq, status: isChecked, type: type },
                 success: function(res) {
                     if(!res.success) {
-                        // 기본 오류 메시지 대신 서버에서 내려준 상세 메시지 표출
                         alert(res.message ? res.message : "상태 변경에 실패했습니다.");
                         $(this).prop('checked', !isChecked); // 토글 원상복구
                     }

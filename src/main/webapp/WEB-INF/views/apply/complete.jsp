@@ -48,7 +48,7 @@
     <header id="header">
         <div class="inner">
             <a href="/apply/step1" class="logo">
-                <img src="/img/logo.svg" alt="BYD">
+                <img src="/img/logo.png" alt="BYD">
             </a>
         </div>
     </header>

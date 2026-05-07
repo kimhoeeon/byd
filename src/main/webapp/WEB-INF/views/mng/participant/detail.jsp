@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="/assets/plugins/global/plugins.bundle.css">
     <link rel="stylesheet" href="/assets/css/style.bundle.css">
     <style>
-        /* 코드가 길어 줄바꿈이 일어나는 것을 방지하고 툴팁 안내를 위한 커서 변경 */
         .code-text {
             word-break: keep-all;
             white-space: nowrap;
@@ -30,47 +29,37 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-header border-0 pt-6">
                         <div class="card-title"><h3 class="fw-bold m-0">신청 상세 정보 (No.${data.seq})</h3></div>
-                        <div class="card-toolbar"><a href="/mng/participant/list" class="btn btn-sm btn-light">목록으로</a>
-                        </div>
+                        <div class="card-toolbar"><a href="/mng/participant/list" class="btn btn-sm btn-light">목록으로</a></div>
                     </div>
                     <div class="card-body">
 
-                        <!-- 전시장 코드 JSTL 매핑 -->
                         <c:set var="shopCode" value="${data.shopInfo}"/>
                         <c:choose>
                             <c:when test="${data.shopInfo eq 'BYD 동탄'}"><c:set var="shopCode" value="APKR0001AW0011SW"/></c:when>
-                            <c:when test="${data.shopInfo eq 'BYD 부산 동래'}"><c:set var="shopCode"
-                                                                                  value="APKR0001AW0010SW"/></c:when>
+                            <c:when test="${data.shopInfo eq 'BYD 부산 동래'}"><c:set var="shopCode" value="APKR0001AW0010SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 분당'}"><c:set var="shopCode" value="APKR0001AW0003SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 서초'}"><c:set var="shopCode" value="APKR0001AW0002SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 수영'}"><c:set var="shopCode" value="APKR0001AW0005SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 수원'}"><c:set var="shopCode" value="APKR0001AW0001SW"/></c:when>
-                            <c:when test="${data.shopInfo eq 'BYD 스타필드 명지'}"><c:set var="shopCode"
-                                                                                    value="APKR0001AW0014SW"/></c:when>
-                            <c:when test="${data.shopInfo eq 'BYD 스타필드 안성'}"><c:set var="shopCode"
-                                                                                    value="APKR0001AW0016SW"/></c:when>
-                            <c:when test="${data.shopInfo eq 'BYD 스타필드 운정'}"><c:set var="shopCode"
-                                                                                    value="APKR0001AW0017SW"/></c:when>
-                            <c:when test="${data.shopInfo eq 'BYD 스타필드 일산'}"><c:set var="shopCode"
-                                                                                    value="APKR0001AW0013SW"/></c:when>
-                            <c:when test="${data.shopInfo eq 'BYD 스타필드 하남'}"><c:set var="shopCode"
-                                                                                    value="APKR0001AW0015SW"/></c:when>
+                            <c:when test="${data.shopInfo eq 'BYD 스타필드 명지'}"><c:set var="shopCode" value="APKR0001AW0014SW"/></c:when>
+                            <c:when test="${data.shopInfo eq 'BYD 스타필드 안성'}"><c:set var="shopCode" value="APKR0001AW0016SW"/></c:when>
+                            <c:when test="${data.shopInfo eq 'BYD 스타필드 운정'}"><c:set var="shopCode" value="APKR0001AW0017SW"/></c:when>
+                            <c:when test="${data.shopInfo eq 'BYD 스타필드 일산'}"><c:set var="shopCode" value="APKR0001AW0013SW"/></c:when>
+                            <c:when test="${data.shopInfo eq 'BYD 스타필드 하남'}"><c:set var="shopCode" value="APKR0001AW0015SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 일산'}"><c:set var="shopCode" value="APKR0001AW0007SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 창원'}"><c:set var="shopCode" value="APKR0001AW0012SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 강서'}"><c:set var="shopCode" value="APKR0002AW0004SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 김포'}"><c:set var="shopCode" value="APKR0002AW0005SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 마포'}"><c:set var="shopCode" value="APKR0002AW0006SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 용산'}"><c:set var="shopCode" value="APKR0002AW0001SW"/></c:when>
-                            <c:when test="${data.shopInfo eq 'BYD 의정부'}"><c:set var="shopCode"
-                                                                                value="APKR0002AW0010SW"/></c:when>
+                            <c:when test="${data.shopInfo eq 'BYD 의정부'}"><c:set var="shopCode" value="APKR0002AW0010SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 제주'}"><c:set var="shopCode" value="APKR0002AW0002SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 천안'}"><c:set var="shopCode" value="APKR0002AW0008SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 청주'}"><c:set var="shopCode" value="APKR0002AW0009SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 강동'}"><c:set var="shopCode" value="APKR0003AW0010SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 목동'}"><c:set var="shopCode" value="APKR0003AW0002SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 부천'}"><c:set var="shopCode" value="APKR0003AW0007SW"/></c:when>
-                            <c:when test="${data.shopInfo eq 'BYD 서해구'}"><c:set var="shopCode"
-                                                                                value="APKR0003AW0008SW"/></c:when>
+                            <c:when test="${data.shopInfo eq 'BYD 서해구'}"><c:set var="shopCode" value="APKR0003AW0008SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 송도'}"><c:set var="shopCode" value="APKR0003AW0001SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 송파'}"><c:set var="shopCode" value="APKR0003AW0009SW"/></c:when>
                             <c:when test="${data.shopInfo eq 'BYD 안양'}"><c:set var="shopCode" value="APKR0003AW0003SW"/></c:when>
@@ -82,17 +71,12 @@
                             <c:when test="${data.shopInfo eq 'BYD 전주'}"><c:set var="shopCode" value="APKR0006AW0005SW"/></c:when>
                         </c:choose>
 
-                        <!-- 관심모델 코드 JSTL 매핑 -->
                         <c:set var="carCode" value="${data.carModel}"/>
                         <c:choose>
-                            <c:when test="${data.carModel eq 'BYD DOLPHIN'}"><c:set var="carCode"
-                                                                                    value="BYD0004"/></c:when>
-                            <c:when test="${data.carModel eq 'BYD ATTO 3'}"><c:set var="carCode"
-                                                                                   value="BYD0001"/></c:when>
-                            <c:when test="${data.carModel eq 'BYD SEAL'}"><c:set var="carCode"
-                                                                                 value="BYD0005"/></c:when>
-                            <c:when test="${data.carModel eq 'BYD SEALION 7'}"><c:set var="carCode"
-                                                                                      value="BYD0019"/></c:when>
+                            <c:when test="${data.carModel eq 'BYD DOLPHIN'}"><c:set var="carCode" value="BYD0004"/></c:when>
+                            <c:when test="${data.carModel eq 'BYD ATTO 3'}"><c:set var="carCode" value="BYD0001"/></c:when>
+                            <c:when test="${data.carModel eq 'BYD SEAL'}"><c:set var="carCode" value="BYD0005"/></c:when>
+                            <c:when test="${data.carModel eq 'BYD SEALION 7'}"><c:set var="carCode" value="BYD0019"/></c:when>
                         </c:choose>
 
                         <table class="table table-bordered align-middle gs-7 gy-4">
@@ -114,39 +98,38 @@
                                 <td>${data.phone}</td>
                             </tr>
                             <tr>
-                                <th class="bg-light fw-bold">주소</th>
-                                <td colspan="3">${empty data.address ? '-' : data.address}</td>
+                                <th class="bg-light fw-bold">이메일</th>
+                                <td colspan="3">${empty data.email ? '-' : data.email}</td>
                             </tr>
                             <tr>
                                 <th class="bg-light fw-bold">전시장 정보</th>
-                                <td class="code-text"
-                                    title="${data.shopInfo}">${empty data.shopInfo ? '-' : shopCode}</td>
+                                <td class="code-text" title="${data.shopInfo}">${empty data.shopInfo ? '-' : shopCode}</td>
                                 <th class="bg-light fw-bold">관심/시승 차량</th>
-                                <td class="code-text"
-                                    title="${data.carModel}">${empty data.carModel ? '-' : carCode}</td>
+                                <td class="code-text" title="${data.carModel}">${empty data.carModel ? '-' : carCode}</td>
                             </tr>
                             <tr>
                                 <th class="bg-light fw-bold text-primary">시승 예약시간</th>
-                                <td colspan="3"><span
-                                        class="fw-bolder fs-5 text-primary">${empty data.testDriveTime ? '-' : data.testDriveTime}</span>
+                                <td colspan="3">
+                                    <span class="fw-bolder fs-5 text-primary">${empty data.testDriveTime ? '-' : data.testDriveTime}</span>
                                 </td>
                             </tr>
 
-                            <!-- 동의 항목 변경 및 숨김 없이 표시 -->
                             <tr>
-                                <th class="bg-light fw-bold">개인정보 동의 여부</th>
-                                <td><span class="badge badge-primary">Y</span></td>
-                                <th class="bg-light fw-bold">마케팅 동의 여부</th>
-                                <td><span class="badge badge-primary">Y</span></td>
+                                <th class="bg-light fw-bold">개인정보 수집 동의</th>
+                                <td><span class="badge badge-primary">${empty data.privacyAgree ? 'N' : data.privacyAgree}</span></td>
+                                <th class="bg-light fw-bold">마케팅 정보 수신 동의</th>
+                                <td><span class="badge badge-primary">${empty data.mktAgree ? 'N' : data.mktAgree}</span></td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light fw-bold">제 3자 정보 제공 동의</th>
+                                <td colspan="3"><span class="badge badge-primary">${empty data.thirdPartyAgree ? 'N' : data.thirdPartyAgree}</span></td>
                             </tr>
 
-                            <!-- 챌린지 및 시승 도착 여부 분리 -->
                             <tr>
                                 <th class="bg-light fw-bold">챌린지 도착확인</th>
                                 <td>
                                     <c:choose>
-                                        <c:when test="${data.challengeCheckYn eq 'Y'}"><span
-                                                class="text-success fw-bold">도착 확인 완료</span></c:when>
+                                        <c:when test="${data.challengeCheckYn eq 'Y'}"><span class="text-success fw-bold">도착 확인 완료</span></c:when>
                                         <c:otherwise><span class="text-danger fw-bold">미도착</span></c:otherwise>
                                     </c:choose>
                                 </td>

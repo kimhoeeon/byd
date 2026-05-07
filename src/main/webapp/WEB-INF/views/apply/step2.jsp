@@ -74,22 +74,31 @@
 
                     <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="return validateForm();">
 
+                        <!-- 서버 전송용 히든 필드 -->
+                        <input type="hidden" name="email" id="fullEmail">
+                        <input type="hidden" name="privacyAgree" value="Y">
+                        <input type="hidden" name="mktAgree" value="Y">
+                        <input type="hidden" name="thirdPartyAgree" value="Y">
+
                         <ul class="form_box">
                             <li>
-                                <div class="gubun">주소</div>
-                                <div class="input">
-                                    <label for="baseAddress">
-                                        <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly>
-                                        <button type="button" class="search-btn" onclick="execDaumPostcode()"><img src="/img/ico_search.png" alt="검색"></button>
-                                    </label>
-                                </div>
-                                <div class="input mt-10">
-                                    <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요." autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
-                                    <input type="hidden" name="address" id="fullAddress">
+                                <div class="gubun">이메일</div>
+                                <div class="row email">
+                                    <input type="text" id="emailId" placeholder="이메일 주소">
+                                    <span>@</span>
+                                    <div class="input">
+                                        <select id="emailDomain">
+                                            <option>이메일 선택</option>
+                                            <option value="naver.com">naver.com</option>
+                                            <option value="google.com">google.com</option>
+                                            <option value="hanmail.net">hanmail.net</option>
+                                            <option value="nate.com">nate.com</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </li>
                             <li>
-                                <div class="gubun">전시장 정보</div>
+                                <div class="gubun">방문 가능 전시장</div>
                                 <div class="row">
                                     <div class="input">
                                         <select id="regionSelect" onchange="updateShops()" required>
@@ -145,19 +154,27 @@
                         </ul>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" id="privacyAgreeCheckbox" required>
+                                <input type="checkbox" id="privacyAgree" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">개인정보 수집 및 이용 동의 (필수)</span>
+                                <span class="terms-check_label">개인정보 수집 동의 (필수)</span>
                             </label>
-                            <p>행사 참여 및 본인 확인을 위해 개인정보를 수집 및 이용합니다.</p>
+                            <textarea readonly>시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. &#10;내용을 충분히 확인하신 후 동의 여부를 선택해 주시기 바랍니다.&#10;&#10;수집 항목: 이름, 연락처, 이메일, 시승 희망 차량, 시승 희망 일정 등&#10;수집 목적: 시승 예약 확인, 일정 조율, 안내 및 고객 응대&#10;보유 및 이용 기간: 시승 완료일로부터 일정 기간 보관 후 관련 법령에 따라 안전하게 파기&#10;&#10;귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으며,&#10;동의를 거부할 경우 시승 신청 및 안내 서비스 이용이 제한될 수 있습니다.&#10;&#10;위 내용을 확인하였으며, 시승 진행을 위한 개인정보 수집 및 이용에 동의합니다.</textarea>
                         </div>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" id="mktAgreeCheckbox" required>
+                                <input type="checkbox" id="mktAgree" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">마케팅 정보 수신 동의 (필수)</span>
                             </label>
-                            <p>행사 안내 및 원활한 이벤트 정보 제공을 위해 마케팅 정보를 수신합니다.</p>
+                            <textarea readonly>시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. &#10;내용을 충분히 확인하신 후 동의 여부를 선택해 주시기 바랍니다.&#10;&#10;수집 항목: 이름, 연락처, 이메일, 시승 희망 차량, 시승 희망 일정 등&#10;수집 목적: 시승 예약 확인, 일정 조율, 안내 및 고객 응대&#10;보유 및 이용 기간: 시승 완료일로부터 일정 기간 보관 후 관련 법령에 따라 안전하게 파기&#10;&#10;귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으며,&#10;동의를 거부할 경우 시승 신청 및 안내 서비스 이용이 제한될 수 있습니다.&#10;&#10;위 내용을 확인하였으며, 시승 진행을 위한 개인정보 수집 및 이용에 동의합니다.</textarea>
+                        </div>
+                        <div class="terms-check">
+                            <label>
+                                <input type="checkbox" id="thirdPartyAgree" required>
+                                <span class="terms-check_box" aria-hidden="true"></span>
+                                <span class="terms-check_label">제 3자 정보 제공 동의 (필수)</span>
+                            </label>
+                            <textarea readonly>시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. &#10;내용을 충분히 확인하신 후 동의 여부를 선택해 주시기 바랍니다.&#10;&#10;수집 항목: 이름, 연락처, 이메일, 시승 희망 차량, 시승 희망 일정 등&#10;수집 목적: 시승 예약 확인, 일정 조율, 안내 및 고객 응대&#10;보유 및 이용 기간: 시승 완료일로부터 일정 기간 보관 후 관련 법령에 따라 안전하게 파기&#10;&#10;귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으며,&#10;동의를 거부할 경우 시승 신청 및 안내 서비스 이용이 제한될 수 있습니다.&#10;&#10;위 내용을 확인하였으며, 시승 진행을 위한 개인정보 수집 및 이용에 동의합니다.</textarea>
                         </div>
                         <div class="btn_box">
                             <button type="submit" class="btn_st01">제출</button>
@@ -180,9 +197,6 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
 
-    <!-- Daum 우편번호 API -->
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-
     <script>
         const shopData = {
             "서울": [ "BYD 강동", "BYD 강서", "BYD 마포", "BYD 목동", "BYD 서초", "BYD 송파", "BYD 용산" ],
@@ -204,27 +218,6 @@
                 alert("${errorMsg}");
             </c:if>
         });
-
-        // Daum 주소 찾기 실행 함수
-        function execDaumPostcode() {
-            new daum.Postcode({
-                oncomplete: function(data) {
-                    var addr = ''; // 주소 변수
-
-                    //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
-                    if (data.userSelectedType === 'R') {
-                        addr = data.roadAddress;
-                    } else {
-                        addr = data.jibunAddress;
-                    }
-
-                    // 기본 주소 필드에 넣고 상세주소 포커스
-                    document.getElementById("baseAddress").value = addr;
-                    document.getElementById("detailAddress").value = "";
-                    document.getElementById("detailAddress").focus();
-                }
-            }).open();
-        }
 
         // 전시장 업데이트
         function updateShops() {
@@ -263,54 +256,48 @@
         
         // 폼 제출 시 유효성 검사
         function validateForm() {
-            const regionSelect = document.getElementById("regionSelect");
-            const shopSelect = document.getElementById("shopSelect");
-            const carModel = document.querySelector("select[name='carModel']");
-            const privacyCheckbox = document.getElementById("privacyAgreeCheckbox");
-            const mktCheckbox = document.getElementById("mktAgreeCheckbox");
+            const emailId = $("#emailId").val().trim();
+            const emailDomain = $("#emailDomain").val();
 
-            const baseAddress = document.getElementById("baseAddress").value.trim();
-            const detailAddress = document.getElementById("detailAddress").value.trim();
-
-            if(baseAddress === "") {
-                alert("주소 찾기를 진행해 주세요.");
+            if(emailId === "") {
+                alert("이메일 아이디를 입력해 주세요.");
+                $("#emailId").focus();
+                return false;
+            }
+            if(emailDomain === "") {
+                alert("이메일 도메인을 선택해 주세요.");
+                $("#emailDomain").focus();
                 return false;
             }
 
-            if(detailAddress === "") {
-                alert("상세 주소를 입력해 주세요.");
-                document.getElementById("detailAddress").focus();
-                return false;
-            }
+            let finalEmail = emailId + "@" + emailDomain;
 
-            // 분리된 주소를 하나로 병합하여 hidden input에 담아 전송
-            document.getElementById("fullAddress").value = baseAddress + " " + detailAddress;
+            // 통합된 이메일 값을 히든 필드에 저장
+            $("#fullEmail").val(finalEmail);
 
-            if(regionSelect.value === "") {
+            if($("#regionSelect").val() === "") {
                 alert("지역을 선택해 주세요.");
-                regionSelect.focus();
                 return false;
             }
-            if(shopSelect.value === "") {
+            if($("#shopSelect").val() === "") {
                 alert("전시장 정보를 선택해 주세요.");
-                shopSelect.focus();
                 return false;
             }
-            if(carModel.value === "") {
+            if($("select[name='carModel']").val() === "") {
                 alert("관심차량 정보를 선택해 주세요.");
-                carModel.focus();
                 return false;
             }
 
-            if (!privacyCheckbox.checked) {
-                alert("개인정보 수집 및 이용 동의(필수)에 체크해 주세요.");
-                privacyCheckbox.focus();
+            if (!$("#privacyAgree").is(":checked")) {
+                alert("개인정보 수집 동의에 체크해 주세요.");
                 return false;
             }
-
-            if (!mktCheckbox.checked) {
-                alert("마케팅 정보 수신 동의(필수)에 체크해 주세요.");
-                mktCheckbox.focus();
+            if (!$("#mktAgree").is(":checked")) {
+                alert("마케팅 정보 수신 동의에 체크해 주세요.");
+                return false;
+            }
+            if (!$("#thirdPartyAgree").is(":checked")) {
+                alert("제 3자 정보 제공 동의에 체크해 주세요.");
                 return false;
             }
 

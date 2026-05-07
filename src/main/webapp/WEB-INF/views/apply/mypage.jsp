@@ -74,6 +74,11 @@
                     <form id="updateForm">
                         <input type="hidden" name="seq" value="${data.seq}">
 
+                        <c:set var="emailParts" value="${fn:split(data.email, '@')}" />
+                        <c:set var="savedEmailId" value="${emailParts[0]}" />
+                        <c:set var="savedEmailDomain" value="${fn:length(emailParts) > 1 ? emailParts[1] : ''}" />
+                        <input type="hidden" name="email" id="fullEmail" value="${data.email}">
+
                         <ul class="form_box">
                             <li>
                                 <div class="gubun">이름</div>
@@ -85,33 +90,23 @@
                                     <input type="text" id="phone" name="phone" value="${data.phone}" readonly style="color: #888;"></div>
                             </li>
                             <li>
-                                <div class="gubun">주소</div>
-                                <!-- 1. 현재 등록된 주소 노출 영역 -->
-                                <div class="input" id="currentAddressArea">
-                                    <label>
-                                        <input type="text" value="${data.address}" readonly>
-                                        <button type="button" class="search-btn" onclick="enableAddressEdit()"><img src="/img/ico_search.png" alt="검색"></button>
-                                    </label>
-                                </div>
-
-                                <!-- 2. 주소 변경 활성화 시 나타나는 영역 (기본은 숨김) -->
-                                <div id="editAddressArea" style="display: none; margin-top: 10px;">
+                                <div class="gubun">이메일</div>
+                                <div class="row email">
+                                    <input type="text" id="emailId" value="${savedEmailId}" placeholder="이메일 주소">
+                                    <span>@</span>
                                     <div class="input">
-                                        <label for="baseAddress">
-                                            <input type="text" id="baseAddress" placeholder="주소찾기를 진행해 주세요." readonly>
-                                            <button type="button" class="search-btn" onclick="execDaumPostcode()"><img src="/img/ico_search.png" alt="검색"></button>
-                                        </label>
-                                    </div>
-                                    <div class="input mt-10">
-                                        <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요." autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
+                                        <select id="emailDomain">
+                                            <option value="">이메일 선택</option>
+                                            <option value="naver.com" <c:if test="${savedEmailDomain == 'naver.com'}">selected</c:if>>naver.com</option>
+                                            <option value="google.com" <c:if test="${savedEmailDomain == 'google.com'}">selected</c:if>>google.com</option>
+                                            <option value="hanmail.net" <c:if test="${savedEmailDomain == 'hanmail.net'}">selected</c:if>>hanmail.net</option>
+                                            <option value="nate.com" <c:if test="${savedEmailDomain == 'nate.com'}">selected</c:if>>nate.com</option>
+                                        </select>
                                     </div>
                                 </div>
-
-                                <!-- 실제 서버로 전송되는 값 -->
-                                <input type="hidden" name="address" id="fullAddress" value="${data.address}">
                             </li>
                             <li>
-                                <div class="gubun">전시장 정보</div>
+                                <div class="gubun">방문 가능 전시장</div>
                                 <div class="row">
                                     <div class="input">
                                         <select id="regionSelect" onchange="updateShops()" required>
@@ -169,9 +164,9 @@
                             <label>
                                 <input type="checkbox" checked disabled>
                                 <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">개인정보 수집 및 이용 동의 (필수)</span>
+                                <span class="terms-check_label">개인정보 수집 동의 (필수)</span>
                             </label>
-                            <p>행사 참여 및 본인 확인을 위해 개인정보를 수집 및 이용합니다.</p>
+                            <textarea readonly>시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. &#10;내용을 충분히 확인하신 후 동의 여부를 선택해 주시기 바랍니다.&#10;&#10;수집 항목: 이름, 연락처, 이메일, 시승 희망 차량, 시승 희망 일정 등&#10;수집 목적: 시승 예약 확인, 일정 조율, 안내 및 고객 응대&#10;보유 및 이용 기간: 시승 완료일로부터 일정 기간 보관 후 관련 법령에 따라 안전하게 파기&#10;&#10;귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으며,&#10;동의를 거부할 경우 시승 신청 및 안내 서비스 이용이 제한될 수 있습니다.&#10;&#10;위 내용을 확인하였으며, 시승 진행을 위한 개인정보 수집 및 이용에 동의합니다.</textarea>
                         </div>
                         <div class="terms-check">
                             <label>
@@ -179,7 +174,15 @@
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">마케팅 정보 수신 동의 (필수)</span>
                             </label>
-                            <p>행사 안내 및 원활한 이벤트 정보 제공을 위해 마케팅 정보를 수신합니다.</p>
+                            <textarea readonly>시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. &#10;내용을 충분히 확인하신 후 동의 여부를 선택해 주시기 바랍니다.&#10;&#10;수집 항목: 이름, 연락처, 이메일, 시승 희망 차량, 시승 희망 일정 등&#10;수집 목적: 시승 예약 확인, 일정 조율, 안내 및 고객 응대&#10;보유 및 이용 기간: 시승 완료일로부터 일정 기간 보관 후 관련 법령에 따라 안전하게 파기&#10;&#10;귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으며,&#10;동의를 거부할 경우 시승 신청 및 안내 서비스 이용이 제한될 수 있습니다.&#10;&#10;위 내용을 확인하였으며, 시승 진행을 위한 개인정보 수집 및 이용에 동의합니다.</textarea>
+                        </div>
+                        <div class="terms-check">
+                            <label>
+                                <input type="checkbox" checked disabled>
+                                <span class="terms-check_box" aria-hidden="true"></span>
+                                <span class="terms-check_label">제 3자 정보 제공 동의 (필수)</span>
+                            </label>
+                            <textarea readonly>시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. &#10;내용을 충분히 확인하신 후 동의 여부를 선택해 주시기 바랍니다.&#10;&#10;수집 항목: 이름, 연락처, 이메일, 시승 희망 차량, 시승 희망 일정 등&#10;수집 목적: 시승 예약 확인, 일정 조율, 안내 및 고객 응대&#10;보유 및 이용 기간: 시승 완료일로부터 일정 기간 보관 후 관련 법령에 따라 안전하게 파기&#10;&#10;귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으며,&#10;동의를 거부할 경우 시승 신청 및 안내 서비스 이용이 제한될 수 있습니다.&#10;&#10;위 내용을 확인하였으며, 시승 진행을 위한 개인정보 수집 및 이용에 동의합니다.</textarea>
                         </div>
                     </form>
                     <div class="btn_box">
@@ -202,9 +205,6 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
 
-    <!-- Daum 우편번호 API -->
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-
     <!-- QR 코드 생성 라이브러리 추가 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
@@ -222,11 +222,6 @@
 
         // 서버에서 받아온 기존 지점 데이터
         const currentShopInfo = "${data.shopInfo}";
-        // 주소 변경 체크를 위한 원본 주소
-        const originalAddress = "${data.address}";
-
-        // 주소 변경 모드 활성화 여부
-        let isAddressEditing = false;
 
         $(document).ready(function() {
             // 1. QR 코드 클라이언트 렌더링
@@ -278,37 +273,6 @@
                 }
             });
         });
-
-        // 주소 변경 버튼 클릭 시 (팝업만 먼저 띄움)
-        function enableAddressEdit() {
-            execDaumPostcode();
-        }
-
-        // Daum 주소 찾기 실행 함수 (팝업에서 주소를 골랐을 때만 화면 전환)
-        function execDaumPostcode() {
-            new daum.Postcode({
-                oncomplete: function(data) {
-                    var addr = '';
-
-                    if (data.userSelectedType === 'R') {
-                        addr = data.roadAddress;
-                    } else {
-                        addr = data.jibunAddress;
-                    }
-
-                    // 1. 주소를 성공적으로 골랐으므로 변경 모드 활성화 및 화면 전환
-                    isAddressEditing = true;
-                    document.getElementById("currentAddressArea").style.display = "none";
-                    document.getElementById("editAddressArea").style.display = "block";
-
-                    // 2. 선택한 주소 데이터 바인딩 및 상세 주소로 포커스
-                    document.getElementById("baseAddress").value = addr;
-                    document.getElementById("detailAddress").value = "";
-                    document.getElementById("detailAddress").focus();
-                }
-                // onclose 이벤트를 생략하면 창을 그냥 닫았을 때 아무 일도 일어나지 않습니다 (정상 유지)
-            }).open();
-        }
 
         // 저장된 지점명으로 지역을 찾아 Select Box를 세팅하는 함수
         function initRegionAndShop() {
@@ -362,42 +326,33 @@
 
         // 폼 통합 유효성 검사 (이름, 연락처 검증 제외)
         function validateCombinedForm() {
-            const regionSelect = document.getElementById("regionSelect");
-            const shopSelect = document.getElementById("shopSelect");
-            const carModel = document.querySelector("select[name='carModel']");
-            const baseAddress = document.getElementById("baseAddress").value.trim();
-            const detailAddress = document.getElementById("detailAddress").value.trim();
+            const emailId = $("#emailId").val().trim();
+            const emailDomain = $("#emailDomain").val();
 
-            // 주소 변경 모드를 활성화한 경우에만 주소 유효성 검사 수행
-            if(isAddressEditing) {
-                if(baseAddress === "") {
-                    alert("주소 찾기를 진행해 주세요.");
-                    return false;
-                }
-
-                if(detailAddress === "") {
-                    alert("상세 주소를 입력해 주세요.");
-                    document.getElementById("detailAddress").focus();
-                    return false;
-                }
-
-                // 새로운 주소 병합
-                document.getElementById("fullAddress").value = baseAddress + " " + detailAddress;
+            if(emailId === "") {
+                alert("이메일 아이디를 입력해 주세요.");
+                $("#emailId").focus();
+                return false;
+            }
+            if(emailDomain === "") {
+                alert("이메일 도메인을 선택해 주세요.");
+                $("#emailDomain").focus();
+                return false;
             }
 
-            if(regionSelect.value === "") {
+            let finalEmail = emailId + "@" + emailDomain;
+            $("#fullEmail").val(finalEmail);
+
+            if($("#regionSelect").val() === "") {
                 alert("지역을 선택해 주세요.");
-                regionSelect.focus();
                 return false;
             }
-            if(shopSelect.value === "") {
+            if($("#shopSelect").val() === "") {
                 alert("전시장 정보를 선택해 주세요.");
-                shopSelect.focus();
                 return false;
             }
-            if(carModel.value === "") {
+            if($("select[name='carModel']").val() === "") {
                 alert("관심차량 정보를 선택해 주세요.");
-                carModel.focus();
                 return false;
             }
 

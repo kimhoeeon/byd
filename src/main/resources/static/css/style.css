@@ -3,10 +3,10 @@ body {background: #252728;}
 
 img {max-width: 100%;}
 
-input, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; -webkit-border-radius: 0; }
+input, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; -webkit-border-radius: 0; } 
 select {-webkit-appearance: none; -moz-appearance: none; appearance: none;
     padding: 15px 30px 15px 15px; border: 1px solid #CBCBCA; color: #CBCBCA;
-    background: transparent url('../img/icon_select_arrow.svg') no-repeat right 1em bottom 50%;}
+    background: transparent url('../img/icon_select_arrow.svg') no-repeat right 1em bottom 50%;} 
 
 input[type="text"],
 input[type="password"],
@@ -14,10 +14,7 @@ input[type="date"],
 input[type="email"],
 input[type="tel"],
 textarea {border: 0; border: 1px solid #CBCBCA; padding: 15px; background: none; color: #CBCBCA;}
-select option {
-    color: #fff;
-    background: #252728;
-}
+select option {color: #111; background: #CBCBCA;}
 
 input::placeholder,
 textarea::placeholder {color: #CBCBCA;}
@@ -118,6 +115,7 @@ label:last-child {margin-right: 0;}
 .top_tit .tit .big {font-size: 2.9rem; line-height: 3.5rem;}
 .top_tit .tit .small {font-size: 2rem; line-height: 2.6rem;}
 .top_tit .tit .small .th {font-size: 1.4rem; display: inline-block; vertical-align: top;}
+.top_tit .tit img{max-width: 120px;}
 .top_tit .txt {margin-top: 30px;}
 .top_tit .txt .kor {font-size: 1.6rem; line-height: 2.2rem;}
 .top_tit .txt .eng {font-size: 1.6rem; line-height: 2.2rem; margin-top: 20px; color: #CBCBCA}
@@ -133,8 +131,9 @@ label:last-child {margin-right: 0;}
 .bd_txt_b .eng.viewEng {margin-top: 30px; display: none;}
 
 .form_box li {margin-top: 20px; color: #fff;}
-.form_box li .row{display: flex;width: 100%; gap: 10px;}
-.form_box li .row .input{width: 100%;}
+.form_box li .row{display: flex;width: 100%; gap: 10px; align-items: center;}
+.form_box li .row.email input{width: 50%;}
+.form_box li .row .input{width: 50%;}
 .form_box .gubun {margin-bottom: 5px; font-size: 1.6rem; line-height: 2.2rem;}
 .form_box .input input[type="text"],
 .form_box .input input[type="tel"],
@@ -145,7 +144,7 @@ label:last-child {margin-right: 0;}
 }
 .form_box .input.mt-10{margin-top: 10px;}
 .form_box .input label{position: relative;}
-.form_box .input .search-btn{cursor: pointer;font-size: 0;background: 0;border: 0;position: absolute;top: 50%;transform: translateY(-50%);right: 10px;width: 100%;text-align: right;}
+.form_box .input .search-btn{cursor: pointer; font-size: 0;background: 0; border: 0; position: absolute; top: 50%; transform: translateY(-50%); right: 10px; width: 100%; text-align: right;}
 .form_box .input .search-btn img{width:32px; height: 32px;}
 
 #header {
@@ -287,3 +286,5 @@ label:last-child {margin-right: 0;}
 .timer_wrap .inner img{position: absolute; bottom: 80px}
 
 .btn_st01{width: 100%; background: #bb0a0a; border: none; cursor: pointer;}
+
+.notice-box{background: #f8f9fa;padding: 15px;border-radius: 8px;margin-bottom: 20px;margin-top: 10px;font-size: 14px;color: #e50000;font-weight: bold;text-align: center;line-height: 1.4;border: 1px solid #ffcccc;}

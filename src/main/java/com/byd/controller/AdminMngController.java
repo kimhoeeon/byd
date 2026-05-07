@@ -234,13 +234,11 @@ public class AdminMngController {
     // ==========================================
     @GetMapping("/api/participant/excelDownload")
     public void downloadExcel(Criteria cri, HttpServletResponse response) throws Exception {
-        // 검색 조건에 맞는 전체 목록 조회
         List<ParticipantVO> list = adminMngService.getAllList(cri);
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("참여자 목록");
 
-        // 1. 헤더 스타일 지정 (회색 배경, 굵은 글씨, 가운데 정렬, 테두리)
         CellStyle headerStyle = workbook.createCellStyle();
         headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -255,7 +253,6 @@ public class AdminMngController {
         headerFont.setBold(true);
         headerStyle.setFont(headerFont);
 
-        // 2. 데이터 스타일 지정 (테두리, 세로 가운데 정렬)
         CellStyle dataStyle = workbook.createCellStyle();
         dataStyle.setBorderTop(BorderStyle.THIN);
         dataStyle.setBorderBottom(BorderStyle.THIN);
@@ -263,9 +260,9 @@ public class AdminMngController {
         dataStyle.setBorderRight(BorderStyle.THIN);
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-        // 3. 헤더 행 생성
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보동의여부", "마케팅동의여부", "챌린지참여", "시승참여", "주소"};
+        // [수정] 엑셀 헤더 규격 업데이트
+        String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "이메일", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보수집동의", "마케팅정보수신동의", "제3자정보제공동의", "챌린지참여", "시승참여"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -273,19 +270,18 @@ public class AdminMngController {
             cell.setCellStyle(headerStyle);
         }
 
-        // 4. 데이터 행 생성
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         int rowNum = 1;
 
         for (ParticipantVO vo : list) {
             Row row = sheet.createRow(rowNum++);
 
-            // 날짜 포맷 적용
             String regDateStr = "";
             if (vo.getRegDate() != null) {
                 regDateStr = sdf.format(vo.getRegDate());
             }
 
+            // [수정] 엑셀 데이터 매핑 업데이트
             String[] rowData = {
                     regDateStr,
                     getShopCode(vo.getShopInfo()),
@@ -294,14 +290,15 @@ public class AdminMngController {
                     "오프라인",
                     vo.getName(),
                     vo.getPhone(),
+                    vo.getEmail() != null ? vo.getEmail() : "",
                     getCarModelCode(vo.getCarModel()),
                     vo.getCarModel() != null ? vo.getCarModel() : "",
                     vo.getTestDriveTime() != null ? vo.getTestDriveTime() : "",
-                    "Y",
-                    "Y",
+                    vo.getPrivacyAgree() != null ? vo.getPrivacyAgree() : "N",
+                    vo.getMktAgree() != null ? vo.getMktAgree() : "N",
+                    vo.getThirdPartyAgree() != null ? vo.getThirdPartyAgree() : "N",
                     vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N",
-                    vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N",
-                    vo.getAddress() != null ? vo.getAddress() : ""
+                    vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N"
             };
 
             for (int i = 0; i < rowData.length; i++) {
@@ -311,17 +308,14 @@ public class AdminMngController {
             }
         }
 
-        // 5. 컬럼 너비 자동 조정
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
             sheet.setColumnWidth(i, (sheet.getColumnWidth(i)) + (short) 1024);
         }
 
-        // 6. 브라우저 응답 설정 및 파일 전송
         SimpleDateFormat fileDateFmt = new SimpleDateFormat("yyyyMMdd");
         String today = fileDateFmt.format(new java.util.Date());
         String fileName = "BYD_참여자_" + today + ".xlsx";
-        // 한글 파일명 깨짐 방지
         fileName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
