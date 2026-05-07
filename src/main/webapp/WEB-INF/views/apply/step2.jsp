@@ -156,7 +156,7 @@
                             <label>
                                 <input type="checkbox" id="privacyAgree" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">개인정보 수집 동의 (필수)</span>
+                                <span class="terms-check_label">개인정보 수집 및 이용 동의 (필수)</span>
                             </label>
                             <textarea readonly>시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. &#10;내용을 충분히 확인하신 후 동의 여부를 선택해 주시기 바랍니다.&#10;&#10;수집 항목: 이름, 연락처, 이메일, 시승 희망 차량, 시승 희망 일정 등&#10;수집 목적: 시승 예약 확인, 일정 조율, 안내 및 고객 응대&#10;보유 및 이용 기간: 시승 완료일로부터 일정 기간 보관 후 관련 법령에 따라 안전하게 파기&#10;&#10;귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으며,&#10;동의를 거부할 경우 시승 신청 및 안내 서비스 이용이 제한될 수 있습니다.&#10;&#10;위 내용을 확인하였으며, 시승 진행을 위한 개인정보 수집 및 이용에 동의합니다.</textarea>
                         </div>
@@ -298,7 +298,7 @@
             }
 
             if (!$("#privacyAgree").is(":checked")) {
-                alert("개인정보 수집 동의에 체크해 주세요.");
+                alert("개인정보 수집 및 이용 동의에 체크해 주세요.");
                 return false;
             }
             if (!$("#mktAgree").is(":checked")) {

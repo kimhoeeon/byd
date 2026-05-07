@@ -115,7 +115,7 @@
                             </tr>
 
                             <tr>
-                                <th class="bg-light fw-bold">개인정보 수집 동의</th>
+                                <th class="bg-light fw-bold">개인정보 수집 및 이용 동의</th>
                                 <td><span class="badge badge-primary">${empty data.privacyAgree ? 'N' : data.privacyAgree}</span></td>
                                 <th class="bg-light fw-bold">마케팅 정보 수신 동의</th>
                                 <td><span class="badge badge-primary">${empty data.mktAgree ? 'N' : data.mktAgree}</span></td>

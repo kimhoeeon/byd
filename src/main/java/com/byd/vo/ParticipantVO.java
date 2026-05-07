@@ -14,7 +14,7 @@ public class ParticipantVO {
     private String shopInfo;            // 전시장 정보
     private String carModel;            // 관심/시승 차량 정보
     private String testDriveTime;       // 시승 신청 시간
-    private String privacyAgree;        // 개인정보 수집 동의 (Y/N)
+    private String privacyAgree;        // 개인정보 수집 및 이용 동의 (Y/N)
     private String mktAgree;            // 마케팅 동의 (Y/N)
     private String thirdPartyAgree;     // 제3자 정보 제공 동의 (Y/N)
     private String qrCodeUrl;           // QR 코드 URL
