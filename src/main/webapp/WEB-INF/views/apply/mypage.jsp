@@ -77,6 +77,8 @@
                         <c:set var="emailParts" value="${fn:split(data.email, '@')}" />
                         <c:set var="savedEmailId" value="${emailParts[0]}" />
                         <c:set var="savedEmailDomain" value="${fn:length(emailParts) > 1 ? emailParts[1] : ''}" />
+                        <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'google.com' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
+
                         <input type="hidden" name="email" id="fullEmail" value="${data.email}">
 
                         <ul class="form_box">
@@ -94,13 +96,15 @@
                                 <div class="row email">
                                     <input type="text" id="emailId" value="${savedEmailId}" placeholder="이메일 주소">
                                     <span>@</span>
-                                    <div class="input">
+                                    <input type="text" id="customDomain" value="${isCustomDomain ? savedEmailDomain : ''}" placeholder="도메인 직접 입력" style="display: ${isCustomDomain ? 'block' : 'none'};">
+                                    <div class="input" id="domainSelectWrap" style="display: ${isCustomDomain ? 'none' : 'block'};">
                                         <select id="emailDomain">
                                             <option value="">이메일 선택</option>
                                             <option value="naver.com" <c:if test="${savedEmailDomain == 'naver.com'}">selected</c:if>>naver.com</option>
                                             <option value="google.com" <c:if test="${savedEmailDomain == 'google.com'}">selected</c:if>>google.com</option>
                                             <option value="hanmail.net" <c:if test="${savedEmailDomain == 'hanmail.net'}">selected</c:if>>hanmail.net</option>
                                             <option value="nate.com" <c:if test="${savedEmailDomain == 'nate.com'}">selected</c:if>>nate.com</option>
+                                            <option value="direct" <c:if test="${isCustomDomain}">selected</c:if>>직접 입력</option>
                                         </select>
                                     </div>
                                 </div>
@@ -245,11 +249,28 @@
 
             // 이메일 아이디 전체 입력 방지 및 공백 차단
             $("#emailId").on("input", function() {
-                let val = $(this).val().replace(/\s/g, ''); // 공백 제거
+                let val = $(this).val().replace(/\s/g, '');
                 if(val.includes('@')) {
-                    val = val.split('@')[0]; // @ 이후 문자열 모두 제거
+                    val = val.split('@')[0];
                 }
                 $(this).val(val);
+            });
+
+            // 직접 입력 선택 시 셀렉트 박스 숨기고 텍스트 인풋 노출
+            $("#emailDomain").on("change", function() {
+                if($(this).val() === "direct") {
+                    $("#domainSelectWrap").hide();
+                    $("#customDomain").show().focus();
+                }
+            });
+
+            // 직접 입력 칸을 다 지우고 포커스를 벗어나면 원상복구
+            $("#customDomain").on("blur", function() {
+                if($(this).val().trim() === "") {
+                    $(this).hide();
+                    $("#emailDomain").val(""); // '이메일 선택'으로 초기화
+                    $("#domainSelectWrap").show();
+                }
             });
 
             // 4. 정보 수정 버튼 클릭 이벤트
@@ -349,7 +370,34 @@
                 return false;
             }
 
-            let finalEmail = emailId + "@" + emailDomain;
+            let finalEmail = emailId + "@";
+
+            if(emailDomain === "direct" || $("#customDomain").is(":visible")) {
+                const customDomain = $("#customDomain").val().trim();
+                if(customDomain === "") {
+                    alert("도메인을 직접 입력해 주세요.");
+                    $("#customDomain").focus();
+                    return false;
+                }
+
+                // 도메인 유효성 검사 로직
+                const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if(!domainRegex.test(customDomain)) {
+                    alert("유효한 이메일 도메인 형식이 아닙니다.\n(예: example.com)");
+                    $("#customDomain").focus();
+                    return false;
+                }
+
+                finalEmail += customDomain;
+            } else {
+                if(emailDomain === "") {
+                    alert("이메일 도메인을 선택해 주세요.");
+                    $("#emailDomain").focus();
+                    return false;
+                }
+                finalEmail += emailDomain;
+            }
+
             $("#fullEmail").val(finalEmail);
 
             if($("#regionSelect").val() === "") {
