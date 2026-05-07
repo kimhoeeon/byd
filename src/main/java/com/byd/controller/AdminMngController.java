@@ -309,8 +309,8 @@ public class AdminMngController {
         }
 
         for (int i = 0; i < headers.length; i++) {
-            sheet.autoSizeColumn(i);
-            sheet.setColumnWidth(i, (sheet.getColumnWidth(i)) + (short) 1024);
+            // 모든 컬럼을 넉넉하게 고정 너비(약 4500)로 세팅
+            sheet.setColumnWidth(i, 4500);
         }
 
         SimpleDateFormat fileDateFmt = new SimpleDateFormat("yyyyMMdd");
