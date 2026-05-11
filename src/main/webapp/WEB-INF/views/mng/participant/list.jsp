@@ -27,6 +27,7 @@
         .page-item .page-link { border-radius: 4px !important; color: #333; border: 1px solid #dee2e6; }
         .page-item.active .page-link { background-color: #202020; border-color: #202020; color: #fff; }
 
+        /* 코드가 길어 줄바꿈이 일어나는 것을 방지하고 툴팁 안내를 위한 커서 변경 */
         .code-text { word-break: keep-all; white-space: nowrap; font-family: monospace; font-size: 13px; cursor: help; }
     </style>
 </head>
@@ -52,40 +53,37 @@
                     <div class="card shadow-sm border-0 mb-7">
                         <div class="card-body">
                             <!-- 검색 및 페이징 전송용 폼 -->
-                            <form action="/mng/participant/list" method="get" id="searchForm" class="d-flex align-items-center gap-3">
+                            <form action="/mng/participant/list" method="get" id="searchForm">
                                 <!-- 페이지 번호 유지를 위한 hidden 값 -->
                                 <input type="hidden" name="pageNum" id="pageNum" value="${cri.pageNum}">
                                 <input type="hidden" name="amount" value="${cri.amount}">
 
-                                <div class="row g-3 align-items-center">
-                                    <div class="col-auto">
+                                <div class="row mb-4">
+                                    <div class="col-12 d-flex align-items-center gap-3">
                                         <select name="searchType" class="form-select form-select-solid w-150px">
                                             <option value="name" ${cri.searchType == 'name' ? 'selected' : ''}>이름</option>
                                             <option value="phone" ${cri.searchType == 'phone' ? 'selected' : ''}>연락처</option>
                                         </select>
-                                    </div>
-                                    <div class="col-auto">
                                         <input type="text" name="keyword" value="${cri.keyword}" class="form-control form-control-solid w-250px" placeholder="검색어를 입력해 주세요.">
-                                    </div>
-                                    <div class="col-auto">
                                         <button type="button" class="btn btn-dark" onclick="searchData()">검색</button>
                                         <a href="/mng/participant/list" class="btn btn-light">초기화</a>
                                     </div>
                                 </div>
 
-                                <div class="row g-3 align-items-center mt-2">
-                                    <div class="col-auto w-150px text-end pe-3 fw-bold text-gray-700">
-                                        등록일자 조회
-                                    </div>
-                                    <div class="col-auto">
+                                <div class="row">
+                                    <div class="col-12 d-flex align-items-center gap-3">
+                                        <div class="w-150px fw-bold text-gray-700 ps-2">
+                                            <i class="ki-duotone ki-calendar-8 fs-4 me-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span></i>
+                                            등록일자 조회
+                                        </div>
                                         <div class="d-flex align-items-center gap-2">
                                             <input type="date" name="startDate" id="startDate" value="${cri.startDate}" class="form-control form-control-solid w-175px">
-                                            <span class="text-gray-500">~</span>
+                                            <span class="text-gray-500 fw-bold">~</span>
                                             <input type="date" name="endDate" id="endDate" value="${cri.endDate}" class="form-control form-control-solid w-175px">
                                         </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="text-muted fs-7">* 시작일과 종료일이 모두 지정되면 즉시 자동 조회됩니다.</div>
+                                        <div class="text-muted fs-7 ms-2">
+                                            * 시작일과 종료일이 모두 지정되면 자동 조회됩니다.
+                                        </div>
                                     </div>
                                 </div>
 

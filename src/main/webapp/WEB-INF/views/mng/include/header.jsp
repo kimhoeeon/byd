@@ -47,7 +47,7 @@
 
             <!-- 로그아웃 버튼 -->
             <div class="app-navbar-item ms-1 ms-lg-3">
-                <a href="/mng/logout" class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px w-md-40px h-md-40px" title="로그아웃">
+                <a href="/mng/logout" class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-danger w-35px h-35px w-md-40px h-md-40px" title="로그아웃">
                     <i class="ki-duotone ki-exit-right fs-1">
                         <span class="path1"></span><span class="path2"></span>
                     </i>
