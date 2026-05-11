@@ -92,6 +92,7 @@
                                     <th class="text-center min-w-100px">등록일자</th>
                                     <th class="text-center">챌린지 도착</th>
                                     <th class="text-center">시승 도착</th>
+                                    <th class="text-center">경품 수령</th>
                                     <th class="text-center">이름</th>
                                     <th class="text-center">연락처</th>
                                     <th class="text-center">이메일</th>
@@ -166,6 +167,12 @@
                                         <td>
                                             <label class="toggle-switch">
                                                 <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="drive" ${item.driveCheckYn eq 'Y' ? 'checked' : ''}>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="gift" ${item.giftCheckYn eq 'Y' ? 'checked' : ''}>
                                                 <span class="slider"></span>
                                             </label>
                                         </td>

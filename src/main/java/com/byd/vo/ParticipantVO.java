@@ -20,5 +20,6 @@ public class ParticipantVO {
     private String qrCodeUrl;           // QR 코드 URL
     private String challengeCheckYn;    // 챌린지 도착 여부 (Y/N)
     private String driveCheckYn;        // 시승 도착 여부 (Y/N)
+    private String giftCheckYn;         // 경품 수령 여부 (Y/N)
     private Date regDate;               // 등록 일시
 }

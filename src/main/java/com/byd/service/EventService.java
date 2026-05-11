@@ -101,7 +101,8 @@ public class EventService {
             String message = "[BYD 이벤트 참여 티켓]\n" +
                     name + "님, 신청이 완료되었습니다.\n" +
                     "현장 데스크에서 아래 링크의 모바일 티켓(QR)을 보여주세요.\n\n" +
-                    "▶ 모바일 티켓 보기:\n" + ticketUrl;
+                    "▶ 모바일 티켓 보기:\n" + ticketUrl + "\n\n" +
+                    "※ 신청 타임 시작 15분 전까지 BYD부스 돌핀 포토존 앞 집합존으로 방문해주시기 바랍니다.";
 
             URL url = new URL(apiUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

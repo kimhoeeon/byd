@@ -181,6 +181,9 @@
 
     <input type="radio" id="modeDrive" name="eventType" value="drive">
     <label for="modeDrive">시승체험</label>
+
+    <input type="radio" id="modeGift" name="eventType" value="gift">
+    <label for="modeGift">경품수령</label>
 </div>
 
 <div class="search-area">
@@ -203,6 +206,7 @@
 <div class="floating-bottom">
     <a href="/mng/scanner?type=challenge" class="btn-scanner-link" style="background-color: #009ef7;">📷 챌린지 스캐너</a>
     <a href="/mng/scanner?type=drive" class="btn-scanner-link" style="background-color: #28a745;">📷 시승 스캐너</a>
+    <a href="/mng/scanner?type=gift" class="btn-scanner-link" style="background-color: #f6c23e;">📷 경품 스캐너</a>
 </div>
 
 <script>
@@ -244,6 +248,8 @@
                         if (currentEventType === 'challenge' && item.challengeCheckYn === 'Y') {
                             isAlreadyChecked = true;
                         } else if (currentEventType === 'drive' && item.driveCheckYn === 'Y') {
+                            isAlreadyChecked = true;
+                        } else if (currentEventType === 'gift' && item.giftCheckYn === 'Y') {
                             isAlreadyChecked = true;
                         }
 

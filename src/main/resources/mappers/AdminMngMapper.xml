@@ -62,6 +62,7 @@
         <set>
             <if test="adminCode == '101'">challenge_check_yn = 'Y'</if>
             <if test="adminCode == '202'">drive_check_yn = 'Y'</if>
+            <if test="adminCode == '303'">gift_check_yn = 'Y'</if>
         </set>
         WHERE seq = #{seq}
     </update>
@@ -114,7 +115,8 @@
     <select id="getAttendanceStats" resultType="java.util.LinkedHashMap">
         SELECT
             SUM(CASE WHEN challenge_check_yn = 'Y' THEN 1 ELSE 0 END) AS challengeCnt,
-            SUM(CASE WHEN drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS driveCnt
+            SUM(CASE WHEN drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS driveCnt,
+            SUM(CASE WHEN gift_check_yn = 'Y' THEN 1 ELSE 0 END) AS giftCnt
         FROM event_participant
     </select>
 

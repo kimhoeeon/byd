@@ -102,11 +102,15 @@ public class AdminMngController {
         if ("drive".equals(type)) {
             model.addAttribute("adminCode", "202");
             model.addAttribute("eventName", "시승체험");
-            model.addAttribute("themeColor", "#28a745"); // 초록색 테마
+            model.addAttribute("themeColor", "#28a745");
+        } else if ("gift".equals(type)) {
+            model.addAttribute("adminCode", "303");
+            model.addAttribute("eventName", "경품수령");
+            model.addAttribute("themeColor", "#f6c23e"); // 노란색 테마
         } else {
             model.addAttribute("adminCode", "101");
             model.addAttribute("eventName", "챌린지");
-            model.addAttribute("themeColor", "#009ef7"); // 파란색 테마
+            model.addAttribute("themeColor", "#009ef7");
         }
         return "mng/scanner";
     }
@@ -152,6 +156,10 @@ public class AdminMngController {
                 response.setSuccess(false);
                 response.setMessage("이미 시승 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
                 return response;
+            } else if ("303".equals(adminCode) && "Y".equals(participant.getGiftCheckYn())) { // 경품 중복 수령 방지
+                response.setSuccess(false);
+                response.setMessage("이미 경품 수령 처리가 완료된 고객입니다. (" + participant.getName() + ")");
+                return response;
             }
 
             // ==========================================
@@ -164,11 +172,9 @@ public class AdminMngController {
             }
 
             adminMngService.updateArrivalStatus(participant.getSeq(), adminCode);
-
-            String eventType = "101".equals(adminCode) ? "챌린지" : "시승";
+            String eventType = "101".equals(adminCode) ? "챌린지" : ("202".equals(adminCode) ? "시승" : "경품수령");
             response.setSuccess(true);
-            response.setMessage(eventType + " 출석 완료! [ " + participant.getName() + "님 / " + participant.getCarModel() + " / " + participant.getTestDriveTime() + " ]");
-
+            response.setMessage(eventType + " 완료! [ " + participant.getName() + "님 ]");
         } catch (Exception e) {
             response.setSuccess(false);
             response.setMessage("출석 처리 중 시스템 오류가 발생했습니다.");
@@ -186,8 +192,8 @@ public class AdminMngController {
                                      @RequestParam("type") String type) {
         ResponseDTO response = new ResponseDTO();
         try {
-            String columnName = "challenge".equals(type) ? "challenge_check_yn" : "drive_check_yn";
-            String adminCode = "challenge".equals(type) ? "101" : "202";
+            String columnName = "challenge".equals(type) ? "challenge_check_yn" : ("drive".equals(type) ? "drive_check_yn" : "gift_check_yn");
+            String adminCode = "challenge".equals(type) ? "101" : ("drive".equals(type) ? "202" : "303");
 
             // ==========================================
             // 관리자 화면 토글 조작 시에도 시승 미신청 고객 방어
@@ -261,8 +267,8 @@ public class AdminMngController {
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         Row headerRow = sheet.createRow(0);
-        // [수정] 엑셀 헤더 규격 업데이트
-        String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "이메일", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보수집동의", "마케팅정보수신동의", "제3자정보제공동의", "챌린지참여", "시승참여"};
+        // 엑셀 헤더 규격 업데이트
+        String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "이메일", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보수집동의", "마케팅정보수신동의", "제3자정보제공동의", "챌린지참여", "시승참여", "경품수령"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -281,7 +287,7 @@ public class AdminMngController {
                 regDateStr = sdf.format(vo.getRegDate());
             }
 
-            // [수정] 엑셀 데이터 매핑 업데이트
+            // 엑셀 데이터 매핑 업데이트
             String[] rowData = {
                     regDateStr,
                     getShopCode(vo.getShopInfo()),
@@ -298,7 +304,8 @@ public class AdminMngController {
                     vo.getMktAgree() != null ? vo.getMktAgree() : "N",
                     vo.getThirdPartyAgree() != null ? vo.getThirdPartyAgree() : "N",
                     vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N",
-                    vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N"
+                    vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N",
+                    vo.getGiftCheckYn() != null ? vo.getGiftCheckYn() : "N"
             };
 
             for (int i = 0; i < rowData.length; i++) {

@@ -129,15 +129,31 @@
                                 <th class="bg-light fw-bold">챌린지 도착 확인</th>
                                 <td>
                                     <c:choose>
-                                        <c:when test="${data.challengeCheckYn eq 'Y'}"><span class="text-success fw-bold">도착 확인 완료</span></c:when>
+                                        <c:when test="${data.challengeCheckYn eq 'Y'}">
+                                            <span class="text-success fw-bold">도착 확인 완료</span>
+                                        </c:when>
                                         <c:otherwise><span class="text-danger fw-bold">미도착</span></c:otherwise>
                                     </c:choose>
                                 </td>
                                 <th class="bg-light fw-bold">시승 도착 확인</th>
                                 <td>
                                     <c:choose>
-                                        <c:when test="${data.driveCheckYn eq 'Y'}"><span class="text-success fw-bold">도착 확인 완료</span></c:when>
+                                        <c:when test="${data.driveCheckYn eq 'Y'}">
+                                            <span class="text-success fw-bold">도착 확인 완료</span>
+                                        </c:when>
                                         <c:otherwise><span class="text-danger fw-bold">미도착</span></c:otherwise>
+                                    </c:choose>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th class="bg-light fw-bold">경품 수령 확인</th>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${data.giftCheckYn eq 'Y'}">
+                                            <span class="text-success fw-bold">경품 수령 완료</span>
+                                        </c:when>
+                                        <c:otherwise><span class="text-danger fw-bold">미수령</span></c:otherwise>
                                     </c:choose>
                                 </td>
                             </tr>
