@@ -71,7 +71,7 @@
                         <div id="qrcode" style="display: flex; justify-content: center; margin: 15px 0;"></div>
 
                         <p style="color: #333; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
-                            ▶ 시승 신청 내용 :<br>${data.testDriveTime} / ${data.carModel}
+                            ▶ 시승 신청 내용 : ${data.testDriveTime} / ${data.carModel}
                         </p>
                         <p style="color: #e50000; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
                             ※ 신청 타임 시작 15분 전까지 BYD부스 돌핀 포토존 앞 집합존으로 방문해주시기 바랍니다.
