@@ -139,10 +139,10 @@
         }
 
         .btn-checkin:hover {
-            background-color: #218838;
+            opacity: 0.8;
         }
 
-        /* 하단 고정 스캐너 전환 버튼 컨테이너 (버튼 2개 배치) */
+        /* 하단 고정 스캐너 전환 버튼 컨테이너 */
         .floating-bottom {
             position: fixed;
             bottom: 0;
@@ -218,7 +218,7 @@
                 searchData();
             } else {
                 // 검색어가 없다면 리스트 초기화 안내 문구 노출
-                $('#resultList').html('<div style="text-align: center; color: #888; margin-top: 30px;">고객의 <strong>전체 이름</strong> 또는 <strong>연락처 뒷자리 4자리</strong>를 검색해주세요.<br>(예: 홍길동, 1234)</div>');
+                $('#resultList').html('<div style="text-align: center; color: #888; margin-top: 30px;">고객의 <strong>이름</strong> 또는 <strong>연락처</strong>를 2글자 이상 입력하여 검색해주세요.</div>');
             }
         });
 
@@ -266,7 +266,6 @@
 
                         // 렌더링될 버튼 텍스트를 이벤트 타입에 맞게 설정
                         let btnLabel = '출석 처리';
-                        let doneLabel = '출석 완료됨';
                         let isAlreadyChecked = false;
 
                         if (currentEventType === 'challenge') {
@@ -274,13 +273,13 @@
                         } else if (currentEventType === 'drive') {
                             if (item.driveCheckYn === 'Y') isAlreadyChecked = true;
                         } else if (currentEventType === 'gift') {
-                            btnLabel = '경품 수령';      // 버튼명 "경품 수령"으로 변경
-                            doneLabel = '수령 완료됨';    // 완료 시 문구 변경
+                            btnLabel = '경품 수령';
                             if (item.giftCheckYn === 'Y') isAlreadyChecked = true;
                         }
 
+                        // 처리 완료된 대상은 빨간색 "상태 취소" 버튼 노출
                         if (isAlreadyChecked) {
-                            html += '<button class="btn-checkin" style="background-color: #6c757d; cursor: not-allowed;" disabled>' + doneLabel + '</button>';
+                            html += '<button class="btn-checkin" style="background-color: #dc3545;" onclick="processCancel(' + item.seq + ', \'' + item.name + '\')">상태 취소</button>';
                         } else {
                             html += '<button class="btn-checkin" onclick="processCheckIn(' + item.seq + ', \'' + item.name + '\')">' + btnLabel + '</button>';
                         }
@@ -321,6 +320,39 @@
                     searchData();
                 } else {
                     alert('❌ ' + response.message);
+                }
+            },
+            error: function () {
+                alert('❌ 서버와의 통신에 실패했습니다.');
+            }
+        });
+    }
+
+    // 출석(수령) 취소 함수
+    function processCancel(seq, name) {
+        const eventType = $('input[name="eventType"]:checked').val();
+        const typeText = eventType === 'challenge' ? '챌린지' : eventType === 'drive' ? '시승체험' : '경품';
+        const checkText = eventType === 'gift' ? '수령' : '출석';
+
+        if (!confirm(name + ' 고객님의 [' + typeText + '] ' + checkText + ' 상태를 취소하시겠습니까?')) {
+            return;
+        }
+
+        $.ajax({
+            url: '/mng/api/manualArrival',
+            type: 'POST',
+            data: {
+                seq: seq,
+                type: eventType,
+                status: false // 상태 원복
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    alert('✅ ' + typeText + ' ' + checkText + ' 취소 처리가 완료되었습니다.');
+                    searchData();
+                } else {
+                    alert('❌ 처리 중 오류가 발생했습니다.');
                 }
             },
             error: function () {
