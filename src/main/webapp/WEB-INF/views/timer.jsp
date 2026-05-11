@@ -119,26 +119,22 @@
 <!-- //container -->
 
 <!-- 우측 하단 조작 가이드 -->
-<div class="guide-box">
+<%--<div class="guide-box">
     <h4>🎮 조작 가이드</h4>
     <p><strong>[시작 / 일시정지]</strong></p>
     <div class="key-desc">
         - 프리젠터 : 다음 (Next) 〉<br>
-        - 키보드 : Space, Enter, PageDown, →
     </div>
     <p style="margin-top: 15px;"><strong>[타이머 초기화]</strong></p>
     <div class="key-desc">
         - 프리젠터 : 이전 (Back) 〈<br>
         - 키보드 : Backspace, PageUp, ←
     </div>
-</div>
+</div>--%>
 
 <script>
     $(document).ready(function () {
         const initialTimeMs = 20 * 1000;
-
-        let startTime = 0;
-        let elapsedTime = 0;
         let timerInterval;
         let isRunning = false;
 

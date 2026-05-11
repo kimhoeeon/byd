@@ -16,6 +16,12 @@
         <if test="arrivalStatus == 'N'">
             AND qr_scan_time IS NULL
         </if>
+        <if test="startDate != null and startDate != ''">
+            AND reg_date <![CDATA[>=]]> CONCAT(#{startDate}, ' 00:00:00')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND reg_date <![CDATA[<=]]> CONCAT(#{endDate}, ' 23:59:59')
+        </if>
     </sql>
 
     <select id="getAdminById" parameterType="string" resultType="com.byd.vo.AdminVO">

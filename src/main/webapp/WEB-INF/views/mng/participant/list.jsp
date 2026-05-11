@@ -57,15 +57,38 @@
                                 <input type="hidden" name="pageNum" id="pageNum" value="${cri.pageNum}">
                                 <input type="hidden" name="amount" value="${cri.amount}">
 
-                                <select name="searchType" class="form-select form-select-solid w-150px">
-                                    <option value="name" ${cri.searchType == 'name' ? 'selected' : ''}>이름</option>
-                                    <option value="phone" ${cri.searchType == 'phone' ? 'selected' : ''}>연락처</option>
-                                </select>
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-auto">
+                                        <select name="searchType" class="form-select form-select-solid w-150px">
+                                            <option value="name" ${cri.searchType == 'name' ? 'selected' : ''}>이름</option>
+                                            <option value="phone" ${cri.searchType == 'phone' ? 'selected' : ''}>연락처</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-auto">
+                                        <input type="text" name="keyword" value="${cri.keyword}" class="form-control form-control-solid w-250px" placeholder="검색어를 입력해 주세요.">
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" class="btn btn-dark" onclick="searchData()">검색</button>
+                                        <a href="/mng/participant/list" class="btn btn-light">초기화</a>
+                                    </div>
+                                </div>
 
-                                <input type="text" name="keyword" value="${cri.keyword}" class="form-control form-control-solid w-250px" placeholder="검색어를 입력해 주세요.">
+                                <div class="row g-3 align-items-center mt-2">
+                                    <div class="col-auto w-150px text-end pe-3 fw-bold text-gray-700">
+                                        등록일자 조회
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <input type="date" name="startDate" id="startDate" value="${cri.startDate}" class="form-control form-control-solid w-175px">
+                                            <span class="text-gray-500">~</span>
+                                            <input type="date" name="endDate" id="endDate" value="${cri.endDate}" class="form-control form-control-solid w-175px">
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="text-muted fs-7">* 시작일과 종료일이 모두 지정되면 즉시 자동 조회됩니다.</div>
+                                    </div>
+                                </div>
 
-                                <button type="button" class="btn btn-dark" onclick="searchData()">검색</button>
-                                <a href="/mng/participant/list" class="btn btn-light">초기화</a>
                             </form>
                         </div>
                     </div>
@@ -77,7 +100,7 @@
 
                             <!-- 엑셀 다운로드 버튼을 우측 상단으로 이동 -->
                             <div class="card-toolbar">
-                                <button type="button" class="btn btn-success fw-bold" onclick="downloadExcel()">
+                                <button type="button" class="btn btn-success fw-bold mb-5" onclick="downloadExcel()">
                                     <i class="ki-duotone ki-file-down fs-2">
                                         <span class="path1"></span><span class="path2"></span>
                                     </i>
@@ -269,6 +292,48 @@
                 }.bind(this)
             });
         });
+
+        // -------------------------------------------------------------
+        // 기간 검색 자동 완성 및 날짜 선택 제한 로직
+        // -------------------------------------------------------------
+        var $startDate = $('#startDate');
+        var $endDate = $('#endDate');
+
+        // 페이지 최초 로드 시 이미 값이 있다면, 반대편 날짜의 선택 가능 범위(min/max) 제한
+        if ($startDate.val()) $endDate.attr('min', $startDate.val());
+        if ($endDate.val()) $startDate.attr('max', $endDate.val());
+
+        // 시작일 변경 이벤트
+        $startDate.on('change', function() {
+            var sDate = $(this).val();
+            $endDate.attr('min', sDate); // 종료일은 시작일 이전으로 선택 불가능하게 설정
+            checkAndAutoSubmit();
+        });
+
+        // 종료일 변경 이벤트
+        $endDate.on('change', function() {
+            var eDate = $(this).val();
+            $startDate.attr('max', eDate); // 시작일은 종료일 이후로 선택 불가능하게 설정
+            checkAndAutoSubmit();
+        });
+
+        // 시작일과 종료일이 모두 채워지면 폼 자동 전송
+        function checkAndAutoSubmit() {
+            var s = $startDate.val();
+            var e = $endDate.val();
+
+            if (s && e) {
+                // 브라우저 제한(min/max)을 뚫고 입력되었을 경우를 대비한 검증
+                if (s > e) {
+                    alert('시작일은 종료일보다 이전이어야 합니다.');
+                    $startDate.val('');
+                    $endDate.attr('min', '');
+                    return;
+                }
+                // 올바른 기간이 설정되면 즉시 조회
+                searchData();
+            }
+        }
     });
 
     function searchData() {
