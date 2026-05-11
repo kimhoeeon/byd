@@ -197,8 +197,7 @@
 
 <div id="resultList" class="result-list">
     <div style="text-align: center; color: #888; margin-top: 30px;">
-        고객의 <strong>전체 이름</strong> 또는 <strong>연락처 뒷자리 4자리</strong>를 검색해주세요.<br>
-        (예: 홍길동, 1234)
+        고객의 <strong>이름</strong> 또는 <strong>연락처</strong>를 2글자 이상 입력하여 검색해주세요.
     </div>
 </div>
 
@@ -210,6 +209,27 @@
 </div>
 
 <script>
+    $(document).ready(function() {
+        // [핵심 추가] 라디오 버튼(탭)이 변경될 때마다 화면 즉시 새로고침
+        $('input[name="eventType"]').on('change', function() {
+            const keyword = $('#keyword').val().trim();
+            if (keyword.length >= 2) {
+                // 이미 검색된 결과가 있다면 바뀐 탭(모드)에 맞춰 즉시 재검색하여 버튼 갱신
+                searchData();
+            } else {
+                // 검색어가 없다면 리스트 초기화 안내 문구 노출
+                $('#resultList').html('<div style="text-align: center; color: #888; margin-top: 30px;">고객의 <strong>전체 이름</strong> 또는 <strong>연락처 뒷자리 4자리</strong>를 검색해주세요.<br>(예: 홍길동, 1234)</div>');
+            }
+        });
+
+        // 엔터키 검색 지원
+        $('#keyword').on('keypress', function (e) {
+            if (e.which === 13) {
+                searchData();
+            }
+        });
+    });
+
     function searchData() {
         const searchType = $('#searchType').val();
         const keyword = $('#keyword').val().trim();
@@ -239,24 +259,30 @@
                 } else {
                     $.each(list, function (index, item) {
                         html += '<div class="result-card">';
-                        html += '  <div class="result-info">';
-                        html += '    <strong>' + item.name + '</strong> <span style="font-size:0.85em; color:#999;">(' + item.phone + ')</span>';
-                        html += '    <p>관심모델: ' + item.carModel + ' | 시간: ' + (item.testDriveTime ? item.testDriveTime : '미지정') + '</p>';
-                        html += '  </div>';
+                            html += '<div class="result-info">';
+                                html += '<strong>' + item.name + '</strong><span style="font-size:0.85em; color:#999;">(' + item.phone + ')</span>';
+                                html += '<p>관심모델: ' + item.carModel + ' | 시간: ' + (item.testDriveTime ? item.testDriveTime : '미지정') + '</p>';
+                            html += '</div>';
 
+                        // 렌더링될 버튼 텍스트를 이벤트 타입에 맞게 설정
+                        let btnLabel = '출석 처리';
+                        let doneLabel = '출석 완료됨';
                         let isAlreadyChecked = false;
-                        if (currentEventType === 'challenge' && item.challengeCheckYn === 'Y') {
-                            isAlreadyChecked = true;
-                        } else if (currentEventType === 'drive' && item.driveCheckYn === 'Y') {
-                            isAlreadyChecked = true;
-                        } else if (currentEventType === 'gift' && item.giftCheckYn === 'Y') {
-                            isAlreadyChecked = true;
+
+                        if (currentEventType === 'challenge') {
+                            if (item.challengeCheckYn === 'Y') isAlreadyChecked = true;
+                        } else if (currentEventType === 'drive') {
+                            if (item.driveCheckYn === 'Y') isAlreadyChecked = true;
+                        } else if (currentEventType === 'gift') {
+                            btnLabel = '경품 수령';      // 버튼명 "경품 수령"으로 변경
+                            doneLabel = '수령 완료됨';    // 완료 시 문구 변경
+                            if (item.giftCheckYn === 'Y') isAlreadyChecked = true;
                         }
 
                         if (isAlreadyChecked) {
-                            html += '  <button class="btn-checkin" style="background-color: #6c757d; cursor: not-allowed;" disabled>출석 완료됨</button>';
+                            html += '<button class="btn-checkin" style="background-color: #6c757d; cursor: not-allowed;" disabled>' + doneLabel + '</button>';
                         } else {
-                            html += '  <button class="btn-checkin" onclick="processCheckIn(' + item.seq + ', \'' + item.name + '\')">출석 처리</button>';
+                            html += '<button class="btn-checkin" onclick="processCheckIn(' + item.seq + ', \'' + item.name + '\')">' + btnLabel + '</button>';
                         }
 
                         html += '</div>';
@@ -273,9 +299,10 @@
 
     function processCheckIn(seq, name) {
         const eventType = $('input[name="eventType"]:checked').val();
-        const typeText = eventType === 'challenge' ? '챌린지' : '시승체험';
+        const typeText = eventType === 'challenge' ? '챌린지' : eventType === 'drive' ? '시승체험' : '경품';
+        const checkText = eventType === 'gift' ? '수령' : '출석';
 
-        if (!confirm(name + ' 고객님을 [' + typeText + '] 출석 처리하시겠습니까?')) {
+        if (!confirm(name + ' 고객님을 [ ' + typeText + ' ] ' + checkText + ' 처리하시겠습니까?')) {
             return;
         }
 
@@ -290,7 +317,7 @@
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    alert('✅ ' + typeText + ' 출석 처리가 완료되었습니다.');
+                    alert('✅ ' + typeText + ' ' + checkText + ' 처리가 완료되었습니다.');
                     searchData();
                 } else {
                     alert('❌ ' + response.message);
@@ -301,12 +328,6 @@
             }
         });
     }
-
-    $('#keyword').on('keypress', function (e) {
-        if (e.which === 13) {
-            searchData();
-        }
-    });
 </script>
 </body>
 </html>

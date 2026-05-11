@@ -8,7 +8,7 @@
             AND name LIKE CONCAT('%', #{keyword}, '%')
         </if>
         <if test="searchType == 'phone' and keyword != null and keyword != ''">
-            AND phone = #{keyword}
+            AND phone LIKE CONCAT('%', #{keyword}, '%')
         </if>
         <if test="arrivalStatus == 'Y'">
             AND qr_scan_time IS NOT NULL
