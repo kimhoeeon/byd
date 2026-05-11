@@ -21,14 +21,37 @@
 
     <style>
         #kt_app_main { background-color: #f5f8fa; }
-        .summary-card { color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .summary-card { color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .summary-card:hover { transform: translateY(-3px); }
         .bg-card-1 { background-color: #009ef7; }
         .bg-card-2 { background-color: #50cd89; }
         .bg-card-3 { background-color: #7239ea; }
         .bg-card-4 { background-color: #f1416c; }
+        .bg-card-5 { background-color: #f6c23e; }
+
+        .summary-card .progress { height: 6px; background-color: rgba(255,255,255,0.25); border-radius: 4px; margin-top: 5px; }
+        .summary-card .progress-bar { background-color: #fff; border-radius: 4px; }
+
+        /* 경품(노란색) 카드는 텍스트를 어둡게 처리하여 시인성 확보 */
+        .bg-card-5, .bg-card-5 .fw-bold, .bg-card-5 .fw-bolder, .bg-card-5 .opacity-75 { color: #333 !important; }
+        .bg-card-5 .progress { background-color: rgba(0,0,0,0.1); }
+        .bg-card-5 .progress-bar { background-color: #333; }
     </style>
 </head>
 <body id="kt_app_body" data-kt-app-layout="dark-sidebar" data-kt-app-header-fixed="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" class="app-default">
+
+<c:set var="totalCnt" value="${stats.totalCnt != null ? stats.totalCnt : 0}" />
+<c:set var="todayCnt" value="${stats.todayCnt != null ? stats.todayCnt : 0}" />
+<c:set var="challengeCnt" value="${chartData.attStats.challengeCnt != null ? chartData.attStats.challengeCnt : 0}" />
+<c:set var="driveCnt" value="${chartData.attStats.driveCnt != null ? chartData.attStats.driveCnt : 0}" />
+<c:set var="giftCnt" value="${chartData.attStats.giftCnt != null ? chartData.attStats.giftCnt : 0}" />
+
+<c:set var="driveWaitCnt" value="${stats.driveWaitCnt != null ? stats.driveWaitCnt : 0}" />
+<c:set var="totalDriveCnt" value="${driveWaitCnt + driveCnt}" />
+
+<c:set var="challPct" value="${totalCnt > 0 ? (challengeCnt * 100.0 / totalCnt) : 0}" />
+<c:set var="drivePct" value="${totalDriveCnt > 0 ? (driveCnt * 100.0 / totalDriveCnt) : 0}" />
+<c:set var="giftPct" value="${totalCnt > 0 ? (giftCnt * 100.0 / totalCnt) : 0}" />
 
 <!-- 레이아웃 붕괴 방지를 위해 id 필수 적용 (kt_app_root) -->
 <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
@@ -50,31 +73,98 @@
                 <div class="d-flex flex-column flex-column-fluid p-10">
 
                     <!-- 최상단 요약 카드 -->
-                    <div class="row g-5 mb-7">
-                        <div class="col-md-3">
-                            <div class="card summary-card bg-card-1 p-6">
-                                <div class="fw-bold fs-6 opacity-75">누적 신청자 수</div>
-                                <div class="fw-bolder fs-2hx mt-2"><fmt:formatNumber value="${stats.totalCnt}" pattern="#,###"/></div>
+                    <div class="row g-5 mb-7 row-cols-1 row-cols-md-2 row-cols-xl-5">
+
+                        <div class="col">
+                            <div class="card summary-card bg-card-1 p-6 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 opacity-75">누적 신청자 수</div>
+                                    <div class="fw-bolder fs-2x mt-2"><fmt:formatNumber value="${totalCnt}" pattern="#,###"/> <span class="fs-5 opacity-75">명</span></div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between fs-8 opacity-75 mb-1">
+                                        <span>총 수집 데이터</span>
+                                        <span class="fw-bold">100%</span>
+                                    </div>
+                                    <div class="progress w-100">
+                                        <div class="progress-bar" style="width: 100%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card summary-card bg-card-2 p-6">
-                                <div class="fw-bold fs-6 opacity-75">금일 신규 신청</div>
-                                <div class="fw-bolder fs-2hx mt-2"><fmt:formatNumber value="${stats.todayCnt}" pattern="#,###"/></div>
+
+                        <div class="col">
+                            <div class="card summary-card bg-card-2 p-6 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 opacity-75">금일 신규 신청</div>
+                                    <div class="fw-bolder fs-2x mt-2">+<fmt:formatNumber value="${todayCnt}" pattern="#,###"/> <span class="fs-5 opacity-75">명</span></div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between fs-8 opacity-75 mb-1">
+                                        <span>오늘 하루 발생량</span>
+                                        <span class="fw-bold">Today</span>
+                                    </div>
+                                    <div class="progress w-100">
+                                        <div class="progress-bar" style="width: 100%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card summary-card bg-card-3 p-6">
-                                <div class="fw-bold fs-6 opacity-75">챌린지 도착(확인) 완료</div>
-                                <div class="fw-bolder fs-2hx mt-2"><fmt:formatNumber value="${chartData.attStats.challengeCnt}" pattern="#,###"/></div>
+
+                        <div class="col">
+                            <div class="card summary-card bg-card-3 p-6 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 opacity-75">챌린지 확인 완료</div>
+                                    <div class="fw-bolder fs-2x mt-2"><fmt:formatNumber value="${challengeCnt}" pattern="#,###"/> <span class="fs-5 opacity-75">명</span></div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between fs-8 opacity-75 mb-1">
+                                        <span>대상자(${totalCnt}명) 대비</span>
+                                        <span class="fw-bold"><fmt:formatNumber value="${challPct}" pattern="##0.0"/>%</span>
+                                    </div>
+                                    <div class="progress w-100">
+                                        <div class="progress-bar" style="width: ${challPct}%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card summary-card bg-card-4 p-6">
-                                <div class="fw-bold fs-6 opacity-75">시승 도착(확인) 완료</div>
-                                <div class="fw-bolder fs-2hx mt-2"><fmt:formatNumber value="${chartData.attStats.driveCnt}" pattern="#,###"/></div>
+
+                        <div class="col">
+                            <div class="card summary-card bg-card-4 p-6 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 opacity-75">시승 확인 완료</div>
+                                    <div class="fw-bolder fs-2x mt-2"><fmt:formatNumber value="${driveCnt}" pattern="#,###"/> <span class="fs-5 opacity-75">명</span></div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between fs-8 opacity-75 mb-1">
+                                        <span>시승 예약(${totalDriveCnt}명) 대비</span>
+                                        <span class="fw-bold"><fmt:formatNumber value="${drivePct}" pattern="##0.0"/>%</span>
+                                    </div>
+                                    <div class="progress w-100">
+                                        <div class="progress-bar" style="width: ${drivePct}%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="col">
+                            <div class="card summary-card bg-card-5 p-6 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 opacity-75">경품 수령 현황</div>
+                                    <div class="fw-bolder fs-2x mt-2"><fmt:formatNumber value="${giftCnt}" pattern="#,###"/> <span class="fs-5 opacity-75">명</span></div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between fs-8 opacity-75 mb-1">
+                                        <span>대상자(${totalCnt}명) 대비</span>
+                                        <span class="fw-bold"><fmt:formatNumber value="${giftPct}" pattern="##0.0"/>%</span>
+                                    </div>
+                                    <div class="progress w-100">
+                                        <div class="progress-bar" style="width: ${giftPct}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- 1열: 날짜별 추이 & 도착 현황 -->

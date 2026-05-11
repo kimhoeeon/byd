@@ -87,9 +87,11 @@ public class AdminMngService {
             att = new HashMap<>();
             att.put("challengeCnt", 0);
             att.put("driveCnt", 0);
+            att.put("giftCnt", 0);
         } else {
             att.put("challengeCnt", att.get("challengeCnt") != null ? att.get("challengeCnt") : 0);
             att.put("driveCnt", att.get("driveCnt") != null ? att.get("driveCnt") : 0);
+            att.put("giftCnt", att.get("giftCnt") != null ? att.get("giftCnt") : 0);
         }
         chartMap.put("attStats", att);
 
