@@ -63,12 +63,9 @@
                 </div>
 
                 <div class="bd_txt_w" style="margin-top: 20px;">
-                    <div class="big">시승 신청이 성공적으로 접수되었습니다.</div>
+                    <div class="big">이벤트 참여가 성공적으로 완료되었습니다.</div>
                     <p style="color: #CBCBCA; line-height: 1.6; margin-top: 15px;">
-                        입력하신 연락처로 <span style="color: #fff; font-weight: bold;">모바일 티켓(QR) 링크</span>가 발송되었습니다.<br><br>
-                        현장 데스크에 방문하셔서<br>
-                        문자로 받으신 모바일 티켓을 보여주시면<br>
-                        빠르게 시승 안내를 도와드리겠습니다.
+                        입력하신 연락처로 <span style="color: #fff; font-weight: bold;">모바일 티켓(QR) 링크</span>가 발송되었습니다.
                     </p>
                 </div>
 
