@@ -87,6 +87,7 @@
                         <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'google.com' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
 
                         <input type="hidden" name="email" id="fullEmail" value="${data.email}">
+                        <input type="hidden" name="mktAgree" id="hiddenMkt" value="${data.mktAgree}">
 
                         <ul class="form_box">
                             <li>
@@ -173,7 +174,7 @@
                         </ul>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" checked disabled>
+                                <input type="checkbox"  checked disabled>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(필수) 개인정보 수집·이용 동의</span>
                             </label>
@@ -197,7 +198,7 @@
                         </div>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" <c:if test="${data.entrustAgree eq 'Y'}">checked</c:if>>
+                                <input type="checkbox" id="mktAgree" <c:if test="${data.mktAgree eq 'Y'}">checked</c:if>>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(선택) 마케팅 정보 수신 동의</span>
                             </label>
@@ -374,11 +375,7 @@
             const emailDomainSelect = $("#emailDomain").val();
             const customDomain = $("#customDomain").val().trim();
 
-            if(emailId === "") {
-                alert("이메일 아이디를 입력해 주세요.");
-                $("#emailId").focus();
-                return false;
-            }
+            if(emailId === "") { alert("이메일 아이디를 입력해 주세요."); $("#emailId").focus(); return false; }
 
             if(customDomain === "") {
                 alert("이메일 도메인을 선택하거나 입력해 주세요.");
@@ -398,22 +395,13 @@
                 return false;
             }
 
-            let finalEmail = emailId + "@" + customDomain;
+            $("#fullEmail").val(emailId + "@" + customDomain);
 
-            $("#fullEmail").val(finalEmail);
+            if($("#regionSelect").val() === "") { alert("지역을 선택해 주세요."); return false; }
+            if($("#shopSelect").val() === "") { alert("방문 가능 전시장를 선택해 주세요."); return false; }
+            if($("select[name='carModel']").val() === "") { alert("관심차량 정보를 선택해 주세요."); return false; }
 
-            if($("#regionSelect").val() === "") {
-                alert("지역을 선택해 주세요.");
-                return false;
-            }
-            if($("#shopSelect").val() === "") {
-                alert("방문 가능 전시장를 선택해 주세요.");
-                return false;
-            }
-            if($("select[name='carModel']").val() === "") {
-                alert("관심차량 정보를 선택해 주세요.");
-                return false;
-            }
+            $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");
 
             return true;
         }

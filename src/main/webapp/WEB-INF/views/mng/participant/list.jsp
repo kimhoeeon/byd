@@ -121,8 +121,8 @@
                                     <th class="text-center">관심/시승차량</th>
                                     <th class="text-center">예약시간</th>
                                     <th class="text-center">개인정보<br>수집동의</th>
-                                    <th class="text-center">제3자<br>정보제공동의</th>
-                                    <th class="text-center">처리 위탁<br>안내 동의</th>
+                                    <th class="text-center">제3자<br>제공동의</th>
+                                    <th class="text-center">처리위탁<br>동의</th>
                                     <th class="text-center">마케팅<br>수신동의</th>
                                     <th class="text-center">관리</th>
                                 </tr>

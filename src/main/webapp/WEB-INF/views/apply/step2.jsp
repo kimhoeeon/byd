@@ -79,9 +79,10 @@
 
                         <!-- 서버 전송용 히든 필드 -->
                         <input type="hidden" name="email" id="fullEmail">
-                        <input type="hidden" name="privacyAgree" value="Y">
-                        <input type="hidden" name="mktAgree" value="Y">
-                        <input type="hidden" name="thirdPartyAgree" value="Y">
+                        <input type="hidden" name="privacyAgree" id="hiddenPrivacy" value="N">
+                        <input type="hidden" name="thirdPartyAgree" id="hiddenThirdParty" value="N">
+                        <input type="hidden" name="entrustAgree" id="hiddenEntrust" value="N">
+                        <input type="hidden" name="mktAgree" id="hiddenMkt" value="N">
 
                         <ul class="form_box">
                             <li>
@@ -322,33 +323,19 @@
                 return false;
             }
 
-            let finalEmail = emailId + "@" + customDomain;
+            $("#fullEmail").val(emailId + "@" + customDomain);
 
-            $("#fullEmail").val(finalEmail);
+            if($("#regionSelect").val() === "") { alert("지역을 선택해 주세요."); return false; }
+            if($("#shopSelect").val() === "") { alert("방문 가능 전시장를 선택해 주세요."); return false; }
+            if($("select[name='carModel']").val() === "") { alert("관심차량 정보를 선택해 주세요."); return false; }
 
-            if($("#regionSelect").val() === "") {
-                alert("지역을 선택해 주세요.");
-                return false;
-            }
-            if($("#shopSelect").val() === "") {
-                alert("방문 가능 전시장를 선택해 주세요.");
-                return false;
-            }
-            if($("select[name='carModel']").val() === "") {
-                alert("관심차량 정보를 선택해 주세요.");
-                return false;
-            }
+            $("#hiddenPrivacy").val($("#privacyAgree").is(":checked") ? "Y" : "N");
+            $("#hiddenThirdParty").val($("#thirdPartyAgree").is(":checked") ? "Y" : "N");
+            $("#hiddenEntrust").val($("#entrustAgree").is(":checked") ? "Y" : "N");
+            $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");
 
-            if (!$("#privacyAgree").is(":checked")) {
-                alert("개인정보 수집·이용 동의에 체크해 주세요.");
-                return false;
-            }
-            if (!$("#thirdPartyAgree").is(":checked")) {
-                alert("개인정보 제3자 제공 동의에 체크해 주세요.");
-                return false;
-            }
-            if (!$("#entrustAgree").is(":checked")) {
-                alert("개인정보 처리 위탁 안내 및 동의서에 체크해 주세요.");
+            if (!$("#privacyAgree").is(":checked") || !$("#thirdPartyAgree").is(":checked") || !$("#entrustAgree").is(":checked")) {
+                alert("필수 약관에 모두 동의해 주세요.");
                 return false;
             }
 

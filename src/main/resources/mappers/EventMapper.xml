@@ -47,7 +47,8 @@
         SET email = #{email},
             shop_info = #{shopInfo},
             car_model = #{carModel},
-            test_drive_time = #{testDriveTime}
+            test_drive_time = #{testDriveTime},
+            mkt_agree = #{mktAgree}
         WHERE seq = #{seq}
     </update>
 
