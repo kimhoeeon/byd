@@ -42,7 +42,7 @@ public class EventController {
     @ResponseBody
     public Map<String, Object> checkParticipant(@RequestParam String name, @RequestParam String phone, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
-        ParticipantVO existing = eventService.getParticipantByPhoneToday(phone);
+        ParticipantVO existing = eventService.getParticipantByPhone(phone);
 
         if (existing != null) {
             try {
@@ -58,7 +58,7 @@ public class EventController {
                 response.put("error", true);
             }
         } else {
-            // 오늘 내역이 없으면(어제 신청했더라도) 신규 신청으로 간주
+            // DB에 아예 신청 이력이 없는(생애 최초) 경우에만 신규 신청(step2)으로 간주
             ParticipantVO newInfo = new ParticipantVO();
             newInfo.setName(name);
             newInfo.setPhone(phone);
@@ -118,7 +118,7 @@ public class EventController {
             return "redirect:/apply/step2";
         } catch (DuplicateKeyException e) {
             log.warn("중복 시승 신청 감지 (DB Unique Key 방어): {}", participantVO.getPhone());
-            ParticipantVO existing = eventService.getParticipantByPhoneToday(participantVO.getPhone());
+            ParticipantVO existing = eventService.getParticipantByPhone(participantVO.getPhone());
             if (existing != null) {
                 try {
                     AES128 aes128 = new AES128(SECRET_KEY);

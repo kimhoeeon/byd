@@ -28,19 +28,18 @@ public class EventService {
     }
 
     public Map<String, Integer> getDriveTimeCountToday() {
-        List<Map<String, Object>> countList = eventMapper.getDriveTimeCountToday();
+        List<Map<String, Object>> rawList = eventMapper.getDriveTimeCountToday();
         Map<String, Integer> resultMap = new HashMap<>();
 
-        for(Map<String, Object> map : countList) {
-            String time = (String) map.get("testDriveTime");
-            Number cnt = (Number) map.get("cnt");
-            resultMap.put(time, cnt.intValue());
+        if (rawList != null) {
+            for (Map<String, Object> row : rawList) {
+                String time = (String) row.get("testDriveTime");
+                // MySQL COUNT(*)는 Long으로 반환되므로 안전하게 변환
+                int count = Integer.parseInt(String.valueOf(row.get("cnt")));
+                resultMap.put(time, count);
+            }
         }
         return resultMap;
-    }
-
-    public int getDriveTimeCount(String testDriveTime) {
-        return eventMapper.getDriveTimeCount(testDriveTime);
     }
 
     public void insertParticipant(ParticipantVO participantVO) {
@@ -86,6 +85,10 @@ public class EventService {
         }
 
         eventMapper.updateParticipant(participantVO);
+    }
+
+    public int getDriveTimeCount(String testDriveTime) {
+        return eventMapper.getDriveTimeCount(testDriveTime);
     }
 
     // Aligo API SMS 발송 로직

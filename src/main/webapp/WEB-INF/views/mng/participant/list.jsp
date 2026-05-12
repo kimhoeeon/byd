@@ -210,7 +210,13 @@
                                         <td><span class="badge badge-light-primary">${item.privacyAgree}</span></td>
                                         <td><span class="badge badge-light-primary">${item.thirdPartyAgree}</span></td>
                                         <td><span class="badge badge-light-primary">${item.entrustAgree}</span></td>
-                                        <td><span class="badge badge-light-primary">${item.mktAgree}</span></td>
+                                        <td>
+                                            <span class="badge <c:choose>
+                                                                <c:when test="${item.mktAgree eq 'Y'}">badge-light-primary</c:when>
+                                                                <c:otherwise>badge-light-danger</c:otherwise>
+                                                                </c:choose>">${item.mktAgree}
+                                            </span>
+                                        </td>
 
                                         <td>
                                             <button type="button" class="btn btn-sm btn-light-danger fw-bold" onclick="deleteParticipant(${item.seq})">삭제</button>
