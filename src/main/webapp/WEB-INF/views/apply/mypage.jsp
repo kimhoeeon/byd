@@ -177,7 +177,7 @@
                         </ul>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox"  checked disabled>
+                                <input type="checkbox" checked disabled>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(필수) 개인정보 수집·이용 동의</span>
                             </label>
