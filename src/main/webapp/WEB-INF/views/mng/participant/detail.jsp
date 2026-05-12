@@ -115,14 +115,16 @@
                             </tr>
 
                             <tr>
-                                <th class="bg-light fw-bold">개인정보 수집 및 이용 동의</th>
+                                <th class="bg-light fw-bold">개인정보 수집·이용 동의</th>
                                 <td><span class="badge badge-primary">${empty data.privacyAgree ? 'N' : data.privacyAgree}</span></td>
-                                <th class="bg-light fw-bold">마케팅 정보 수신 동의</th>
-                                <td><span class="badge badge-primary">${empty data.mktAgree ? 'N' : data.mktAgree}</span></td>
+                                <th class="bg-light fw-bold">개인정보 제3자 제공 동의</th>
+                                <td colspan="3"><span class="badge badge-primary">${empty data.thirdPartyAgree ? 'N' : data.thirdPartyAgree}</span></td>
                             </tr>
                             <tr>
-                                <th class="bg-light fw-bold">제 3자 정보 제공 동의</th>
-                                <td colspan="3"><span class="badge badge-primary">${empty data.thirdPartyAgree ? 'N' : data.thirdPartyAgree}</span></td>
+                                <th class="bg-light fw-bold">개인정보 처리 위탁 안내 및 동의서</th>
+                                <td><span class="badge badge-primary">${empty data.entrustAgree ? 'N' : data.entrustAgree}</span></td>
+                                <th class="bg-light fw-bold">마케팅 정보 수신 동의</th>
+                                <td colspan="3"><span class="badge badge-primary">${empty data.mktAgree ? 'N' : data.mktAgree}</span></td>
                             </tr>
 
                             <tr>

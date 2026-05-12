@@ -14,9 +14,10 @@ public class ParticipantVO {
     private String shopInfo;            // 방문 가능 전시장
     private String carModel;            // 관심차량 정보 정보
     private String testDriveTime;       // 시승 신청 시간
-    private String privacyAgree;        // 개인정보 수집 및 이용 동의 (Y/N)
-    private String mktAgree;            // 마케팅 동의 (Y/N)
-    private String thirdPartyAgree;     // 제3자 정보 제공 동의 (Y/N)
+    private String privacyAgree;        // 개인정보 수집·이용 동의
+    private String thirdPartyAgree;     // 개인정보 제3자 제공 동의
+    private String entrustAgree;        // 개인정보 처리 위탁 안내 및 동의
+    private String mktAgree;            // 마케팅 활용 동의
     private String qrCodeUrl;           // QR 코드 URL
     private String challengeCheckYn;    // 챌린지 도착 여부 (Y/N)
     private String driveCheckYn;        // 시승 도착 여부 (Y/N)
