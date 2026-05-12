@@ -42,14 +42,19 @@
           AND test_drive_time = #{testDriveTime}
     </select>
 
-    <update id="updateParticipant" parameterType="com.byd.vo.ParticipantVO">
+    <update id="updateParticipant">
         UPDATE event_participant
-        SET email = #{email},
-            shop_info = #{shopInfo},
-            car_model = #{carModel},
-            test_drive_time = #{testDriveTime},
-            mkt_agree = #{mktAgree}
-        WHERE seq = #{seq}
+        <set>
+            email = #{vo.email},
+            shop_info = #{vo.shopInfo},
+            car_model = #{vo.carModel},
+            test_drive_time = #{vo.testDriveTime},
+            mkt_agree = #{vo.mktAgree},
+            <if test="updateRegDate == true">
+                reg_date = NOW()
+            </if>
+        </set>
+        WHERE seq = #{vo.seq}
     </update>
 
     <select id="checkTestDriveHistory" resultType="int">

@@ -156,7 +156,7 @@
                             <li>
                                 <div class="gubun">시승 시간 선택</div>
                                 <div class="input">
-                                    <select name="testDriveTime" id="testDriveTime" required>
+                                    <select name="testDriveTime" id="testDriveTime" required <c:if test="${data.driveCheckYn eq 'Y'}">disabled</c:if>>
                                         <option value="시승 미신청" <c:if test="${data.testDriveTime == '시승 미신청'}">selected</c:if>>시승 미신청</option>
                                         <option value="10:00" <c:if test="${data.testDriveTime == '10:00'}">selected</c:if>>10:00</option>
                                         <option value="11:00" <c:if test="${data.testDriveTime == '11:00'}">selected</c:if>>11:00</option>
@@ -169,6 +169,9 @@
                                         <option value="18:00" <c:if test="${data.testDriveTime == '18:00'}">selected</c:if>>18:00</option>
                                         <option value="19:00" <c:if test="${data.testDriveTime == '19:00'}">selected</c:if>>19:00</option>
                                     </select>
+                                    <c:if test="${data.driveCheckYn eq 'Y'}">
+                                        <p style="color: #ff9800; font-size: 12px; margin-top: 5px;">※ 시승 체험을 완료하여 시간을 변경할 수 없습니다.</p>
+                                    </c:if>
                                 </div>
                             </li>
                         </ul>

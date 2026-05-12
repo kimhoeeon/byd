@@ -22,7 +22,7 @@ public interface EventMapper {
 
     int getDriveTimeCount(String testDriveTime);
 
-    void updateParticipant(ParticipantVO participantVO);
+    void updateParticipant(@Param("vo") ParticipantVO vo, @Param("updateRegDate") boolean updateRegDate);
 
     int checkTestDriveHistory(@Param("phone") String phone, @Param("seq") Integer seq);
 

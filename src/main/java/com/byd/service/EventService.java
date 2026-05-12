@@ -34,7 +34,6 @@ public class EventService {
         if (rawList != null) {
             for (Map<String, Object> row : rawList) {
                 String time = (String) row.get("testDriveTime");
-                // MySQL COUNT(*)는 Long으로 반환되므로 안전하게 변환
                 int count = Integer.parseInt(String.valueOf(row.get("cnt")));
                 resultMap.put(time, count);
             }
@@ -76,15 +75,33 @@ public class EventService {
 
     public void updateParticipant(ParticipantVO participantVO) {
 
-        // 정보 수정 시에도 시승을 새롭게 신청/변경하는 경우 1회 제한 검증
-        if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
-            int historyCount = eventMapper.checkTestDriveHistory(participantVO.getPhone(), participantVO.getSeq());
-            if(historyCount > 0) {
-                throw new IllegalArgumentException("행사 기간 중 시승 신청은 1회만 가능합니다.");
+        // 1. DB에서 기존 정보를 미리 조회합니다.
+        ParticipantVO existing = eventMapper.getParticipantBySeq(participantVO.getSeq());
+        if (existing == null) throw new IllegalArgumentException("존재하지 않는 회원 정보입니다.");
+
+        // 2. 시승 완료 고객 방어
+        if ("Y".equals(existing.getDriveCheckYn())) {
+            if (!existing.getTestDriveTime().equals(participantVO.getTestDriveTime())) {
+                throw new IllegalArgumentException("이미 시승 체험을 완료하신 고객은 시간을 변경할 수 없습니다.");
             }
         }
 
-        eventMapper.updateParticipant(participantVO);
+        // 3. [핵심] 시승 시간이 실제로 변경되었는지 감지합니다.
+        // 기존 시간과 현재 입력받은 시간이 다를 때만 updateRegDate 플래그를 true로 세팅합니다.
+        boolean updateRegDate = false;
+        if (!existing.getTestDriveTime().equals(participantVO.getTestDriveTime())) {
+            updateRegDate = true;
+        }
+
+        // 4. 시승 신규 신청/변경 시 중복 이력 체크
+        if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
+            int historyCount = eventMapper.checkTestDriveHistory(participantVO.getPhone(), participantVO.getSeq());
+            if(historyCount > 0) throw new IllegalArgumentException("행사 기간 중 시승 신청은 1회만 가능합니다.");
+        }
+
+        // 5. 매퍼 호출 시 플래그 전달
+
+        eventMapper.updateParticipant(participantVO, updateRegDate);
     }
 
     public int getDriveTimeCount(String testDriveTime) {
