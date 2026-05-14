@@ -138,15 +138,38 @@
     let isScanning = false;
     const html5QrCode = new Html5Qrcode("reader");
 
+    // 오디오 컨텍스트를 전역 변수로 한 번만 선언하여 메모리 누수 차단
+    let audioCtx = null;
+
+    $(document).one('click touchstart', function() {
+        try {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        } catch (e) {
+            console.log("초기 오디오 활성화 실패");
+        }
+    });
+
     function playBeep() {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            // 브라우저 정책상 잠겨있는 오디오를 깨움
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, ctx.currentTime);
-            osc.connect(ctx.destination);
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.connect(audioCtx.destination);
             osc.start();
-            osc.stop(ctx.currentTime + 0.1);
+            osc.stop(audioCtx.currentTime + 0.1);
         } catch (e) {
             console.log("오디오 지원 안됨");
         }
@@ -165,7 +188,6 @@
         showStatus("데이터 조회 중...", "success");
         html5QrCode.pause();
 
-        // 히든 인풋에서 고정된 adminCode를 가져옴
         const adminCode = $('#adminCode').val();
 
         $.ajax({
@@ -191,7 +213,6 @@
 
                 setTimeout(function () {
                     $('#statusBox').fadeOut(200);
-                    // 간혹 정지 상태에서 회전이 겹칠 수 있으므로 예외 처리 추가
                     if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
                         html5QrCode.resume();
                     }
@@ -207,11 +228,9 @@
 
     // 1. 카메라 시작 로직을 별도의 함수로 분리합니다.
     function startScanner() {
-        // 호환성이 가장 높으면서도 인식 영역은 넓게 가져가는 설정
         const config = {
             fps: 15,
             disableFlip: false,
-            // 좁은 네모 박스를 없애고, 카메라 화면의 80%를 스캔 영역으로 지정 (가까이 안 대도 됨)
             qrbox: function(viewfinderWidth, viewfinderHeight) {
                 const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
                 const qrboxSize = Math.floor(minEdgeSize * 0.8);
@@ -219,26 +238,28 @@
             }
         };
 
-        // HD 해상도나 오토포커스 강제 옵션을 빼고, 가장 안전한 '전면 카메라' 기본값만 전달합니다.
-        html5QrCode.start(
-            { facingMode: "user" },
-            config,
-            onScanSuccess,
-            onScanFailure
-        ).catch((err) => {
-            // 접속한 기기가 아이폰/아이패드인지 확인
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length) {
+                let cameraId = devices[0].id;
 
-            // 권한 거부 에러(NotAllowedError)일 경우
-            if (err.name === 'NotAllowedError' || String(err).includes('NotAllowedError')) {
-                if (isIOS) {
-                    alert("🚨 아이폰(iOS) 보안 정책 안내\n\n아이폰의 크롬, 네이버 앱 등에서는 카메라 접근이 제한될 수 있습니다.\n\n가급적 기본 브라우저인 [ Safari ] 앱을 열어서 다시 접속해 주시거나, 기기 설정에서 Chrome의 카메라 권한을 켜주세요.");
-                } else {
-                    alert("🚨 카메라 권한이 필요합니다.\n\n주소창 옆의 자물쇠(🔒) 모양을 눌러 카메라 권한을 '허용'으로 변경한 뒤 새로고침 해주세요.");
+                for (let i = 0; i < devices.length; i++) {
+                    let label = devices[i].label.toLowerCase();
+                    if (label.includes('front') || label.includes('전면') || label.includes('user')) {
+                        cameraId = devices[i].id;
+                        break;
+                    }
                 }
+
+                html5QrCode.start(cameraId, config, onScanSuccess, onScanFailure)
+                    .catch((err) => {
+                        alert("카메라 실행 실패! (다른 앱에서 사용중이거나 기기 설정 오류)\n사유: " + err);
+                    });
             } else {
-                alert("카메라 실행 실패!\n사유: " + err);
+                alert("기기에서 카메라를 찾을 수 없습니다.");
             }
+        }).catch(err => {
+            // [수정 3] 엔터(줄바꿈) 구문 수정 및 \\n 정상화
+            alert("🚨 권한 차단됨!\n\n1. 상단바를 내려서 '카메라 사용' 버튼이 켜져있는지 확인\n2. 열려있는 다른 앱(카메라 등) 모두 닫기\n사유: " + err);
         });
     }
 
@@ -247,13 +268,10 @@
 
     // 3. 기기 회전(방향 전환) 이벤트 감지 및 카메라 재시작 로직 추가
     window.addEventListener("orientationchange", function() {
-        // 회전 중에는 스캔 동작을 막음
         isScanning = true;
 
-        // 카메라가 작동 중이거나 일시정지 상태라면
         if (html5QrCode.getState() !== Html5QrcodeScannerState.NOT_STARTED) {
             html5QrCode.stop().then(() => {
-                // 회전이 완전히 끝나고 화면 UI가 갱신될 시간을 벌어줌 (300ms)
                 setTimeout(() => {
                     startScanner();
                     isScanning = false;
