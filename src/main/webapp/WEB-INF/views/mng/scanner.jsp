@@ -34,7 +34,6 @@
             color: #333;
         }
 
-        /* 컨트롤러에서 전달받은 테마 컬러로 뱃지 스타일링 */
         .event-badge {
             display: inline-block;
             margin-top: 10px;
@@ -61,12 +60,16 @@
         #reader {
             width: 100%;
             max-width: 600px;
-            /* 카메라 테두리도 각 테마 컬러로 표시하여 직관성 극대화 */
             border: 5px solid ${themeColor} !important;
             border-radius: 12px;
             overflow: hidden;
             background: #000;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* 전면 카메라 거울 모드 (좌우 반전) 적용 */
+        #reader video {
+            transform: scaleX(-1) !important;
         }
 
         .status-box {
@@ -204,17 +207,39 @@
 
     // 1. 카메라 시작 로직을 별도의 함수로 분리합니다.
     function startScanner() {
+        // 호환성이 가장 높으면서도 인식 영역은 넓게 가져가는 설정
         const config = {
             fps: 15,
-            qrbox: { width: 250, height: 250 },
-            disableFlip: false
+            disableFlip: false,
+            // 좁은 네모 박스를 없애고, 카메라 화면의 80%를 스캔 영역으로 지정 (가까이 안 대도 됨)
+            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                const qrboxSize = Math.floor(minEdgeSize * 0.8);
+                return { width: qrboxSize, height: qrboxSize };
+            }
         };
 
-        html5QrCode.start({facingMode: "environment"}, config, onScanSuccess, onScanFailure)
-            .catch((err) => {
-                alert("카메라를 실행할 수 없습니다.\n브라우저의 카메라 권한을 허용해주세요.");
-                console.error(err);
-            });
+        // HD 해상도나 오토포커스 강제 옵션을 빼고, 가장 안전한 '전면 카메라' 기본값만 전달합니다.
+        html5QrCode.start(
+            { facingMode: "user" },
+            config,
+            onScanSuccess,
+            onScanFailure
+        ).catch((err) => {
+            // 접속한 기기가 아이폰/아이패드인지 확인
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            // 권한 거부 에러(NotAllowedError)일 경우
+            if (err.name === 'NotAllowedError' || String(err).includes('NotAllowedError')) {
+                if (isIOS) {
+                    alert("🚨 아이폰(iOS) 보안 정책 안내\n\n아이폰의 크롬, 네이버 앱 등에서는 카메라 접근이 제한될 수 있습니다.\n\n가급적 기본 브라우저인 [ Safari ] 앱을 열어서 다시 접속해 주시거나, 기기 설정에서 Chrome의 카메라 권한을 켜주세요.");
+                } else {
+                    alert("🚨 카메라 권한이 필요합니다.\n\n주소창 옆의 자물쇠(🔒) 모양을 눌러 카메라 권한을 '허용'으로 변경한 뒤 새로고침 해주세요.");
+                }
+            } else {
+                alert("카메라 실행 실패!\n사유: " + err);
+            }
+        });
     }
 
     // 2. 최초 진입 시 카메라 켜기
