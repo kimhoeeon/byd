@@ -163,18 +163,18 @@
         html5QrCode.pause();
 
         // 히든 인풋에서 고정된 adminCode를 가져옴
-        const currentAdminCode = $('#adminCode').val();
+        const adminCode = $('#adminCode').val();
 
         $.ajax({
             url: '/mng/api/checkArrival',
             type: 'POST',
             data: {
                 qrToken: decodedText,
-                adminCode: currentAdminCode
+                adminCode: adminCode
             },
             success: function (response) {
                 if (response.success) {
-                    showStatus(response.message, "success");
+                    showStatus("✅<br>" + response.message, "success");
                 } else {
                     showStatus("❌<br>" + response.message, "error");
                 }
@@ -188,7 +188,10 @@
 
                 setTimeout(function () {
                     $('#statusBox').fadeOut(200);
-                    html5QrCode.resume();
+                    // 간혹 정지 상태에서 회전이 겹칠 수 있으므로 예외 처리 추가
+                    if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                        html5QrCode.resume();
+                    }
                     isScanning = false;
                 }, delay);
             }
@@ -199,17 +202,45 @@
         // 실패 로그 무시
     }
 
-    const config = {
-        fps: 15,
-        qrbox: { width: 250, height: 250 },
-        disableFlip: false
-    };
+    // 1. 카메라 시작 로직을 별도의 함수로 분리합니다.
+    function startScanner() {
+        const config = {
+            fps: 15,
+            qrbox: { width: 250, height: 250 },
+            disableFlip: false
+        };
 
-    html5QrCode.start({facingMode: "environment"}, config, onScanSuccess, onScanFailure)
-        .catch((err) => {
-            alert("카메라를 실행할 수 없습니다.\n브라우저의 카메라 권한을 허용해주세요.");
-            console.error(err);
-        });
+        html5QrCode.start({facingMode: "environment"}, config, onScanSuccess, onScanFailure)
+            .catch((err) => {
+                alert("카메라를 실행할 수 없습니다.\n브라우저의 카메라 권한을 허용해주세요.");
+                console.error(err);
+            });
+    }
+
+    // 2. 최초 진입 시 카메라 켜기
+    startScanner();
+
+    // 3. 기기 회전(방향 전환) 이벤트 감지 및 카메라 재시작 로직 추가
+    window.addEventListener("orientationchange", function() {
+        // 회전 중에는 스캔 동작을 막음
+        isScanning = true;
+
+        // 카메라가 작동 중이거나 일시정지 상태라면
+        if (html5QrCode.getState() !== Html5QrcodeScannerState.NOT_STARTED) {
+            html5QrCode.stop().then(() => {
+                // 회전이 완전히 끝나고 화면 UI가 갱신될 시간을 벌어줌 (300ms)
+                setTimeout(() => {
+                    startScanner();
+                    isScanning = false;
+                }, 300);
+            }).catch((err) => {
+                console.error("카메라 재시작 오류:", err);
+                isScanning = false;
+            });
+        } else {
+            isScanning = false;
+        }
+    });
 
 </script>
 </body>
