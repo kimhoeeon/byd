@@ -41,10 +41,36 @@ public class EventService {
         return resultMap;
     }
 
+    private void validateDriveTime(String testDriveTime) {
+        // [방어 1] 널(Null) 값 즉시 컷
+        if (testDriveTime == null || "시승 미신청".equals(testDriveTime)) return;
+
+        try {
+            java.time.LocalTime now = java.time.LocalTime.now();
+            // [방어 2] 조작된 시간 텍스트(예: "10", "abc") 파싱 시도
+            java.time.LocalTime targetTime = java.time.LocalTime.parse(testDriveTime);
+
+            if (now.isAfter(targetTime)) {
+                throw new IllegalStateException("이미 지난 시간대는 선택할 수 없습니다.");
+            }
+        } catch (java.time.format.DateTimeParseException e) {
+            // [방어 3] 해석 불가능한 조작 값이 들어오면 서버를 죽이지 않고 친절하게 예외를 던져 컨트롤러가 처리하게 함
+            throw new IllegalArgumentException("올바르지 않은 시승 시간 형식입니다.");
+        }
+    }
+
     public void insertParticipant(ParticipantVO participantVO) {
+
+        // [핵심 방어] 프론트에서 시간 파라미터를 강제로 지우고(Null) 보냈을 때 기본값 강제 할당
+        if (participantVO.getTestDriveTime() == null || participantVO.getTestDriveTime().trim().isEmpty()) {
+            participantVO.setTestDriveTime("시승 미신청");
+        }
 
         // 백엔드 단위 4명 정원 검증 로직
         if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
+
+            validateDriveTime(participantVO.getTestDriveTime());
+
             int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime());
             if(currentCount >= 4) {
                 throw new IllegalStateException("해당 시간대는 이미 마감되었습니다.");
@@ -79,18 +105,36 @@ public class EventService {
         ParticipantVO existing = eventMapper.getParticipantBySeq(participantVO.getSeq());
         if (existing == null) throw new IllegalArgumentException("존재하지 않는 회원 정보입니다.");
 
+        // [핵심 방어] 넘겨받은 파라미터가 Null인지, 기존 DB 데이터가 Null인지 모두 점검
+        if (participantVO.getTestDriveTime() == null || participantVO.getTestDriveTime().trim().isEmpty()) {
+            participantVO.setTestDriveTime("시승 미신청");
+        }
+        String oldTime = existing.getTestDriveTime() == null ? "시승 미신청" : existing.getTestDriveTime();
+
         // 2. 시승 완료 고객 방어
         if ("Y".equals(existing.getDriveCheckYn())) {
-            if (!existing.getTestDriveTime().equals(participantVO.getTestDriveTime())) {
+            // 기존 null 처리가 완벽해진 oldTime과 비교
+            if (!oldTime.equals(participantVO.getTestDriveTime())) {
                 throw new IllegalArgumentException("이미 시승 체험을 완료하신 고객은 시간을 변경할 수 없습니다.");
             }
         }
 
-        // 3. [핵심] 시승 시간이 실제로 변경되었는지 감지합니다.
-        // 기존 시간과 현재 입력받은 시간이 다를 때만 updateRegDate 플래그를 true로 세팅합니다.
+        // 3. 시승 시간이 변경된 경우, 마감 및 과거 시간 여부 철저히 검증
         boolean updateRegDate = false;
-        if (!existing.getTestDriveTime().equals(participantVO.getTestDriveTime())) {
+        if (!oldTime.equals(participantVO.getTestDriveTime())) {
             updateRegDate = true;
+
+            // "시승 미신청"으로 빼는 경우가 아니라면,
+            if (!"시승 미신청".equals(participantVO.getTestDriveTime())) {
+                // 과거 시간 및 형식 검증
+                validateDriveTime(participantVO.getTestDriveTime());
+
+                // 정원(4명) 초과 검증
+                int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime());
+                if(currentCount >= 4) {
+                    throw new IllegalStateException("해당 시간대는 이미 마감되었습니다.");
+                }
+            }
         }
 
         // 4. 시승 신규 신청/변경 시 중복 이력 체크
@@ -100,7 +144,6 @@ public class EventService {
         }
 
         // 5. 매퍼 호출 시 플래그 전달
-
         eventMapper.updateParticipant(participantVO, updateRegDate);
     }
 

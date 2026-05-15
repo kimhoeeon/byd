@@ -113,8 +113,8 @@ public class EventController {
             rttr.addFlashAttribute("errorMsg", e.getMessage());
             return "redirect:/apply/step2";
         } catch (IllegalStateException e) {
-            log.warn("시승 시간 마감: {}", e.getMessage());
-            rttr.addFlashAttribute("errorMsg", "선택하신 시간대는 인원이 마감되었습니다. 다른 시간을 선택해 주세요.");
+            log.warn("시승 시간 차단: {}", e.getMessage());
+            rttr.addFlashAttribute("errorMsg", e.getMessage());
             return "redirect:/apply/step2";
         } catch (DuplicateKeyException e) {
             log.warn("중복 시승 신청 감지 (DB Unique Key 방어): {}", participantVO.getPhone());
@@ -166,25 +166,20 @@ public class EventController {
     public Map<String, Object> updateAjax(ParticipantVO participantVO) {
         Map<String, Object> response = new HashMap<>();
         try {
-            if (!"시승 미신청".equals(participantVO.getTestDriveTime())) {
-                ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
-                if (existing != null && !existing.getTestDriveTime().equals(participantVO.getTestDriveTime())) {
-                    int count = eventService.getDriveTimeCount(participantVO.getTestDriveTime());
-                    if (count >= 4) {
-                        response.put("success", false);
-                        response.put("message", "선택하신 시간대는 이미 마감되었습니다.");
-                        return response;
-                    }
-                }
-            }
 
             eventService.updateParticipant(participantVO);
+
             response.put("success", true);
             response.put("message", "정보가 성공적으로 수정되었습니다.");
 
         } catch (IllegalArgumentException e) {
-            // 마이페이지에서 미신청 -> 시간 선택으로 수정할 때 1회 제한에 걸린 경우 차단
-            log.warn("마이페이지 수정 중 1회 제한 초과 방어: {}", e.getMessage());
+            // 1회 제한 등 방어
+            log.warn("마이페이지 수정 중 정책 위반 방어: {}", e.getMessage());
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        } catch (IllegalStateException e) {
+            // 과거 시간 선택 또는 4명 마감 시간 선택 시 고객에게 정확한 사유 노출
+            log.warn("마이페이지 수정 중 마감/과거시간 차단: {}", e.getMessage());
             response.put("success", false);
             response.put("message", e.getMessage());
         } catch (Exception e) {

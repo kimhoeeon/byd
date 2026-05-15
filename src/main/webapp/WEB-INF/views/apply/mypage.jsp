@@ -353,16 +353,38 @@
 
         // Ajax로 시간대별 예약자 4명 마감 여부 확인
         function checkDriveTimeAvailability() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMin = now.getMinutes();
+
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
                 type: "GET",
                 success: function(response) {
                     $('#testDriveTime option').each(function() {
                         var timeVal = $(this).val();
-                        // 내 기존 예약 시간은 disabled 처리하지 않음
-                        if(timeVal !== "시승 미신청" && timeVal !== "${data.testDriveTime}" && response[timeVal] >= 4) {
-                            $(this).prop('disabled', true);
-                            $(this).text(timeVal + ' (마감)');
+
+                        if(timeVal !== "시승 미신청") {
+                            // 본인이 현재 선택한 시간은 마감/시간경과 체크에서 제외 (표시 유지)
+                            if (timeVal !== "${data.testDriveTime}") {
+                                const isFull = response[timeVal] >= 4;
+
+                                const timeParts = timeVal.split(':');
+                                const targetHour = parseInt(timeParts[0]);
+                                const targetMin = parseInt(timeParts[1]);
+
+                                let isPassed = false;
+                                if (currentHour > targetHour) {
+                                    isPassed = true;
+                                } else if (currentHour === targetHour && currentMin >= targetMin) {
+                                    isPassed = true;
+                                }
+
+                                if(isFull || isPassed) {
+                                    $(this).prop('disabled', true);
+                                    $(this).text(timeVal + ' (마감)');
+                                }
+                            }
                         }
                     });
                 },
