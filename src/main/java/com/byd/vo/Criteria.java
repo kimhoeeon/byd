@@ -11,6 +11,8 @@ public class Criteria {
     private String arrivalStatus; // 방문 상태 필터 (Y/N)
     private String startDate; // 검색 시작일 (예: yyyy-mm-dd)
     private String endDate; // 검색 종료일 (예: yyyy-mm-dd)
+    private String sortColumn; // 정렬할 컬럼명 (예: testDriveTime)
+    private String sortDir;    // 정렬 방향 (ASC 또는 DESC)
 
     public Criteria() {
         this.pageNum = 1;

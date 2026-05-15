@@ -58,6 +58,9 @@
                                 <input type="hidden" name="pageNum" id="pageNum" value="${cri.pageNum}">
                                 <input type="hidden" name="amount" value="${cri.amount}">
 
+                                <input type="hidden" name="sortColumn" id="sortColumn" value="${cri.sortColumn}">
+                                <input type="hidden" name="sortDir" id="sortDir" value="${cri.sortDir}">
+
                                 <div class="row mb-4">
                                     <div class="col-12 d-flex align-items-center gap-3">
                                         <select name="searchType" class="form-select form-select-solid w-150px">
@@ -119,7 +122,14 @@
                                     <th class="text-center">이메일</th>
                                     <th class="text-center">전시장정보</th>
                                     <th class="text-center">관심/시승차량</th>
-                                    <th class="text-center">예약시간</th>
+                                    <th class="text-center" style="cursor: pointer;" onclick="toggleSort('testDriveTime')" title="클릭하여 정렬">
+                                        예약시간
+                                        <c:choose>
+                                            <c:when test="${cri.sortColumn == 'testDriveTime' && cri.sortDir == 'ASC'}">▲</c:when>
+                                            <c:when test="${cri.sortColumn == 'testDriveTime' && cri.sortDir == 'DESC'}">▼</c:when>
+                                            <c:otherwise>↕</c:otherwise>
+                                        </c:choose>
+                                    </th>
                                     <th class="text-center">개인정보<br>수집동의</th>
                                     <th class="text-center">제3자<br>제공동의</th>
                                     <th class="text-center">처리위탁<br>동의</th>
@@ -205,7 +215,13 @@
                                         <td class="code-text" title="${item.shopInfo}">${empty item.shopInfo ? '-' : shopCode}</td>
                                         <td class="code-text" title="${item.carModel}">${empty item.carModel ? '-' : carCode}</td>
 
-                                        <td><span class="text-primary fw-bold">${item.testDriveTime}</span></td>
+                                        <td>
+                                            <span class="text-primary fw-bold">
+                                                <c:if test="${item.testDriveTime ne '시승 미신청'}">
+                                                    <fmt:formatDate value="${item.regDate}" pattern="MM.dd "/>
+                                                </c:if> ${item.testDriveTime}
+                                            </span>
+                                        </td>
 
                                         <td><span class="badge badge-light-primary">${item.privacyAgree}</span></td>
                                         <td><span class="badge badge-light-primary">${item.thirdPartyAgree}</span></td>
@@ -387,6 +403,24 @@
                 }
             });
         }
+    }
+
+    // 정렬 토글 함수
+    function toggleSort(column) {
+        var currentColumn = document.getElementById('sortColumn').value;
+        var currentDir = document.getElementById('sortDir').value;
+        var newDir = 'DESC'; // 항목을 처음 클릭할 때는 기본적으로 내림차순(최신순) 정렬
+
+        if (currentColumn === column) {
+            // 이미 예약시간으로 정렬 중인 상태에서 클릭했다면 방향(ASC/DESC)만 전환
+            newDir = (currentDir === 'DESC') ? 'ASC' : 'DESC';
+        }
+
+        document.getElementById('sortColumn').value = column;
+        document.getElementById('sortDir').value = newDir;
+
+        // 정렬이 바뀌면 1페이지부터 다시 보여주기 위해 searchData() 호출
+        searchData();
     }
 </script>
 </body>

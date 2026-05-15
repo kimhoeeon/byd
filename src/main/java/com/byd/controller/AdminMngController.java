@@ -71,6 +71,9 @@ public class AdminMngController {
     // 통합 목록 뷰
     @GetMapping("/participant/list")
     public String participantList(Criteria cri, Model model) {
+
+        cri.setAmount(30); // 1페이지당 30개
+
         // 데이터 목록 조회
         List<ParticipantVO> list = adminMngService.getList(cri);
         // 전체 게시물 수 조회

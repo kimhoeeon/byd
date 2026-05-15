@@ -43,7 +43,17 @@
         <where>
             <include refid="searchCondition"></include>
         </where>
-        ORDER BY seq DESC
+        <choose>
+            <when test="sortColumn == 'testDriveTime' and sortDir == 'ASC'">
+                ORDER BY (test_drive_time = '시승 미신청') ASC, DATE(reg_date) ASC, test_drive_time ASC, seq DESC
+            </when>
+            <when test="sortColumn == 'testDriveTime' and sortDir == 'DESC'">
+                ORDER BY (test_drive_time = '시승 미신청') ASC, DATE(reg_date) DESC, test_drive_time DESC, seq DESC
+            </when>
+            <otherwise>
+                ORDER BY seq DESC
+            </otherwise>
+        </choose>
         LIMIT #{pageStart}, #{amount}
     </select>
 
@@ -52,7 +62,17 @@
         <where>
             <include refid="searchCondition"></include>
         </where>
-        ORDER BY seq DESC
+        <choose>
+            <when test="sortColumn == 'testDriveTime' and sortDir == 'ASC'">
+                ORDER BY (test_drive_time = '시승 미신청') ASC, DATE(reg_date) ASC, test_drive_time ASC, seq DESC
+            </when>
+            <when test="sortColumn == 'testDriveTime' and sortDir == 'DESC'">
+                ORDER BY (test_drive_time = '시승 미신청') ASC, DATE(reg_date) DESC, test_drive_time DESC, seq DESC
+            </when>
+            <otherwise>
+                ORDER BY seq DESC
+            </otherwise>
+        </choose>
     </select>
 
     <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
