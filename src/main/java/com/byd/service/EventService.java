@@ -33,8 +33,26 @@ public class EventService {
 
         if (rawList != null) {
             for (Map<String, Object> row : rawList) {
-                String time = (String) row.get("testDriveTime");
-                int count = Integer.parseInt(String.valueOf(row.get("cnt")));
+
+                // [긴급 수정] testDriveTime 값을 안전하게 파싱 (byte[] 방어)
+                Object timeObj = row.get("testDriveTime");
+                String time = "";
+
+                if (timeObj instanceof byte[]) {
+                    // 데이터가 바이트 배열([B)로 넘어왔을 경우 문자열로 안전하게 복원
+                    time = new String((byte[]) timeObj);
+                } else {
+                    // 정상적으로 문자열이나 다른 객체로 넘어왔을 경우
+                    time = String.valueOf(timeObj);
+                }
+
+                // cnt 값도 안전하게 파싱
+                int count = 0;
+                Object cntObj = row.get("cnt");
+                if (cntObj != null) {
+                    count = Integer.parseInt(String.valueOf(cntObj));
+                }
+
                 resultMap.put(time, count);
             }
         }

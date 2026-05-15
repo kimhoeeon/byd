@@ -227,6 +227,11 @@
             // 1. 페이지 로드 시 예약 현황 체크
             checkDriveTimeAvailability();
 
+            // [핵심 추가] 고객이 셀렉트 박스를 클릭/터치할 때마다 실시간 현황 재체크
+            $('#testDriveTime').on('focus click touchstart', function() {
+                checkDriveTimeAvailability();
+            });
+
             // 2. 백엔드 유효성 검사 실패 시 에러 메시지 출력
             <c:if test="${not empty errorMsg}">
                 alert("${errorMsg}");
@@ -289,10 +294,11 @@
                         var timeVal = $(this).val();
 
                         if(timeVal !== "시승 미신청") {
-                            // 1. 인원 마감 체크 (4명 이상)
-                            const isFull = response[timeVal] >= 4;
+                            // 1. 상태 초기화 (누군가 취소해서 자리가 났을 경우를 대비해 일단 푼다)
+                            $(this).prop('disabled', false);
+                            $(this).text(timeVal);
 
-                            // 2. 시간 경과 체크 (예: 10:00)
+                            // 2. 검증 1순위: 시간이 지났는가?
                             const timeParts = timeVal.split(':');
                             const targetHour = parseInt(timeParts[0]);
                             const targetMin = parseInt(timeParts[1]);
@@ -301,12 +307,19 @@
                             if (currentHour > targetHour) {
                                 isPassed = true;
                             } else if (currentHour === targetHour && currentMin >= targetMin) {
-                                // 현재 시각이 예약 타임과 같으면 이미 시작된 것으로 간주하여 마감
                                 isPassed = true;
                             }
 
-                            // 인원이 찼거나 시간이 지났다면 비활성화
-                            if(isFull || isPassed) {
+                            // 3. 검증 2순위: 예약 인원이 4명 꽉 찼는가?
+                            const isFull = response[timeVal] >= 4;
+
+                            // 4. 최종 판단 (우선순위 부여)
+                            if (isPassed) {
+                                // [핵심] 취소 자리가 있든 없든, 시간이 지났으면 무조건 마감 처리
+                                $(this).prop('disabled', true);
+                                $(this).text(timeVal + ' (마감)');
+                            } else if (isFull) {
+                                // 시간이 안 지났어도 정원이 찼으면 마감 처리
                                 $(this).prop('disabled', true);
                                 $(this).text(timeVal + ' (마감)');
                             }
@@ -314,7 +327,7 @@
                     });
                 },
                 error: function(err) {
-                    console.log("시간대 조회 실패");
+                    console.log("시간대 실시간 조회 실패");
                 }
             });
         }
