@@ -166,8 +166,6 @@
                                         <option value="15:00" <c:if test="${data.testDriveTime == '15:00'}">selected</c:if>>15:00</option>
                                         <option value="16:00" <c:if test="${data.testDriveTime == '16:00'}">selected</c:if>>16:00</option>
                                         <option value="17:00" <c:if test="${data.testDriveTime == '17:00'}">selected</c:if>>17:00</option>
-                                        <option value="18:00" <c:if test="${data.testDriveTime == '18:00'}">selected</c:if>>18:00</option>
-                                        <option value="19:00" <c:if test="${data.testDriveTime == '19:00'}">selected</c:if>>19:00</option>
                                     </select>
                                     <c:if test="${data.driveCheckYn eq 'Y'}">
                                         <p style="color: #ff9800; font-size: 12px; margin-top: 5px;">※ 시승 체험을 완료하여 시간을 변경할 수 없습니다.</p>
