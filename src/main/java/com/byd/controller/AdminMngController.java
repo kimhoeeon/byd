@@ -3,6 +3,7 @@ package com.byd.controller;
 import com.byd.dto.PageDTO;
 import com.byd.dto.ResponseDTO;
 import com.byd.service.AdminMngService;
+import com.byd.util.AES128;
 import com.byd.vo.AdminVO;
 import com.byd.vo.Criteria;
 import com.byd.vo.ParticipantVO;
@@ -18,10 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/mng")
@@ -234,6 +232,66 @@ public class AdminMngController {
         } catch (Exception e) {
             response.setSuccess(false);
             response.setMessage("삭제 처리 중 오류가 발생했습니다.");
+        }
+        return response;
+    }
+
+    // 1. QR 스캔 유효성 검증 API (서명 팝업을 띄우기 전 자격 검증)
+    @PostMapping("/api/verifyQr")
+    @ResponseBody
+    public Map<String, Object> verifyQr(@RequestParam("qrToken") String qrToken,
+                                        @RequestParam("adminCode") String adminCode) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // (주의) 기존에 사용하시던 AES128 복호화 로직을 그대로 사용해 주세요.
+            AES128 aes128 = new AES128("bydEventTokenKey");
+            String decryptedSeqStr = aes128.decrypt(qrToken);
+            int seq = Integer.parseInt(decryptedSeqStr);
+
+            ParticipantVO data = adminMngService.getParticipantBySeq(seq);
+            if (data == null) {
+                response.put("success", false);
+                response.put("message", "존재하지 않는 참가자입니다.");
+                return response;
+            }
+
+            // 1회 참여 제한(중복 방어) 로직
+            if ("202".equals(adminCode) && "Y".equals(data.getDriveCheckYn())) {
+                response.put("success", false);
+                response.put("message", "이미 시승/서명을 완료한 고객입니다.");
+                return response;
+            } else if ("101".equals(adminCode) && "Y".equals(data.getChallengeCheckYn())) {
+                response.put("success", false);
+                response.put("message", "이미 챌린지를 완료한 고객입니다.");
+                return response;
+            }
+
+            // 검증 성공 시 seq를 반환하여 서명 제출 시 사용하도록 함
+            response.put("success", true);
+            response.put("seq", seq);
+            return response;
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "유효하지 않은 QR 코드입니다.");
+            return response;
+        }
+    }
+
+    // 2. 전자 서명 최종 제출 및 완료 처리 API
+    @PostMapping("/api/submitSignature")
+    @ResponseBody
+    public Map<String, Object> submitSignature(@RequestParam("seq") int seq,
+                                               @RequestParam("adminCode") String adminCode,
+                                               @RequestParam("signatureData") String signatureData) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            adminMngService.updateSignatureAndArrival(seq, signatureData, adminCode);
+            response.put("success", true);
+            response.put("message", "서명 및 처리가 완료되었습니다.");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "서명 저장 중 서버 오류가 발생했습니다.");
         }
         return response;
     }

@@ -23,4 +23,7 @@ public class ParticipantVO {
     private String driveCheckYn;        // 시승 도착 여부 (Y/N)
     private String giftCheckYn;         // 경품 수령 여부 (Y/N)
     private Date regDate;               // 등록 일시
+
+    private String signatureData;
+    private java.util.Date signDate;
 }

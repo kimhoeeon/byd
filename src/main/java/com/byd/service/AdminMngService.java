@@ -102,4 +102,8 @@ public class AdminMngService {
         adminMngMapper.deleteParticipant(seq);
     }
 
+    public void updateSignatureAndArrival(int seq, String signatureData, String adminCode) {
+        adminMngMapper.updateSignatureAndArrival(seq, signatureData, adminCode);
+    }
+
 }

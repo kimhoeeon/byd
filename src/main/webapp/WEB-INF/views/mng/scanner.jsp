@@ -4,10 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>${eventName} 전용 스캐너 - BYD 출석체크</title>
+    <title>${eventName} 전용 스캐너 - 출석체크 및 전자서명</title>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- 서명 패드 라이브러리 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
     <style>
         body {
@@ -134,6 +136,33 @@
 
 <a href="/mng/inquiry" class="btn-back">수동 조회 화면으로 이동</a>
 
+<!-- 전자 서명 모달 팝업 추가 -->
+<div id="signatureModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:500px; text-align:center;">
+        <h3 style="margin-top:0;">시승 유의사항 및 동의서</h3>
+        <!-- 법적 고지사항 영역 -->
+        <div style="height:150px; overflow-y:auto; border:1px solid #ddd; padding:10px; text-align:left; font-size:13px; line-height:1.5; margin-bottom:15px; background:#f9f9f9;">
+            1. 본인은 유효한 운전면허를 소지하고 있으며, 도로교통법을 준수합니다.<br>
+            2. 시승 중 본인의 과실로 발생한 사고 및 범칙금은 본인이 부담합니다.<br>
+            3. 차량의 파손 및 손해 발생 시 그에 대한 배상 책임을 집니다.<br>
+            4. 안전 통제 요원의 지시에 적극적으로 따를 것을 동의합니다.
+        </div>
+
+        <h4 style="margin:0 0 10px 0; text-align:left;">정자 서명란</h4>
+        <!-- 서명 캔버스 -->
+        <div style="border:2px dashed #333; border-radius:5px; background:#fff;">
+            <canvas id="signatureCanvas" style="width:100%; height:200px; touch-action:none;"></canvas>
+        </div>
+
+        <!-- 버튼 영역 -->
+        <div style="margin-top:15px; display:flex; justify-content:space-between; gap:10px;">
+            <button type="button" id="btnClear" style="flex:1; padding:12px; background:#6c757d; color:#fff; border:none; border-radius:5px; font-weight:bold;">다시 쓰기</button>
+            <button type="button" id="btnCancel" style="flex:1; padding:12px; background:#dc3545; color:#fff; border:none; border-radius:5px; font-weight:bold;">취소</button>
+            <button type="button" id="btnSubmit" style="flex:2; padding:12px; background:#000; color:#fff; border:none; border-radius:5px; font-weight:bold;">동의 및 제출</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let isScanning = false;
     const html5QrCode = new Html5Qrcode("reader");
@@ -141,17 +170,73 @@
     // 오디오 컨텍스트를 전역 변수로 한 번만 선언하여 메모리 누수 차단
     let audioCtx = null;
 
-    $(document).one('click touchstart', function() {
-        try {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // 서명 관련 전역 변수 추가
+    let signaturePad;
+    let currentScanSeq = null;
+
+    $(document).ready(function() {
+        // 화면 터치 시 오디오 활성화
+        $(document).one('click touchstart', function() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            } catch (e) {
+                console.log("초기 오디오 활성화 실패");
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        } catch (e) {
-            console.log("초기 오디오 활성화 실패");
+        });
+
+        // 서명 캔버스 초기화 및 리사이징 (고해상도 디스플레이 대응)
+        const canvas = document.getElementById('signatureCanvas');
+        function resizeCanvas() {
+            // 모달이 display:none 상태일 때 width 값을 제대로 못 가져오는 현상 방지
+            if ($('#signatureModal').is(':hidden')) return;
+
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            if(signaturePad) signaturePad.clear();
         }
+
+        window.addEventListener("resize", resizeCanvas);
+        signaturePad = new SignaturePad(canvas, { penColor: "rgb(0, 0, 0)" });
+
+        // 모달 내 버튼 이벤트 처리
+        $('#btnClear').click(function() {
+            signaturePad.clear();
+        });
+
+        $('#btnCancel').click(function() {
+            $('#signatureModal').hide();
+            signaturePad.clear();
+            currentScanSeq = null;
+            showStatus("취소되었습니다.", "error");
+
+            setTimeout(function() {
+                $('#statusBox').fadeOut(200);
+                if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                    html5QrCode.resume();
+                }
+                isScanning = false;
+            }, 1500);
+        });
+
+        $('#btnSubmit').click(function() {
+            if (signaturePad.isEmpty()) {
+                alert("반드시 서명을 입력해 주세요.");
+                return;
+            }
+            // 캔버스 데이터를 Base64 PNG 이미지 문자열로 추출
+            const dataUrl = signaturePad.toDataURL("image/png");
+            submitSignatureData(dataUrl);
+        });
+
+        // 서명 모달이 뜰 때 캔버스 크기 재조정용 함수 외부 공개
+        window.initSignatureCanvas = resizeCanvas;
     });
 
     function playBeep() {
@@ -159,7 +244,6 @@
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-            // 브라우저 정책상 잠겨있는 오디오를 깨움
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
@@ -180,18 +264,19 @@
         $box.removeClass('success error').addClass(type).html(msg).fadeIn(200);
     }
 
+    // 1단계: 스캔 성공 시 데이터 유효성 검증 (API 변경 적용)
     function onScanSuccess(decodedText, decodedResult) {
         if (isScanning) return;
         isScanning = true;
 
         playBeep();
-        showStatus("데이터 조회 중...", "success");
+        showStatus("참가자 자격 검증 중...", "success");
         html5QrCode.pause();
 
         const adminCode = $('#adminCode').val();
 
         $.ajax({
-            url: '/mng/api/checkArrival',
+            url: '/mng/api/verifyQr', // 기존 checkArrival에서 변경됨
             type: 'POST',
             data: {
                 qrToken: decodedText,
@@ -199,25 +284,69 @@
             },
             success: function (response) {
                 if (response.success) {
-                    showStatus("✅<br>" + response.message, "success");
+                    // 검증 통과 시 상태창 숨기고 서명 모달 호출
+                    currentScanSeq = response.seq;
+                    $('#statusBox').hide();
+                    $('#signatureModal').css('display', 'flex');
+                    window.initSignatureCanvas(); // 캔버스 리사이즈
+                    signaturePad.clear();
                 } else {
                     showStatus("❌<br>" + response.message, "error");
+                    setTimeout(function () {
+                        $('#statusBox').fadeOut(200);
+                        if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                            html5QrCode.resume();
+                        }
+                        isScanning = false;
+                    }, 2500);
                 }
             },
             error: function () {
                 showStatus("❌<br>서버 통신 오류가 발생했습니다.<br>다시 시도해주세요.", "error");
-            },
-            complete: function (jqXHR) {
-                const res = jqXHR.responseJSON;
-                const delay = (res && !res.success) ? 1500 : 2500;
-
                 setTimeout(function () {
                     $('#statusBox').fadeOut(200);
                     if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
                         html5QrCode.resume();
                     }
                     isScanning = false;
-                }, delay);
+                }, 2500);
+            }
+        });
+    }
+
+    // 2단계: 서명과 함께 서버에 최종 데이터 제출 API 호출
+    function submitSignatureData(signatureData) {
+        showStatus("서명 및 출석 데이터 저장 중...", "success");
+        const adminCode = $('#adminCode').val();
+
+        $.ajax({
+            url: '/mng/api/submitSignature', // 신규 추가된 서명 제출용 API
+            type: 'POST',
+            data: {
+                seq: currentScanSeq,
+                adminCode: adminCode,
+                signatureData: signatureData
+            },
+            success: function(response) {
+                if (response.success) {
+                    showStatus("✅<br>" + response.message, "success");
+                } else {
+                    showStatus("❌<br>" + response.message, "error");
+                }
+            },
+            error: function() {
+                showStatus("❌<br>서버 저장 중 오류가 발생했습니다.", "error");
+            },
+            complete: function() {
+                $('#signatureModal').hide();
+                setTimeout(function() {
+                    $('#statusBox').fadeOut(200);
+                    if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                        html5QrCode.resume();
+                    }
+                    isScanning = false;
+                    currentScanSeq = null; // 초기화
+                }, 2000);
             }
         });
     }
@@ -226,7 +355,7 @@
         // 실패 로그 무시
     }
 
-    // 1. 카메라 시작 로직을 별도의 함수로 분리합니다.
+    // 카메라 시작 로직
     function startScanner() {
         const config = {
             fps: 15,
@@ -258,15 +387,14 @@
                 alert("기기에서 카메라를 찾을 수 없습니다.");
             }
         }).catch(err => {
-            // [수정 3] 엔터(줄바꿈) 구문 수정 및 \\n 정상화
             alert("🚨 권한 차단됨!\n\n1. 상단바를 내려서 '카메라 사용' 버튼이 켜져있는지 확인\n2. 열려있는 다른 앱(카메라 등) 모두 닫기\n사유: " + err);
         });
     }
 
-    // 2. 최초 진입 시 카메라 켜기
+    // 최초 진입 시 카메라 켜기
     startScanner();
 
-    // 3. 기기 회전(방향 전환) 이벤트 감지 및 카메라 재시작 로직 추가
+    // 기기 회전(방향 전환) 이벤트 감지 및 카메라 재시작 로직 유지
     window.addEventListener("orientationchange", function() {
         isScanning = true;
 

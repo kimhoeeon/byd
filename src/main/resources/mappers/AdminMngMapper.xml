@@ -150,4 +150,16 @@
         DELETE FROM event_participant WHERE seq = #{seq}
     </delete>
 
+    <update id="updateSignatureAndArrival">
+        UPDATE event_participant
+        <set>
+            signature_data = #{signatureData},
+            sign_date = NOW(),
+            <if test="adminCode == '101'">challenge_check_yn = 'Y'</if>
+            <if test="adminCode == '202'">drive_check_yn = 'Y'</if>
+            <if test="adminCode == '303'">gift_check_yn = 'Y'</if>
+        </set>
+        WHERE seq = #{seq}
+    </update>
+
 </mapper>

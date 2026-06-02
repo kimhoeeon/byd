@@ -47,4 +47,8 @@ public interface AdminMngMapper {
     Map<String, Object> getAttendanceStats();
 
     void deleteParticipant(int seq);
+
+    void updateSignatureAndArrival(@Param("seq") int seq,
+                                   @Param("signatureData") String signatureData,
+                                   @Param("adminCode") String adminCode);
 }
