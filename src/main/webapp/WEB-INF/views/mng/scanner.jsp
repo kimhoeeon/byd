@@ -8,7 +8,6 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <!-- 서명 패드 라이브러리 추가 -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
     <style>
@@ -123,10 +122,9 @@
 <div class="header-box">
     <h2>현장 출석 스캐너</h2>
     <p>고객의 QR 코드를 사각형 안내선 안에 맞춰주세요.</p>
-    <div class="event-badge">${eventName} 전용<%-- (코드: ${adminCode})--%></div>
+    <div class="event-badge">${eventName} 전용</div>
 </div>
 
-<!-- 백엔드에서 전달받은 스캐너 용도 고정 코드 -->
 <input type="hidden" id="adminCode" value="${adminCode}">
 
 <div class="scanner-container">
@@ -136,11 +134,9 @@
 
 <a href="/mng/inquiry" class="btn-back">수동 조회 화면으로 이동</a>
 
-<!-- 전자 서명 모달 팝업 추가 -->
 <div id="signatureModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:500px; text-align:center;">
         <h3 style="margin-top:0;">시승 유의사항 및 동의서</h3>
-        <!-- 법적 고지사항 영역 -->
         <div style="height:150px; overflow-y:auto; border:1px solid #ddd; padding:10px; text-align:left; font-size:13px; line-height:1.5; margin-bottom:15px; background:#f9f9f9;">
             1. 본인은 유효한 운전면허를 소지하고 있으며, 도로교통법을 준수합니다.<br>
             2. 시승 중 본인의 과실로 발생한 사고 및 범칙금은 본인이 부담합니다.<br>
@@ -149,12 +145,10 @@
         </div>
 
         <h4 style="margin:0 0 10px 0; text-align:left;">정자 서명란</h4>
-        <!-- 서명 캔버스 -->
         <div style="border:2px dashed #333; border-radius:5px; background:#fff;">
             <canvas id="signatureCanvas" style="width:100%; height:200px; touch-action:none;"></canvas>
         </div>
 
-        <!-- 버튼 영역 -->
         <div style="margin-top:15px; display:flex; justify-content:space-between; gap:10px;">
             <button type="button" id="btnClear" style="flex:1; padding:12px; background:#6c757d; color:#fff; border:none; border-radius:5px; font-weight:bold;">다시 쓰기</button>
             <button type="button" id="btnCancel" style="flex:1; padding:12px; background:#dc3545; color:#fff; border:none; border-radius:5px; font-weight:bold;">취소</button>
@@ -189,10 +183,9 @@
             }
         });
 
-        // 서명 캔버스 초기화 및 리사이징 (고해상도 디스플레이 대응)
+        // 서명 캔버스 초기화 및 리사이징
         const canvas = document.getElementById('signatureCanvas');
         function resizeCanvas() {
-            // 모달이 display:none 상태일 때 width 값을 제대로 못 가져오는 현상 방지
             if ($('#signatureModal').is(':hidden')) return;
 
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -264,7 +257,7 @@
         $box.removeClass('success error').addClass(type).html(msg).fadeIn(200);
     }
 
-    // 1단계: 스캔 성공 시 데이터 유효성 검증 (API 변경 적용)
+    // 1단계: 스캔 성공 시 데이터 유효성 검증
     function onScanSuccess(decodedText, decodedResult) {
         if (isScanning) return;
         isScanning = true;
@@ -276,7 +269,7 @@
         const adminCode = $('#adminCode').val();
 
         $.ajax({
-            url: '/mng/api/verifyQr', // 기존 checkArrival에서 변경됨
+            url: '/mng/api/verifyQr',
             type: 'POST',
             data: {
                 qrToken: decodedText,
@@ -284,12 +277,18 @@
             },
             success: function (response) {
                 if (response.success) {
-                    // 검증 통과 시 상태창 숨기고 서명 모달 호출
                     currentScanSeq = response.seq;
-                    $('#statusBox').hide();
-                    $('#signatureModal').css('display', 'flex');
-                    window.initSignatureCanvas(); // 캔버스 리사이즈
-                    signaturePad.clear();
+
+                    // [핵심 변경] 시승(202)일 때만 서명 모달 호출, 챌린지/경품은 즉시 제출
+                    if (adminCode === '202') {
+                        $('#statusBox').hide();
+                        $('#signatureModal').css('display', 'flex');
+                        window.initSignatureCanvas();
+                        signaturePad.clear();
+                    } else {
+                        // 챌린지(101) 또는 경품(303)인 경우 서명 없이 바로 출석 완료
+                        submitSignatureData("");
+                    }
                 } else {
                     showStatus("❌<br>" + response.message, "error");
                     setTimeout(function () {
@@ -314,13 +313,15 @@
         });
     }
 
-    // 2단계: 서명과 함께 서버에 최종 데이터 제출 API 호출
+    // 2단계: 서명과 함께 서버에 최종 데이터 제출 API 호출 (챌린지/경품은 빈 서명 데이터)
     function submitSignatureData(signatureData) {
-        showStatus("서명 및 출석 데이터 저장 중...", "success");
         const adminCode = $('#adminCode').val();
+        const statusMsg = (adminCode === '202') ? "서명 및 출석 데이터 저장 중..." : "출석 데이터 저장 중...";
+
+        showStatus(statusMsg, "success");
 
         $.ajax({
-            url: '/mng/api/submitSignature', // 신규 추가된 서명 제출용 API
+            url: '/mng/api/submitSignature',
             type: 'POST',
             data: {
                 seq: currentScanSeq,

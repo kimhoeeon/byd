@@ -243,7 +243,6 @@ public class AdminMngController {
                                         @RequestParam("adminCode") String adminCode) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // (주의) 기존에 사용하시던 AES128 복호화 로직을 그대로 사용해 주세요.
             AES128 aes128 = new AES128("bydEventTokenKey");
             String decryptedSeqStr = aes128.decrypt(qrToken);
             int seq = Integer.parseInt(decryptedSeqStr);
@@ -266,9 +265,12 @@ public class AdminMngController {
                 return response;
             }
 
-            // 검증 성공 시 seq를 반환하여 서명 제출 시 사용하도록 함
+            // 검증 성공 시, 화면 팝업에 표시할 데이터 반환
             response.put("success", true);
             response.put("seq", seq);
+            response.put("name", data.getName());
+            response.put("phone", data.getPhone());
+
             return response;
 
         } catch (Exception e) {
@@ -283,15 +285,21 @@ public class AdminMngController {
     @ResponseBody
     public Map<String, Object> submitSignature(@RequestParam("seq") int seq,
                                                @RequestParam("adminCode") String adminCode,
-                                               @RequestParam("signatureData") String signatureData) {
+                                               @RequestParam(value = "signatureData", required = false) String signatureData) {
         Map<String, Object> response = new HashMap<>();
         try {
             adminMngService.updateSignatureAndArrival(seq, signatureData, adminCode);
             response.put("success", true);
-            response.put("message", "서명 및 처리가 완료되었습니다.");
+
+            // 시승(202)일 경우 서명 완료 메시지 노출
+            if ("202".equals(adminCode)) {
+                response.put("message", "서명 및 시승 출석이 완료되었습니다.");
+            } else {
+                response.put("message", "출석 처리가 완료되었습니다.");
+            }
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "서명 저장 중 서버 오류가 발생했습니다.");
+            response.put("message", "데이터 저장 중 서버 오류가 발생했습니다.");
         }
         return response;
     }

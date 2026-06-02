@@ -161,6 +161,28 @@
                                     </c:choose>
                                 </td>
                             </tr>
+
+                            <tr>
+                                <th class="bg-light fw-bold align-middle">전자 서명 확인</th>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${not empty data.signatureData}">
+                                            <div class="mb-2">
+                                                <span class="text-success fw-bold me-2">서명 완료</span>
+                                                <span class="text-muted fs-7">
+                                                    (서명 일시: <fmt:formatDate value="${data.signDate}" pattern="yyyy.MM.dd HH:mm:ss"/>)
+                                                </span>
+                                            </div>
+                                            <div style="border: 2px dashed #ddd; padding: 10px; display: inline-block; background: #fff; border-radius: 8px;">
+                                                <img src="${data.signatureData}" alt="고객 전자 서명" style="max-width: 300px; max-height: 150px; display: block;">
+                                            </div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="text-danger fw-bold">미서명</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>

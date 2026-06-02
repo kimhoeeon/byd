@@ -117,6 +117,7 @@
                                     <th class="text-center">챌린지 도착</th>
                                     <th class="text-center">시승 도착</th>
                                     <th class="text-center">경품 수령</th>
+                                    <th class="text-center">전자 서명</th>
                                     <th class="text-center">이름</th>
                                     <th class="text-center">연락처</th>
                                     <th class="text-center">이메일</th>
@@ -207,6 +208,16 @@
                                                 <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="gift" ${item.giftCheckYn eq 'Y' ? 'checked' : ''}>
                                                 <span class="slider"></span>
                                             </label>
+                                        </td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${not empty item.signatureData}">
+                                                    <span class="badge badge-light-success">완료</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="badge badge-light-danger">미서명</span>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </td>
                                         <td><a href="/mng/participant/detail?seq=${item.seq}&pageNum=${cri.pageNum}&searchType=${cri.searchType}&keyword=${cri.keyword}" class="link-name">${item.name}</a></td>
                                         <td>${item.phone}</td>
