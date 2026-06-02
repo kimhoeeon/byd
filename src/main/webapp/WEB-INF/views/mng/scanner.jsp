@@ -136,20 +136,32 @@
 
 <div id="signatureModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:500px; text-align:center;">
-        <h3 style="margin-top:0;">시승 유의사항 및 동의서</h3>
-        <div style="height:150px; overflow-y:auto; border:1px solid #ddd; padding:10px; text-align:left; font-size:13px; line-height:1.5; margin-bottom:15px; background:#f9f9f9;">
+        <h3 style="margin-top:0; margin-bottom:15px; color:#111;">시승 동의서 및 서명</h3>
+
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <div style="flex:1; text-align:left;">
+                <label style="font-size:12px; color:#555; font-weight:bold; display:block; margin-bottom:5px;">이름</label>
+                <input type="text" id="signName" readonly style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; background:#f4f6f9; font-weight:bold; color:#333; box-sizing:border-box;">
+            </div>
+            <div style="flex:1; text-align:left;">
+                <label style="font-size:12px; color:#555; font-weight:bold; display:block; margin-bottom:5px;">연락처</label>
+                <input type="text" id="signPhone" readonly style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; background:#f4f6f9; font-weight:bold; color:#333; box-sizing:border-box;">
+            </div>
+        </div>
+
+        <div style="height:120px; overflow-y:auto; border:1px solid #ddd; border-radius:5px; padding:10px; text-align:left; font-size:13px; line-height:1.5; margin-bottom:15px; background:#fcfcfc; color:#444;">
             1. 본인은 유효한 운전면허를 소지하고 있으며, 도로교통법을 준수합니다.<br>
             2. 시승 중 본인의 과실로 발생한 사고 및 범칙금은 본인이 부담합니다.<br>
             3. 차량의 파손 및 손해 발생 시 그에 대한 배상 책임을 집니다.<br>
             4. 안전 통제 요원의 지시에 적극적으로 따를 것을 동의합니다.
         </div>
 
-        <h4 style="margin:0 0 10px 0; text-align:left;">정자 서명란</h4>
-        <div style="border:2px dashed #333; border-radius:5px; background:#fff;">
-            <canvas id="signatureCanvas" style="width:100%; height:200px; touch-action:none;"></canvas>
+        <h4 style="margin:0 0 10px 0; text-align:left; color:#111;">서명 (필수)</h4>
+        <div style="border:2px dashed #333; border-radius:5px; background:#fff; margin-bottom:15px;">
+            <canvas id="signatureCanvas" style="width:100%; height:180px; touch-action:none;"></canvas>
         </div>
 
-        <div style="margin-top:15px; display:flex; justify-content:space-between; gap:10px;">
+        <div style="display:flex; justify-content:space-between; gap:10px;">
             <button type="button" id="btnClear" style="flex:1; padding:12px; background:#6c757d; color:#fff; border:none; border-radius:5px; font-weight:bold;">다시 쓰기</button>
             <button type="button" id="btnCancel" style="flex:1; padding:12px; background:#dc3545; color:#fff; border:none; border-radius:5px; font-weight:bold;">취소</button>
             <button type="button" id="btnSubmit" style="flex:2; padding:12px; background:#000; color:#fff; border:none; border-radius:5px; font-weight:bold;">동의 및 제출</button>
@@ -161,15 +173,11 @@
     let isScanning = false;
     const html5QrCode = new Html5Qrcode("reader");
 
-    // 오디오 컨텍스트를 전역 변수로 한 번만 선언하여 메모리 누수 차단
     let audioCtx = null;
-
-    // 서명 관련 전역 변수 추가
     let signaturePad;
     let currentScanSeq = null;
 
     $(document).ready(function() {
-        // 화면 터치 시 오디오 활성화
         $(document).one('click touchstart', function() {
             try {
                 if (!audioCtx) {
@@ -183,7 +191,6 @@
             }
         });
 
-        // 서명 캔버스 초기화 및 리사이징
         const canvas = document.getElementById('signatureCanvas');
         function resizeCanvas() {
             if ($('#signatureModal').is(':hidden')) return;
@@ -198,7 +205,6 @@
         window.addEventListener("resize", resizeCanvas);
         signaturePad = new SignaturePad(canvas, { penColor: "rgb(0, 0, 0)" });
 
-        // 모달 내 버튼 이벤트 처리
         $('#btnClear').click(function() {
             signaturePad.clear();
         });
@@ -207,6 +213,8 @@
             $('#signatureModal').hide();
             signaturePad.clear();
             currentScanSeq = null;
+            $('#signName').val('');
+            $('#signPhone').val('');
             showStatus("취소되었습니다.", "error");
 
             setTimeout(function() {
@@ -223,12 +231,10 @@
                 alert("반드시 서명을 입력해 주세요.");
                 return;
             }
-            // 캔버스 데이터를 Base64 PNG 이미지 문자열로 추출
             const dataUrl = signaturePad.toDataURL("image/png");
             submitSignatureData(dataUrl);
         });
 
-        // 서명 모달이 뜰 때 캔버스 크기 재조정용 함수 외부 공개
         window.initSignatureCanvas = resizeCanvas;
     });
 
@@ -257,7 +263,6 @@
         $box.removeClass('success error').addClass(type).html(msg).fadeIn(200);
     }
 
-    // 1단계: 스캔 성공 시 데이터 유효성 검증
     function onScanSuccess(decodedText, decodedResult) {
         if (isScanning) return;
         isScanning = true;
@@ -279,14 +284,16 @@
                 if (response.success) {
                     currentScanSeq = response.seq;
 
-                    // [핵심 변경] 시승(202)일 때만 서명 모달 호출, 챌린지/경품은 즉시 제출
                     if (adminCode === '202') {
+                        // [추가] 받아온 이름과 연락처를 input 필드에 자동 매핑
+                        $('#signName').val(response.name);
+                        $('#signPhone').val(response.phone);
+
                         $('#statusBox').hide();
                         $('#signatureModal').css('display', 'flex');
                         window.initSignatureCanvas();
                         signaturePad.clear();
                     } else {
-                        // 챌린지(101) 또는 경품(303)인 경우 서명 없이 바로 출석 완료
                         submitSignatureData("");
                     }
                 } else {
@@ -313,7 +320,6 @@
         });
     }
 
-    // 2단계: 서명과 함께 서버에 최종 데이터 제출 API 호출 (챌린지/경품은 빈 서명 데이터)
     function submitSignatureData(signatureData) {
         const adminCode = $('#adminCode').val();
         const statusMsg = (adminCode === '202') ? "서명 및 출석 데이터 저장 중..." : "출석 데이터 저장 중...";
@@ -346,7 +352,9 @@
                         html5QrCode.resume();
                     }
                     isScanning = false;
-                    currentScanSeq = null; // 초기화
+                    currentScanSeq = null;
+                    $('#signName').val('');
+                    $('#signPhone').val('');
                 }, 2000);
             }
         });
@@ -356,7 +364,6 @@
         // 실패 로그 무시
     }
 
-    // 카메라 시작 로직
     function startScanner() {
         const config = {
             fps: 15,
@@ -392,10 +399,8 @@
         });
     }
 
-    // 최초 진입 시 카메라 켜기
     startScanner();
 
-    // 기기 회전(방향 전환) 이벤트 감지 및 카메라 재시작 로직 유지
     window.addEventListener("orientationchange", function() {
         isScanning = true;
 
@@ -413,7 +418,6 @@
             isScanning = false;
         }
     });
-
 </script>
 </body>
 </html>
