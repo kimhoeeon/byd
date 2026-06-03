@@ -26,6 +26,19 @@ public class MaterialService {
     }
 
     @Transactional
+    public void updateMaterial(MaterialVO vo) {
+        MaterialVO oldData = materialMapper.getMaterialBySeq(vo.getSeq());
+        if (oldData == null) throw new IllegalArgumentException("물자를 찾을 수 없습니다.");
+
+        // 세팅 수량을 줄였을 때, 이미 불출된 수량보다 작아져서 잔여고가 마이너스가 되는 현상 차단
+        int newTotalQty = oldData.getTotalQty() + (vo.getInitQty() - oldData.getInitQty());
+        if (newTotalQty < 0) {
+            throw new IllegalArgumentException("이미 사용된 수량이 있어 세팅 수량을 그 이하로 줄일 수 없습니다.");
+        }
+        materialMapper.updateMaterial(vo);
+    }
+
+    @Transactional
     public void processInOut(MaterialHistoryVO historyVO) {
         MaterialVO material = materialMapper.getMaterialBySeq(historyVO.getMaterialSeq());
         if (material == null) throw new IllegalArgumentException("존재하지 않는 물자입니다.");

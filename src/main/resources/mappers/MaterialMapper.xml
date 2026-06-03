@@ -71,4 +71,14 @@
         DELETE FROM material_history WHERE material_seq = #{materialSeq}
     </delete>
 
+    <update id="updateMaterial" parameterType="com.byd.vo.MaterialVO">
+        UPDATE material_master
+        SET category = #{category},
+            material_name = #{materialName},
+            total_qty = total_qty + (#{initQty} - init_qty),
+            init_qty = #{initQty},
+            memo = #{memo}
+        WHERE seq = #{seq}
+    </update>
+
 </mapper>

@@ -1,20 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<%-- JSTL 대시보드 통계 사전 계산 --%>
-<c:set var="totalItems" value="${0}" />
-<c:set var="todayTotalOut" value="${0}" />
-<c:set var="lowStockItems" value="${0}" />
-
-<c:forEach items="${list}" var="item">
-    <c:set var="totalItems" value="${totalItems + 1}" />
-    <c:set var="todayTotalOut" value="${todayTotalOut + item.todayOutQty}" />
-    <fmt:parseNumber var="rate" value="${item.initQty > 0 ? (item.totalQty / item.initQty) * 100 : 0}" integerOnly="true" />
-    <c:if test="${rate <= 20}">
-        <c:set var="lowStockItems" value="${lowStockItems + 1}" />
-    </c:if>
-</c:forEach>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -24,33 +11,15 @@
     <link rel="stylesheet" href="/assets/plugins/global/plugins.bundle.css">
     <link rel="stylesheet" href="/assets/css/style.bundle.css">
     <style>
-        #kt_app_main {
-            background-color: #f5f8fa;
-        }
-
-        .pulse-danger {
-            animation: pulse-danger 2s infinite;
-        }
-
+        #kt_app_main { background-color: #f5f8fa; }
+        .pulse-danger { animation: pulse-danger 2s infinite; }
         @keyframes pulse-danger {
-            0% {
-                box-shadow: 0 0 0 0 rgba(241, 65, 108, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(241, 65, 108, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(241, 65, 108, 0);
-            }
+            0% { box-shadow: 0 0 0 0 rgba(241, 65, 108, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(241, 65, 108, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(241, 65, 108, 0); }
         }
-
-        .timeline-label:before {
-            left: 88px;
-        }
-
-        .table th {
-            vertical-align: middle;
-        }
+        .timeline-label:before { left: 88px; }
+        .table th { vertical-align: middle; }
     </style>
 </head>
 
@@ -70,7 +39,7 @@
                         <div id="kt_app_content_container" class="app-container container-fluid">
 
                             <div class="row g-5 g-xl-8 mb-8">
-                                <div class="col-xl-4">
+                                <div class="col-xl-3">
                                     <div class="card bg-dark hoverable card-xl-stretch mb-xl-8">
                                         <div class="card-body">
                                             <i class="ki-duotone ki-element-11 text-white fs-3x ms-n1">
@@ -81,11 +50,44 @@
                                             </i>
                                             <div class="text-white fw-bold fs-2 mb-2 mt-5">${totalItems} 개</div>
                                             <div class="fw-semibold text-white">조회된 물자 종류</div>
+                                            <div class="d-flex align-items-center mt-4">
+                                                <span class="badge badge-light-success me-2">안전 ${safeStockItems}</span>
+                                                <span class="badge badge-light-warning me-2">경고 ${warnStockItems}</span>
+                                                <span class="badge badge-light-danger">위험 ${dangerStockItems}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xl-4">
+
+                                <div class="col-xl-3">
                                     <div class="card bg-primary hoverable card-xl-stretch mb-xl-8">
+                                        <div class="card-body">
+                                            <i class="ki-duotone ki-wallet text-white fs-3x ms-n1">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                                <span class="path3"></span>
+                                                <span class="path4"></span>
+                                            </i>
+                                            <div class="text-white fw-bold fs-2 mb-2 mt-5">
+                                                <fmt:formatNumber value="${totalCurrentAssets}" pattern="#,###"/>
+                                                <span class="fs-6 opacity-75">/ <fmt:formatNumber value="${totalInitAssets}" pattern="#,###"/></span>
+                                            </div>
+                                            <div class="fw-semibold text-white">전체 잔여 재고 / 총 반입량</div>
+                                            <div class="d-flex align-items-center flex-column mt-4 w-100">
+                                                <div class="d-flex justify-content-between w-100 mt-auto mb-1">
+                                                    <span class="fw-semibold fs-8 text-white opacity-75">평균 잔여율</span>
+                                                    <span class="fw-bold fs-8 text-white">${totalRate}%</span>
+                                                </div>
+                                                <div class="h-5px w-100 bg-light-primary rounded" style="background-color: rgba(255,255,255,0.2);">
+                                                    <div class="bg-white rounded h-5px" style="width: ${totalRate}%;"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-3">
+                                    <div class="card bg-info hoverable card-xl-stretch mb-xl-8">
                                         <div class="card-body">
                                             <i class="ki-duotone ki-exit-right-corner text-white fs-3x ms-n1">
                                                 <span class="path1"></span>
@@ -94,20 +96,24 @@
                                             <div class="text-white fw-bold fs-2 mb-2 mt-5">
                                                 <fmt:formatNumber value="${todayTotalOut}" pattern="#,###"/> 개
                                             </div>
-                                            <div class="fw-semibold text-white">선택일자(${searchDate}) 총 불출 수량</div>
+                                            <div class="fw-semibold text-white">선택일자(${searchDate}) 총 불출량</div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xl-4">
-                                    <div class="card ${lowStockItems > 0 ? 'bg-danger pulse-danger' : 'bg-success'} hoverable card-xl-stretch mb-5 mb-xl-8">
+
+                                <div class="col-xl-3">
+                                    <div class="card ${dangerStockItems > 0 ? 'bg-danger pulse-danger' : 'bg-success'} hoverable card-xl-stretch mb-5 mb-xl-8">
                                         <div class="card-body">
                                             <i class="ki-duotone ki-information-5 text-white fs-3x ms-n1">
                                                 <span class="path1"></span>
                                                 <span class="path2"></span>
                                                 <span class="path3"></span>
                                             </i>
-                                            <div class="text-white fw-bold fs-2 mb-2 mt-5">${lowStockItems} 건</div>
-                                            <div class="fw-semibold text-white">재고 위험 (20% 이하)</div>
+                                            <div class="text-white fw-bold fs-2 mb-2 mt-5">${dangerStockItems} 건</div>
+                                            <div class="fw-semibold text-white">재고 위험 물자 (20% 이하)</div>
+                                            <div class="mt-4 fs-7 text-white fw-bold opacity-75">
+                                                ${dangerStockItems > 0 ? '🚨 즉시 재고 보충이 필요합니다!' : '✅ 모든 물자가 안전권에 있습니다.'}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -115,7 +121,8 @@
 
                             <div class="card shadow-sm mb-5">
                                 <div class="card-header align-items-center py-5">
-                                    <form id="searchForm" action="/mng/material/list" method="get" class="d-flex flex-wrap align-items-center gap-3 w-100">
+                                    <form id="searchForm" action="/mng/material/list" method="get"
+                                          class="d-flex flex-wrap align-items-center gap-3 w-100">
                                         <div class="d-flex align-items-center fw-bold text-gray-700">
                                             <i class="ki-duotone ki-calendar-8 fs-3 me-2">
                                                 <span class="path1"></span>
@@ -175,12 +182,12 @@
                                                     <th class="w-50px">No.</th>
                                                     <th class="min-w-100px text-start">구분</th>
                                                     <th class="min-w-150px text-start">물자명</th>
-                                                    <th class="min-w-100px">사전 세팅 수량</th>
-                                                    <th class="min-w-100px text-danger">금일<br>불출 수량</th>
-                                                    <th class="min-w-100px text-primary">자동 계산<br>잔여 수량</th>
-                                                    <th class="min-w-100px">최종 재고</th>
+                                                    <th class="min-w-100px">사전세팅수량</th>
+                                                    <th class="min-w-100px text-danger">해당일<br>불출수량</th>
+                                                    <th class="min-w-100px text-primary">자동계산<br>잔여수량</th>
+                                                    <th class="min-w-100px">최종재고</th>
                                                     <th class="min-w-150px text-start">메모</th>
-                                                    <th class="min-w-200px">메뉴</th>
+                                                    <th class="min-w-250px">관리메뉴</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="fw-semibold text-gray-600">
@@ -190,8 +197,10 @@
                                                     </tr>
                                                 </c:if>
 
-                                                <c:forEach items="${list}" var="item" varStatus="st">
-                                                    <fmt:parseNumber var="rate" value="${item.initQty > 0 ? (item.totalQty / item.initQty) * 100 : 0}" integerOnly="true"/>
+                                                <c:forEach items="${list}" var="item">
+                                                    <fmt:parseNumber var="rate"
+                                                                     value="${item.initQty > 0 ? (item.totalQty / item.initQty) * 100 : 0}"
+                                                                     integerOnly="true"/>
                                                     <c:set var="isDanger" value="${rate <= 20}"/>
 
                                                     <tr class="text-center">
@@ -220,15 +229,23 @@
                                                         <td class="fw-bold text-dark">
                                                             <fmt:formatNumber value="${item.totalQty}" pattern="#,###"/>
                                                         </td>
-                                                        <td class="text-start text-muted fs-8">
-                                                            ${empty item.memo ? '-' : item.memo}
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-light-primary px-3 py-2 me-1" onclick="openInOutModal(${item.seq}, '${item.materialName}', ${item.totalQty})">
+                                                        <td class="text-start text-muted fs-8">${empty item.memo ? '-' : item.memo}</td>
+                                                        <td class="text-nowrap">
+                                                            <button class="btn btn-sm btn-light-primary px-3 py-2 me-1"
+                                                                    onclick="openInOutModal(${item.seq}, '${item.category}', '${item.materialName}', ${item.totalQty})">
                                                                 입/출고
                                                             </button>
-                                                            <button class="btn btn-sm btn-light-info px-3 py-2 me-1" onclick="openHistoryModal(${item.seq}, '${item.materialName}')">
+                                                            <button class="btn btn-sm btn-light-info px-3 py-2 me-1"
+                                                                    onclick="openHistoryModal(${item.seq}, '${item.materialName}')">
                                                                 이력
+                                                            </button>
+                                                            <button class="btn btn-sm btn-light-warning px-3 py-2 me-1"
+                                                                    data-seq="${item.seq}"
+                                                                    data-category="${item.category}"
+                                                                    data-name="${item.materialName}"
+                                                                    data-initqty="${item.initQty}"
+                                                                    data-memo="${fn:escapeXml(item.memo)}"
+                                                                    onclick="openEditModal(this)">수정
                                                             </button>
                                                             <button class="btn btn-sm btn-icon btn-light-danger h-30px w-30px" onclick="deleteMaterial(${item.seq})">
                                                                 <i class="ki-duotone ki-trash fs-5">
@@ -260,17 +277,13 @@
     <div class="modal-dialog modal-dialog-centered mw-500px">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="fw-bold">신규 현장 물자 등록</h2>
+                <h2 class="fw-bold mb-0">신규 현장 물자 등록</h2>
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                    <i class="ki-duotone ki-cross fs-1">
-                        <span class="path1"></span>
-                        <span class="path2"></span>
-                    </i>
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
             </div>
             <form id="formAddMaterial">
                 <div class="modal-body py-10 px-lg-17">
-
                     <div class="d-flex flex-column mb-5 fv-row">
                         <label class="required fs-5 fw-semibold mb-2">물자 구분 (카테고리)</label>
                         <div class="d-flex gap-2">
@@ -280,10 +293,10 @@
                                     <option value="${cat}">${cat}</option>
                                 </c:forEach>
                             </select>
-                            <input type="text" class="form-control form-control-solid" id="categoryInput" name="category" placeholder="새 구분 입력" required>
+                            <input type="text" class="form-control form-control-solid" id="categoryInput"
+                                   name="category" placeholder="새 구분 입력" required>
                         </div>
                     </div>
-
                     <div class="d-flex flex-column mb-5 fv-row">
                         <label class="required fs-5 fw-semibold mb-2">물자명</label>
                         <input type="text" class="form-control form-control-solid" placeholder="예: 생수, 카탈로그, 부채" name="materialName" required/>
@@ -306,16 +319,60 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalEditMaterial" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-500px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="fw-bold mb-0">물자 마스터 정보 수정</h2>
+                <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <form id="formEditMaterial">
+                <input type="hidden" name="seq" id="editSeq">
+                <div class="modal-body py-10 px-lg-17">
+                    <div class="d-flex flex-column mb-5 fv-row">
+                        <label class="required fs-5 fw-semibold mb-2">물자 구분 (카테고리)</label>
+                        <div class="d-flex gap-2">
+                            <select id="editCategorySelect" class="form-select form-select-solid w-150px" onchange="toggleEditCategory()">
+                                <option value="">직접 입력</option>
+                                <c:forEach items="${categoryList}" var="cat">
+                                    <option value="${cat}">${cat}</option>
+                                </c:forEach>
+                            </select>
+                            <input type="text" class="form-control form-control-solid" id="editCategoryInput" name="category" required>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column mb-5 fv-row">
+                        <label class="required fs-5 fw-semibold mb-2">물자명</label>
+                        <input type="text" class="form-control form-control-solid" id="editMaterialName" name="materialName" required/>
+                    </div>
+                    <div class="d-flex flex-column mb-5 fv-row">
+                        <label class="required fs-5 fw-semibold mb-2">사전 세팅 수량 (초기수량)</label>
+                        <input type="number" class="form-control form-control-solid" id="editInitQty" name="initQty" required min="0"/>
+                        <div class="text-muted fs-7 mt-2">* 세팅 수량을 변경하면 현재 잔여 수량도 그만큼 비례해서 자동 보정됩니다.</div>
+                    </div>
+                    <div class="d-flex flex-column mb-5 fv-row">
+                        <label class="fs-5 fw-semibold mb-2">비고 (메모)</label>
+                        <textarea class="form-control form-control-solid" rows="3" id="editMemo" name="memo"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer flex-center">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-warning" onclick="submitEditMaterial()">수정 적용하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="modalInOut" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mw-500px">
         <div class="modal-content">
             <div class="modal-header bg-light">
-                <h2 class="fw-bold" id="inoutModalTitle">물자 입출고</h2>
+                <h2 class="fw-bold mb-0 d-flex align-items-center" id="inoutModalTitle">물자 입출고</h2>
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                    <i class="ki-duotone ki-cross fs-1">
-                        <span class="path1"></span>
-                        <span class="path2"></span>
-                    </i>
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
             </div>
             <form id="formInOut">
@@ -371,7 +428,8 @@
                 </div>
                 <div class="modal-footer flex-center">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
-                    <button type="button" class="btn btn-primary" id="btnSubmitInOut" onclick="submitInOut()">적용하기</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmitInOut" onclick="submitInOut()">적용하기
+                    </button>
                 </div>
             </form>
         </div>
@@ -382,12 +440,9 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable mw-600px">
         <div class="modal-content">
             <div class="modal-header bg-light">
-                <h2 class="fw-bold" id="historyModalTitle">타임라인 이력</h2>
+                <h2 class="fw-bold mb-0" id="historyModalTitle">타임라인 이력</h2>
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                    <i class="ki-duotone ki-cross fs-1">
-                        <span class="path1"></span>
-                        <span class="path2"></span>
-                    </i>
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
             </div>
             <div class="modal-body py-10" style="min-height: 400px;">
@@ -409,7 +464,7 @@
         }
     });
 
-    // 신규 등록 팝업: 구분(카테고리) 콤보박스 제어
+    // 신규등록 카테고리
     function toggleCategory() {
         var val = $('#categorySelect').val();
         if (val === '') {
@@ -419,6 +474,17 @@
         }
     }
 
+    // 수정팝업 카테고리
+    function toggleEditCategory() {
+        var val = $('#editCategorySelect').val();
+        if (val === '') {
+            $('#editCategoryInput').val('').prop('readonly', false).focus();
+        } else {
+            $('#editCategoryInput').val(val).prop('readonly', true);
+        }
+    }
+
+    // 신규 등록 실행
     function submitAddMaterial() {
         const form = document.getElementById('formAddMaterial');
         if (!form.checkValidity()) {
@@ -452,11 +518,69 @@
         });
     }
 
+    // 수정 팝업 열기
+    function openEditModal(btn) {
+        const seq = $(btn).data('seq');
+        const category = $(btn).data('category');
+        const name = $(btn).data('name');
+        const initQty = $(btn).data('initqty');
+        const memo = $(btn).data('memo');
+
+        $('#editSeq').val(seq);
+
+        // 카테고리 셀렉트박스 매핑 확인
+        let found = false;
+        $('#editCategorySelect option').each(function () {
+            if ($(this).val() === category) found = true;
+        });
+
+        if (found && category !== '') {
+            $('#editCategorySelect').val(category);
+            $('#editCategoryInput').val(category).prop('readonly', true);
+        } else {
+            $('#editCategorySelect').val('');
+            $('#editCategoryInput').val(category).prop('readonly', false);
+        }
+
+        $('#editMaterialName').val(name);
+        $('#editInitQty').val(initQty);
+        $('#editMemo').val(memo);
+
+        $('#modalEditMaterial').modal('show');
+    }
+
+    // 수정 실행
+    function submitEditMaterial() {
+        const form = document.getElementById('formEditMaterial');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        $.ajax({
+            url: '/mng/material/api/edit', type: 'POST', data: $(form).serialize(),
+            success: function (res) {
+                if (res.success) {
+                    Toast.fire({icon: 'success', title: res.message});
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    Swal.fire({
+                        text: res.message,
+                        icon: "error",
+                        buttonsStyling: false,
+                        confirmButtonText: "확인",
+                        customClass: {confirmButton: "btn btn-danger"}
+                    });
+                }
+            }
+        });
+    }
+
     let g_currentTotalQty = 0;
 
-    function openInOutModal(seq, name, totalQty) {
+    function openInOutModal(seq, category, name, totalQty) {
         $('#inoutMaterialSeq').val(seq);
-        $('#inoutModalTitle').text('[' + name + '] 입/출고 관리');
+        $('#inoutModalTitle').html('<span class="badge badge-dark me-3 fs-6">' + category + '</span>' + name + ' 입/출고');
         $('#inoutCurrentQtyText').text(totalQty.toLocaleString() + ' 개');
         $('#formInOut')[0].reset();
         g_currentTotalQty = totalQty;
@@ -469,7 +593,6 @@
     function checkQtyWarning() {
         const isOut = $('#typeOut').is(':checked');
         const qty = parseInt($('#inoutQty').val()) || 0;
-
         if (isOut && qty > g_currentTotalQty) {
             $('#inoutWarning').slideDown(200);
             $('#btnSubmitInOut').prop('disabled', true);
@@ -491,7 +614,7 @@
             success: function (res) {
                 if (res.success) {
                     Toast.fire({icon: 'success', title: res.message});
-                    setTimeout(() => location.reload(), 1500);
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     Swal.fire({
                         text: res.message,
@@ -527,15 +650,13 @@
                         const textColor = isIn ? 'text-success' : 'text-danger';
                         const sign = isIn ? '+' : '-';
                         const icon = isIn ? 'ki-entrance-left' : 'ki-exit-right-corner';
-                        const reasonText = item.reason ? item.reason : '(사유 미입력)'; // 메모가 없을 때의 처리
+                        const reasonText = item.reason ? item.reason : '(사유 미입력)';
 
                         html += `
                             <div class="timeline-item">
                                 <div class="timeline-label fw-bold text-gray-800 fs-7" style="width: 85px;">\${timeStr}</div>
                                 <div class="timeline-badge">
-                                    <i class="ki-duotone ki-abstract-8 \${textColor} fs-2">
-                                        <span class="path1"></span><span class="path2"></span>
-                                    </i>
+                                    <i class="ki-duotone ki-abstract-8 \${textColor} fs-2"><span class="path1"></span><span class="path2"></span></i>
                                 </div>
                                 <div class="timeline-content d-flex">
                                     <span class="fw-bold text-gray-800 ps-3">\${reasonText}</span>
@@ -558,7 +679,7 @@
 
     function deleteMaterial(seq) {
         Swal.fire({
-            text: "정말 이 물자를 삭제하시겠습니까?\\n(입출고 이력도 함께 보이지 않게 됩니다)",
+            text: "정말 이 물자를 삭제하시겠습니까?\n(입출고 이력도 함께 보이지 않게 됩니다)",
             icon: "warning", showCancelButton: true, buttonsStyling: false,
             confirmButtonText: "예, 삭제합니다", cancelButtonText: "아니요",
             customClass: {confirmButton: "btn btn-danger", cancelButton: "btn btn-light"}
