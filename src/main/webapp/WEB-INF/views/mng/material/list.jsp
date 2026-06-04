@@ -134,23 +134,23 @@
                                             </i>
                                             행사일자
                                         </div>
-                                        <input type="date" name="searchDate" value="${searchDate}" class="form-control form-control-solid w-150px">
+                                        <input type="date" name="searchDate" value="${searchDate}" class="form-control form-control-solid w-200px">
 
-                                        <select name="category" class="form-select form-select-solid w-150px">
+                                        <select name="category" class="form-select form-select-solid w-200px">
                                             <option value="">구분 (전체)</option>
                                             <c:forEach items="${categoryList}" var="cat">
                                                 <option value="${cat}" ${category == cat ? 'selected' : ''}>${cat}</option>
                                             </c:forEach>
                                         </select>
 
-                                        <select name="stockStatus" class="form-select form-select-solid w-150px">
+                                        <select name="stockStatus" class="form-select form-select-solid w-200px">
                                             <option value="">재고상태 (전체)</option>
                                             <option value="SAFE" ${stockStatus == 'SAFE' ? 'selected' : ''}>안전 (50% 초과)</option>
                                             <option value="WARN" ${stockStatus == 'WARN' ? 'selected' : ''}>경고 (20~50%)</option>
                                             <option value="DANGER" ${stockStatus == 'DANGER' ? 'selected' : ''}>위험 (20% 이하)</option>
                                         </select>
 
-                                        <div class="position-relative flex-grow-1 mw-250px">
+                                        <div class="position-relative flex-grow-1 mw-300px">
                                             <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4">
                                                 <span class="path1"></span>
                                                 <span class="path2"></span>
