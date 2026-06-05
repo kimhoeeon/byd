@@ -145,7 +145,7 @@ public class EventController {
             // URL 인코딩 적용
             String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
 
-            String domain = "https://byd-hyroxevent.kr";
+            String domain = "https://byd-bimos2026.kr";
             String ticketUrl = domain + "/apply/ticket?token=" + encodedToken;
 
             eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl);
