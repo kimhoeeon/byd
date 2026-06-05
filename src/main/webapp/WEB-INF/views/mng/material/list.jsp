@@ -79,7 +79,7 @@
                                                     <span class="fw-bold fs-8 text-white">${totalRate}%</span>
                                                 </div>
                                                 <div class="h-5px w-100 bg-light-primary rounded" style="background-color: rgba(255,255,255,0.2);">
-                                                    <div class="bg-white rounded h-5px" style="width: ${totalRate}%;"></div>
+                                                    <div class="bg-white rounded h-5px" style="width: ${totalRate > 100 ? 100 : totalRate}%;"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -197,14 +197,12 @@
                                                     </tr>
                                                 </c:if>
 
-                                                <c:forEach items="${list}" var="item">
-                                                    <fmt:parseNumber var="rate"
-                                                                     value="${item.initQty > 0 ? (item.totalQty / item.initQty) * 100 : 0}"
-                                                                     integerOnly="true"/>
+                                                <c:forEach items="${list}" var="item" varStatus="st">
+                                                    <fmt:parseNumber var="rate" value="${item.initQty > 0 ? (item.totalQty / item.initQty) * 100 : 0}" integerOnly="true"/>
                                                     <c:set var="isDanger" value="${rate <= 20}"/>
 
                                                     <tr class="text-center">
-                                                        <td>${item.seq}</td>
+                                                        <td>${fn:length(list) - st.index}</td>
                                                         <td class="text-start">
                                                             <span class="badge badge-light-dark fs-7">${item.category}</span>
                                                         </td>
@@ -214,7 +212,7 @@
                                                                 <div class="fs-8 fw-bold ${isDanger ? 'text-danger' : 'text-muted'}">${rate}%</div>
                                                             </div>
                                                             <div class="h-4px w-100 bg-light rounded">
-                                                                <div class="${isDanger ? 'bg-danger pulse-danger' : (rate <= 50 ? 'bg-warning' : 'bg-success')} rounded h-4px" style="width: ${rate}%;"></div>
+                                                                <div class="${isDanger ? 'bg-danger pulse-danger' : (rate <= 50 ? 'bg-warning' : 'bg-success')} rounded h-4px" style="width: ${rate > 100 ? 100 : rate}%;"></div>
                                                             </div>
                                                         </td>
                                                         <td class="fw-bold text-muted">

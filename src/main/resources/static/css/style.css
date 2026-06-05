@@ -288,3 +288,8 @@ label:last-child {margin-right: 0;}
 .btn_st01{width: 100%; background: #bb0a0a; border: none; cursor: pointer;}
 
 .notice-box{background: #f8f9fa;padding: 15px;border-radius: 8px;margin-bottom: 20px;margin-top: 10px;font-size: 14px;color: #e50000;font-weight: bold;text-align: center;line-height: 1.4;border: 1px solid #ffcccc;}
+
+select:focus {
+    background-color: #CBCBCA !important;
+    color: #111 !important;
+}
