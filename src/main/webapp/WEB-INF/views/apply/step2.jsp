@@ -156,14 +156,14 @@
                                 </div>
                             </li>
                         </ul>
-                        <div class="terms-check">
+                        <%--<div class="terms-check">
                             <label>
                                 <input type="checkbox" id="privacyAgree" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(필수) 개인정보 수집·이용 동의</span>
                             </label>
                             <textarea readonly>BYD코리아는 시승 신청 및 고객 상담 서비스 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다. &#10; &#10;수집 항목: 이름, 휴대폰 번호, 이메일 주소&#10;수집 및 이용 목적: 시승 신청 접수, 시승 안내, 본인 확인, 문의 응대 및 상담 진행&#10;보유 및 이용 기간: 본 이벤트 종료 후 6개월까지 또는 귀하의 동의 철회 시까지.&#10;&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부할 경우 시승 신청 및 상담 서비스 이용이 제한될 수 있습니다.</textarea>
-                        </div>
+                        </div>--%>
                         <div class="terms-check">
                             <label>
                                 <input type="checkbox" id="thirdPartyAgree" required>
@@ -366,12 +366,11 @@
             if($("#shopSelect").val() === "") { alert("방문 가능 전시장를 선택해 주세요."); return false; }
             if($("select[name='carModel']").val() === "") { alert("관심차량 정보를 선택해 주세요."); return false; }
 
-            $("#hiddenPrivacy").val($("#privacyAgree").is(":checked") ? "Y" : "N");
             $("#hiddenThirdParty").val($("#thirdPartyAgree").is(":checked") ? "Y" : "N");
             $("#hiddenEntrust").val($("#entrustAgree").is(":checked") ? "Y" : "N");
             $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");
 
-            if (!$("#privacyAgree").is(":checked") || !$("#thirdPartyAgree").is(":checked") || !$("#entrustAgree").is(":checked")) {
+            if (!$("#thirdPartyAgree").is(":checked") || !$("#entrustAgree").is(":checked")) {
                 alert("필수 약관에 모두 동의해 주세요.");
                 return false;
             }

@@ -40,7 +40,10 @@ public class EventController {
     // 1페이지 제출 시 기존 정보 확인 및 분기 처리
     @PostMapping("/checkParticipant")
     @ResponseBody
-    public Map<String, Object> checkParticipant(@RequestParam String name, @RequestParam String phone, HttpSession session) {
+    public Map<String, Object> checkParticipant(@RequestParam String name,
+                                                @RequestParam String phone,
+                                                @RequestParam(defaultValue = "N") String privacyAgree,
+                                                HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         ParticipantVO existing = eventService.getParticipantByPhone(phone);
 
@@ -48,7 +51,6 @@ public class EventController {
             try {
                 AES128 aes128 = new AES128(SECRET_KEY);
                 String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
-                // URL 인코딩 적용
                 String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
 
                 response.put("exists", true);
@@ -62,6 +64,7 @@ public class EventController {
             ParticipantVO newInfo = new ParticipantVO();
             newInfo.setName(name);
             newInfo.setPhone(phone);
+            newInfo.setPrivacyAgree(privacyAgree);
             session.setAttribute("tempInfo", newInfo);
 
             response.put("exists", false);
@@ -104,6 +107,7 @@ public class EventController {
 
         participantVO.setName(step1Info.getName());
         participantVO.setPhone(step1Info.getPhone());
+        participantVO.setPrivacyAgree(step1Info.getPrivacyAgree());
 
         try {
             eventService.insertParticipant(participantVO);
@@ -123,7 +127,6 @@ public class EventController {
                 try {
                     AES128 aes128 = new AES128(SECRET_KEY);
                     String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
-                    // URL 인코딩 적용
                     String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
                     return "redirect:/apply/ticket?token=" + encodedToken;
                 } catch (Exception ex) {
