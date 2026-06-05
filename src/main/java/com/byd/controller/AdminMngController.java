@@ -107,7 +107,7 @@ public class AdminMngController {
         } else if ("gift".equals(type)) {
             model.addAttribute("adminCode", "303");
             model.addAttribute("eventName", "경품수령");
-            model.addAttribute("themeColor", "#f6c23e"); // 노란색 테마
+            model.addAttribute("themeColor", "#f6c23e");
         } else {
             model.addAttribute("adminCode", "101");
             model.addAttribute("eventName", "챌린지");
@@ -243,16 +243,15 @@ public class AdminMngController {
                                         @RequestParam("adminCode") String adminCode) {
         Map<String, Object> response = new HashMap<>();
         try {
-            AES128 aes128 = new AES128("bydEventTokenKey");
-            String decryptedSeqStr = aes128.decrypt(qrToken);
-            int seq = Integer.parseInt(decryptedSeqStr);
 
-            ParticipantVO data = adminMngService.getParticipantBySeq(seq);
+            ParticipantVO data = adminMngService.getParticipantByQrCodeUrl(qrToken);
             if (data == null) {
                 response.put("success", false);
                 response.put("message", "존재하지 않는 참가자입니다.");
                 return response;
             }
+
+            int seq = data.getSeq();
 
             // 1회 참여 제한(중복 방어) 로직
             if ("202".equals(adminCode) && "Y".equals(data.getDriveCheckYn())) {
@@ -262,6 +261,10 @@ public class AdminMngController {
             } else if ("101".equals(adminCode) && "Y".equals(data.getChallengeCheckYn())) {
                 response.put("success", false);
                 response.put("message", "이미 챌린지를 완료한 고객입니다.");
+                return response;
+            } else if ("303".equals(adminCode) && "Y".equals(data.getGiftCheckYn())) {
+                response.put("success", false);
+                response.put("message", "이미 경품 수령 처리가 완료된 고객입니다.");
                 return response;
             }
 
@@ -294,6 +297,8 @@ public class AdminMngController {
             // 시승(202)일 경우 서명 완료 메시지 노출
             if ("202".equals(adminCode)) {
                 response.put("message", "서명 및 시승 출석이 완료되었습니다.");
+            } else if ("303".equals(adminCode)) {
+                response.put("message", "경품 수령 처리가 완료되었습니다.");
             } else {
                 response.put("message", "출석 처리가 완료되었습니다.");
             }
