@@ -65,8 +65,20 @@
                             </li>
                             <li>
                                 <div class="gubun">연락처</div>
-                                <div class="input">
+                                <div class="input tel">
                                     <input type="tel" id="phone" name="phone" placeholder="입력해 주세요. (숫자만)" class="onlyTel" maxlength="13" required>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="terms-check">
+                                    <label>
+                                        <input type="checkbox" id="agreeCheck" value="Y">
+                                        <span class="terms-check_box" aria-hidden="true"></span>
+                                        <span class="terms-check_label">
+                                        (필수) 개인정보 수집·이용 동의
+                                    </span>
+                                    </label>
+                                    <textarea>BYD코리아는 시승 신청 및 고객 상담 서비스 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다. &#10; &#10;수집 항목: 이름, 휴대폰 번호, 이메일 주소&#10;수집 및 이용 목적: 시승 신청 접수, 시승 안내, 본인 확인, 문의 응대 및 상담 진행&#10;보유 및 이용 기간: 본 이벤트 종료 후 6개월까지 또는 귀하의 동의 철회 시까지.&#10;&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부할 경우 시승 신청 및 상담 서비스 이용이 제한될 수 있습니다.</textarea>
                                 </div>
                             </li>
                         </ul>
@@ -148,6 +160,11 @@
                 alert("올바른 연락처 형식이 아닙니다.");
                 document.getElementById("phone").focus();
                 return false;
+            }
+
+            if ($('#agreeCheck').is(':checked') === false) {
+                alert("개인정보 수집·이용 약관에 동의해 주세요.");
+                return;
             }
 
             // 폼 서밋 대신 AJAX 통신으로 서버에 확인
