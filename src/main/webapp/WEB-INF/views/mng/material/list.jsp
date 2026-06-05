@@ -679,7 +679,7 @@
 
     function deleteMaterial(seq) {
         Swal.fire({
-            text: "정말 이 물자를 삭제하시겠습니까?\n(입출고 이력도 함께 보이지 않게 됩니다)",
+            html: "정말 이 물자를 삭제하시겠습니까?<br>(해당 물자의 입출고 이력도 함께 삭제됩니다)",
             icon: "warning", showCancelButton: true, buttonsStyling: false,
             confirmButtonText: "예, 삭제합니다", cancelButtonText: "아니요",
             customClass: {confirmButton: "btn btn-danger", cancelButton: "btn btn-light"}
