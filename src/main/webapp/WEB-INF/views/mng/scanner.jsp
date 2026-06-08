@@ -156,10 +156,9 @@
     <p>고객의 모바일 티켓 QR코드를 화면에 비춰주세요.</p>
 </div>
 
-<!-- <div class="scanner-container">
+<div class="scanner-container">
     <div id="reader"></div>
-</div> -->
-
+</div>
 <div id="statusBox" class="status-box"></div>
 
 <div class="modal-overlay" id="modalOverlay"></div>
@@ -211,17 +210,26 @@
 
 <script>
     let isScanning = false;
-    let html5QrCode;
+    let html5QrCode = null; // 객체 껍데기만 먼저 선언합니다.
 
     let audioCtx = null;
     let signaturePad;
     let currentScanSeq = null;
 
-    // 화면(DOM)이 100% 준비된 후 내부 로직을 실행합니다.
+    // 화면이 100% 렌더링된 후에 스캐너를 세팅합니다.
     $(document).ready(function() {
+        // [방어 로직] reader 태그가 있는지 가장 먼저 검사합니다.
+        if (document.getElementById("reader") == null) {
+            alert("시스템 오류: 카메라 영역(<div id='reader'>)이 HTML에 존재하지 않습니다.");
+            return;
+        }
 
-        // [핵심 수정 2] 화면이 다 그려진 이 시점에 스캐너 객체를 안전하게 생성합니다!
-        html5QrCode = new Html5Qrcode("reader");
+        try {
+            html5QrCode = new Html5Qrcode("reader");
+        } catch (e) {
+            alert("카메라 초기화 실패: " + e);
+            return;
+        }
 
         $(document).one('click touchstart', function() {
             try {
@@ -265,7 +273,7 @@
 
             setTimeout(function() {
                 $('#statusBox').fadeOut(200);
-                if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                if (html5QrCode && html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
                     html5QrCode.resume();
                 }
                 isScanning = false;
@@ -291,9 +299,43 @@
             resizeCanvas();
         };
 
-        // [핵심 수정 3] 객체 준비와 이벤트 바인딩이 끝난 후 스캐너를 켭니다.
+        // 안전한 생성이 확인되면 카메라를 켭니다.
         startScanner();
     });
+
+    function startScanner() {
+        if (!html5QrCode) return;
+        const config = {
+            fps: 15,
+            disableFlip: false,
+            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                const qrboxSize = Math.floor(minEdgeSize * 0.8);
+                return { width: qrboxSize, height: qrboxSize };
+            }
+        };
+
+        // [2중 안전망] 모바일 최적화 facingMode 호출 -> 실패 시 기존 getCameras 방식으로 자동 폴백
+        html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailure)
+            .catch((err) => {
+                console.log("facingMode failed, falling back to getCameras:", err);
+                Html5Qrcode.getCameras().then(devices => {
+                    if (devices && devices.length) {
+                        let cameraId = devices[0].id;
+                        for (let i = 0; i < devices.length; i++) {
+                            let label = devices[i].label.toLowerCase();
+                            if (label.includes('front') || label.includes('전면') || label.includes('user')) {
+                                cameraId = devices[i].id;
+                                break;
+                            }
+                        }
+                        html5QrCode.start(cameraId, config, onScanSuccess, onScanFailure);
+                    }
+                }).catch(e => {
+                    alert("카메라 실행 실패! 기기의 카메라 권한을 확인해주세요.");
+                });
+            });
+    }
 
     function playBeep() {
         try {
@@ -357,7 +399,7 @@
                     showStatus("❌<br>" + response.message, "error");
                     setTimeout(function () {
                         $('#statusBox').fadeOut(200);
-                        if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                        if (html5QrCode && html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
                             html5QrCode.resume();
                         }
                         isScanning = false;
@@ -368,7 +410,7 @@
                 showStatus("❌<br>서버 통신 오류가 발생했습니다.<br>다시 시도해주세요.", "error");
                 setTimeout(function () {
                     $('#statusBox').fadeOut(200);
-                    if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                    if (html5QrCode && html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
                         html5QrCode.resume();
                     }
                     isScanning = false;
@@ -406,7 +448,7 @@
                 $('#signatureModal').fadeOut(200);
                 setTimeout(function() {
                     $('#statusBox').fadeOut(200);
-                    if (html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
+                    if (html5QrCode && html5QrCode.getState() === Html5QrcodeScannerState.PAUSED) {
                         html5QrCode.resume();
                     }
                     isScanning = false;
@@ -420,24 +462,6 @@
 
     function onScanFailure(error) {
         // 실패 로그 무시
-    }
-
-    function startScanner() {
-        const config = {
-            fps: 15,
-            disableFlip: false,
-            qrbox: function(viewfinderWidth, viewfinderHeight) {
-                const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
-                const qrboxSize = Math.floor(minEdgeSize * 0.8);
-                return { width: qrboxSize, height: qrboxSize };
-            }
-        };
-
-        // 모바일 환경에 최적화된 카메라 호출 로직 (facingMode: "user" 강제 할당)
-        html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailure)
-            .catch((err) => {
-                alert("🚨 카메라 실행 실패!\n\n1. 브라우저의 '카메라 접근 권한'을 허용해 주세요.\n2. 아이폰의 경우 다른 앱(카메라 등)을 닫고 새로고침 해보세요.\n사유: " + err);
-            });
     }
 
     window.addEventListener("orientationchange", function() {
@@ -457,6 +481,7 @@
             isScanning = false;
         }
     });
+
 </script>
 </body>
 </html>
