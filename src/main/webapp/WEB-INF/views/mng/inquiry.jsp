@@ -10,28 +10,24 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
     <style>
-        /* 기본 레이아웃 스타일 */
         body {
             margin: 0;
             padding: 0;
             background-color: #f4f6f9;
             font-family: 'Noto Sans KR', sans-serif;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
         }
 
         .header-box {
-            padding: 15px;
+            padding: 20px 15px;
             background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
         }
 
         .header-box h2 {
             margin: 0 0 5px 0;
-            font-size: 1.4em;
+            font-size: 1.5em;
             color: #333;
         }
 
@@ -41,46 +37,136 @@
             font-size: 0.9em;
         }
 
-        .scanner-container {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            position: relative;
-            background: #000;
-            flex-grow: 1;
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        #reader {
-            width: 100%;
-            height: 100%;
-        }
-
-        #reader video {
-            transform: scaleX(-1) !important; /* 전면 카메라 거울 모드 */
-            object-fit: cover;
-            width: 100%;
-            height: 100%;
-        }
-
-        .status-box {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #fff;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        .mode-toggle input[type="radio"] {
             display: none;
-            z-index: 1000;
         }
-        .status-box.success { background-color: #28a745; }
-        .status-box.error { background-color: #dc3545; }
+
+        .mode-toggle label {
+            padding: 10px 20px;
+            background-color: #e4e6ef;
+            color: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-toggle input[type="radio"]:checked + label {
+            background-color: #009ef7;
+            color: #fff;
+        }
+
+        .search-area {
+            background: #fff;
+            margin: 0 15px 20px 15px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .search-area select, .search-area input {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .search-area input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-search {
+            padding: 12px 20px;
+            background-color: #343a40;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .result-list {
+            padding: 0 15px;
+            text-align: left;
+            padding-bottom: 80px;
+        }
+
+        .result-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #009ef7;
+        }
+
+        .result-info strong {
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .result-info p {
+            margin: 5px 0 0 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .btn-checkin {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-checkin:hover {
+            opacity: 0.8;
+        }
+
+        /* 하단 고정 스캐너 전환 버튼 컨테이너 */
+        .floating-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-scanner-link {
+            display: inline-block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
 
         /* ============================================== */
         /* [통일됨] 서명 모달 전용 스타일 (inquiry.jsp와 동일) */
@@ -118,6 +204,7 @@
         }
         .modal-header button{background: inherit; border: none; color: #fff; font-size: 26px; }
         .modal-header h3 { margin: 0; color: #fff; font-size: 1.3em; font-weight: 500;}
+        .btn-close { background: none; border: none; font-size: 1.5em; cursor: pointer; color: #666; }
 
         .modal-body .info-row { display: flex; gap: 10px; margin-bottom: 20px; }
         .modal-body .info-row > div { flex: 1; }
@@ -139,13 +226,10 @@
         .modal-footer { display: flex; gap: 10px; }
         .modal-footer button { padding: 12px; border: none; font-weight: bold; font-size: 1em; cursor: pointer; }
         .btn-clear { background: #9c9c9c; color: #fff; flex: 1; }
-        .btn-cancel { background: #bb0a0a; color: #fff; flex: 1; }
         .btn-submit { background: linear-gradient(90deg,rgba(16, 58, 187, 1) 0%, rgba(61, 102, 228, 1) 100%); color: #fff; flex: 2; }
 
-        input, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; -webkit-border-radius: 0; } 
+        input, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; -webkit-border-radius: 0; }
         textarea::placeholder {color: #CBCBCA;}
-
-
     </style>
 </head>
 <body>
