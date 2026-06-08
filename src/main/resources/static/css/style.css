@@ -14,7 +14,14 @@ input[type="date"],
 input[type="email"],
 input[type="tel"],
 textarea {border: 0; border: 1px solid #CBCBCA; padding: 15px; background: none; color: #CBCBCA;}
-select option {color: #111; background: #CBCBCA;}
+select option {
+    color: #111;
+    background: #CBCBCA;
+    /* 웹 폰트 로딩 지연으로 인한 높이 계산 버그 방지용 시스템 폰트 강제 적용 */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Malgun Gothic", "맑은 고딕", sans-serif !important;
+    /* rem 단위 계산 오차를 막기 위해 고정 px 사용 */
+    font-size: 16px !important;
+}
 
 input::placeholder,
 textarea::placeholder {color: #CBCBCA;}

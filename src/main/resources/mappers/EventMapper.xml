@@ -18,6 +18,7 @@
         FROM event_participant
         WHERE DATE(reg_date) = CURDATE()
           AND test_drive_time != '시승 미신청'
+          AND car_model = #{carModel}
         GROUP BY test_drive_time
     </select>
 
@@ -40,6 +41,7 @@
         FROM event_participant
         WHERE DATE(reg_date) = CURDATE()
           AND test_drive_time = #{testDriveTime}
+          AND car_model = #{carModel}
     </select>
 
     <update id="updateParticipant">
@@ -65,6 +67,13 @@
         <if test="seq != null and seq > 0">
             AND seq != #{seq}
         </if>
+    </select>
+
+    <select id="getParticipantsForReminder" resultType="com.byd.vo.ParticipantVO">
+        SELECT * FROM event_participant
+        WHERE DATE(reg_date) = CURDATE()
+        AND test_drive_time = #{targetTime}
+        AND drive_check_yn = 'N' <!-- 출석 전인 고객만 발송 -->
     </select>
 
 </mapper>

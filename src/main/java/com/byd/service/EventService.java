@@ -3,6 +3,7 @@ package com.byd.service;
 import com.byd.mapper.EventMapper;
 import com.byd.vo.ParticipantVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -11,6 +12,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -18,6 +21,19 @@ import java.util.*;
 public class EventService {
 
     private final EventMapper eventMapper;
+
+    // 1. 차종별 최대 예약 가능 인원 (추후 DB 관리자 제어로 확장 가능)
+    private final Map<String, Integer> carCapacityMap = new HashMap<String, Integer>() {{
+        put("BYD DOLPHIN", 2);
+        put("BYD ATTO 3", 2);
+        put("BYD SEAL", 2);
+        put("BYD SEALION 7", 2);
+    }};
+
+    public int getCarCapacity(String carModel) {
+        if(carModel == null || carModel.isEmpty()) return 2; // 기본값 2
+        return carCapacityMap.getOrDefault(carModel.toUpperCase(), 2);
+    }
 
     public ParticipantVO getParticipantByPhone(String phone){
         return eventMapper.getParticipantByPhone(phone);
@@ -27,14 +43,12 @@ public class EventService {
         return eventMapper.getParticipantByPhoneToday(phone);
     }
 
-    public Map<String, Integer> getDriveTimeCountToday() {
-        List<Map<String, Object>> rawList = eventMapper.getDriveTimeCountToday();
+    public Map<String, Integer> getDriveTimeCountToday(String carModel) {
+        List<Map<String, Object>> rawList = eventMapper.getDriveTimeCountToday(carModel);
         Map<String, Integer> resultMap = new HashMap<>();
 
         if (rawList != null) {
             for (Map<String, Object> row : rawList) {
-
-                // [긴급 수정] testDriveTime 값을 안전하게 파싱 (byte[] 방어)
                 Object timeObj = row.get("testDriveTime");
                 String time = "";
 
@@ -59,7 +73,7 @@ public class EventService {
         return resultMap;
     }
 
-    private void validateDriveTime(String testDriveTime) {
+    private void validateDriveTime(String testDriveTime, String carModel) {
         // [방어 1] 널(Null) 값 즉시 컷
         if (testDriveTime == null || "시승 미신청".equals(testDriveTime)) return;
 
@@ -69,11 +83,18 @@ public class EventService {
             java.time.LocalTime targetTime = java.time.LocalTime.parse(testDriveTime);
 
             if (now.isAfter(targetTime)) {
-                throw new IllegalStateException("이미 지난 시간대는 선택할 수 없습니다.");
+                throw new RuntimeException("이미 지난 시간은 예약할 수 없습니다.");
             }
         } catch (java.time.format.DateTimeParseException e) {
-            // [방어 3] 해석 불가능한 조작 값이 들어오면 서버를 죽이지 않고 친절하게 예외를 던져 컨트롤러가 처리하게 함
-            throw new IllegalArgumentException("올바르지 않은 시승 시간 형식입니다.");
+            // 형식 오류 무시
+        }
+
+        // DB에서 현재 예약 인원 조회 (해당 시간 + 해당 차종)
+        int currentCount = eventMapper.getDriveTimeCount(testDriveTime, carModel);
+        int maxCapacity = getCarCapacity(carModel);
+
+        if (currentCount >= maxCapacity) {
+            throw new RuntimeException("선택하신 시승 시간은 [" + carModel + "] 예약이 마감되었습니다. 다른 시간을 선택해 주세요.");
         }
     }
 
@@ -87,9 +108,9 @@ public class EventService {
         // 백엔드 단위 4명 정원 검증 로직
         if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
 
-            validateDriveTime(participantVO.getTestDriveTime());
+            validateDriveTime(participantVO.getTestDriveTime(), participantVO.getCarModel());
 
-            int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime());
+            int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime(), participantVO.getCarModel());
             if(currentCount >= 4) {
                 throw new IllegalStateException("해당 시간대는 이미 마감되었습니다.");
             }
@@ -145,10 +166,10 @@ public class EventService {
             // "시승 미신청"으로 빼는 경우가 아니라면,
             if (!"시승 미신청".equals(participantVO.getTestDriveTime())) {
                 // 과거 시간 및 형식 검증
-                validateDriveTime(participantVO.getTestDriveTime());
+                validateDriveTime(participantVO.getTestDriveTime(), participantVO.getCarModel());
 
                 // 정원(4명) 초과 검증
-                int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime());
+                int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime(), participantVO.getCarModel());
                 if(currentCount >= 4) {
                     throw new IllegalStateException("해당 시간대는 이미 마감되었습니다.");
                 }
@@ -165,10 +186,6 @@ public class EventService {
         eventMapper.updateParticipant(participantVO, updateRegDate);
     }
 
-    public int getDriveTimeCount(String testDriveTime) {
-        return eventMapper.getDriveTimeCount(testDriveTime);
-    }
-
     // Aligo API SMS 발송 로직
     public boolean sendAligoSms(String receiverPhone, String name, String ticketUrl) {
         try {
@@ -183,7 +200,7 @@ public class EventService {
                     name + "님, 신청이 완료되었습니다.\n" +
                     "현장 데스크에서 아래 링크의 모바일 티켓(QR)을 보여주세요.\n\n" +
                     "▶ 모바일 티켓 보기:\n" + ticketUrl + "\n\n" +
-                    "※ 시승 체험 신청자의 경우, 신청하신 타임 시작 15분 전까지 BYD부스 돌핀 포토존 앞 집합존으로 방문해 주시기 바랍니다.";
+                    "※ 시승 체험 신청자의 경우, 신청 타임 시작 15분 전까지 BYD 시승부스로 방문해 주세요.";
 
             URL url = new URL(apiUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -230,6 +247,122 @@ public class EventService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /**
+     * 알리고 SMS 자유 메시지 발송 공통 메서드
+     */
+    public boolean sendAligoCustomMessage(String receiverPhone, String message) {
+        try {
+            String aligoKey = "ddefu9nx1etgljr1p1z1n9h7ri5u8mf0";
+            String aligoId = "meetingfan";
+            String sender = "07089498065";
+            String apiUrl = "https://apis.aligo.in/send/";
+
+            URL url = new URL(apiUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+            Map<String, String> params = new LinkedHashMap<>();
+            params.put("key", aligoKey);
+            params.put("user_id", aligoId);
+            params.put("sender", sender);
+            params.put("receiver", receiverPhone);
+            params.put("msg", message);
+
+            StringBuilder postData = new StringBuilder();
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                if (postData.length() != 0) postData.append('&');
+                postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
+                postData.append('=');
+                postData.append(URLEncoder.encode(param.getValue(), "UTF-8"));
+            }
+
+            OutputStream os = conn.getOutputStream();
+            os.write(postData.toString().getBytes("UTF-8"));
+            os.flush();
+            os.close();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            return response.toString().contains("\"result_code\":1");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * [시승 10분 전 리마인드 문자 자동 발송 스케줄러]
+     * 매 분 0초마다 실행되어, 현재 시간 기준 10분 뒤에 시승 예약이 있는 대상자를 찾아 문자를 발송합니다.
+     */
+    @Scheduled(cron = "0 * * * * *")
+    public void sendTestDriveReminders() {
+        // 1. 현재 시간에서 정확히 10분 뒤의 시간을 구함 (예: 현재 09:50 이면 targetTime은 "10:00")
+        LocalTime targetTime = LocalTime.now().plusMinutes(10);
+        String targetTimeStr = targetTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+
+        // 2. 대상자 조회 (오늘자 + 10분 뒤 시간 예약자 + 미출석)
+        List<ParticipantVO> targetList = eventMapper.getParticipantsForReminder(targetTimeStr);
+
+        if (targetList == null || targetList.isEmpty()) {
+            return; // 대상자가 없으면 조용히 종료
+        }
+
+        // 3. 대상자들에게 리마인드 문자 발송
+        for (ParticipantVO p : targetList) {
+            try {
+                // 고유 토큰 생성
+                com.byd.util.AES128 aes128 = new com.byd.util.AES128("bydEventTokenKey");
+                String encryptedSeq = aes128.encrypt(String.valueOf(p.getSeq()));
+                String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
+
+                // 요청하신 도메인으로 URL 세팅
+                String ticketUrl = "https://byd-bimos2026.kr/apply/ticket?token=" + encodedToken;
+
+                // [추가] 문자 발송 시 시승 시간을 예쁘게 구간으로 텍스트 변환
+                String displayTime = p.getTestDriveTime();
+                switch (displayTime) {
+                    case "11:00": displayTime = "11:00 ~ 12:00"; break;
+                    case "13:00": displayTime = "13:00 ~ 14:00"; break;
+                    case "14:00": displayTime = "14:00 ~ 15:00"; break;
+                    case "15:00": displayTime = "15:00 ~ 16:00"; break;
+                    case "16:00": displayTime = "16:00 ~ 17:00"; break;
+                    case "17:00": displayTime = "17:00 ~ 18:00"; break;
+                }
+
+                // 요청하신 메시지 양식 완벽 매핑
+                String msg = "[BYD 시승 안내] " + p.getName() + "님, 예약하신\n" +
+                        "시승이 10분 후 시작 예정입니다.\n\n" +
+                        "원활한 진행을 위해 지금 바로\n" +
+                        "BYD 시승존으로 방문해 주시기 바랍니다.\n\n" +
+                        "시승 접수 시 아래 모바일 티켓(QR)을 제시해 주세요.\n\n" +
+                        "▶ 모바일 티켓 보기:\n" +
+                        ticketUrl + "\n\n" +
+                        "※ 시승 체험 시간에 맞춰 방문해 주시기 바랍니다.\n" +
+                        "시승 시간 경과 시 예약이 취소되거나 대기 순서가 변경될 수 있습니다.\n\n" +
+                        "문의 : BYD 운영사무국\n" +
+                        "▶ 시승 신청 내용 : " + displayTime + " / " + p.getCarModel() + "\n\n" +
+                        "※ 신청 타임 시작 15분 전까지 BYD부스 돌핀 포토존 앞 집합존으로 방문해주시기 바랍니다.";
+
+                // 문자 전송 호출
+                sendAligoCustomMessage(p.getPhone(), msg);
+                System.out.println("10분 전 리마인드 발송 완료: " + p.getPhone());
+
+            } catch (Exception e) {
+                System.err.println("리마인드 문자 발송 중 오류 발생: " + p.getPhone());
+                e.printStackTrace();
+            }
         }
     }
 }

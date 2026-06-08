@@ -227,10 +227,20 @@
                                         <td class="code-text" title="${item.carModel}">${empty item.carModel ? '-' : carCode}</td>
 
                                         <td>
-                                            <span class="text-primary fw-bold">
+                                            <span class="badge badge-light-primary fs-7 px-3 py-2 mt-1">
                                                 <c:if test="${item.testDriveTime ne '시승 미신청'}">
                                                     <fmt:formatDate value="${item.regDate}" pattern="MM.dd "/>
-                                                </c:if> ${item.testDriveTime}
+                                                </c:if>
+                                                <c:set var="listDisplayTime" value="${item.testDriveTime}" />
+                                                <c:choose>
+                                                    <c:when test="${item.testDriveTime == '11:00'}"><c:set var="listDisplayTime" value="11:00 ~ 12:00" /></c:when>
+                                                    <c:when test="${item.testDriveTime == '13:00'}"><c:set var="listDisplayTime" value="13:00 ~ 14:00" /></c:when>
+                                                    <c:when test="${item.testDriveTime == '14:00'}"><c:set var="listDisplayTime" value="14:00 ~ 15:00" /></c:when>
+                                                    <c:when test="${item.testDriveTime == '15:00'}"><c:set var="listDisplayTime" value="15:00 ~ 16:00" /></c:when>
+                                                    <c:when test="${item.testDriveTime == '16:00'}"><c:set var="listDisplayTime" value="16:00 ~ 17:00" /></c:when>
+                                                    <c:when test="${item.testDriveTime == '17:00'}"><c:set var="listDisplayTime" value="17:00 ~ 18:00" /></c:when>
+                                                </c:choose>
+                                                ${listDisplayTime}
                                             </span>
                                         </td>
 

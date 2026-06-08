@@ -73,10 +73,17 @@ public class EventController {
     }
 
     // 시승 시간대별 마감 현황 조회 (Ajax용 API)
-    @ResponseBody
     @GetMapping("/getDriveTimeStatus")
-    public Map<String, Integer> getDriveTimeStatus() {
-        return eventService.getDriveTimeCountToday();
+    @ResponseBody
+    public Map<String, Object> getDriveTimeStatus(@RequestParam(value = "carModel", required = false, defaultValue = "") String carModel) {
+        Map<String, Object> response = new HashMap<>();
+
+        // 1. 해당 차종의 오늘자 예약 카운트 맵
+        response.put("counts", eventService.getDriveTimeCountToday(carModel));
+        // 2. 해당 차종의 1시간당 최대 예약 가능 수 (현재 2)
+        response.put("maxCapacity", eventService.getCarCapacity(carModel));
+
+        return response;
     }
 
     // 시승 신청 2페이지 (상세 정보 입력)

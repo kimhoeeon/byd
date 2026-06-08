@@ -34,7 +34,7 @@ public class MaterialController {
         List<MaterialVO> list = materialService.getMaterialList(searchDate, category, keyword, stockStatus);
         List<String> categoryList = materialService.getCategoryList();
 
-        // [수정] 대시보드 통계를 컨트롤러에서 직접 계산
+        // 대시보드 통계를 컨트롤러에서 직접 계산
         int totalItems = list.size();
         int totalInitAssets = 0;
         int totalCurrentAssets = 0;

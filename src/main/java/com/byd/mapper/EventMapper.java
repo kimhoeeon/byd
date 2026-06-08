@@ -18,12 +18,13 @@ public interface EventMapper {
 
     ParticipantVO getParticipantByPhoneToday(String phone);
 
-    List<Map<String, Object>> getDriveTimeCountToday();
+    List<Map<String, Object>> getDriveTimeCountToday(@Param("carModel") String carModel);
 
-    int getDriveTimeCount(String testDriveTime);
+    int getDriveTimeCount(@Param("testDriveTime") String testDriveTime, @Param("carModel") String carModel);
 
     void updateParticipant(@Param("vo") ParticipantVO vo, @Param("updateRegDate") boolean updateRegDate);
 
     int checkTestDriveHistory(@Param("phone") String phone, @Param("seq") Integer seq);
 
+    List<ParticipantVO> getParticipantsForReminder(@Param("targetTime") String targetTime);
 }

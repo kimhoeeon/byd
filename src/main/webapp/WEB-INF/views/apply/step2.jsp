@@ -72,7 +72,7 @@
                 <div class="inner">
 
                     <div class="notice-box">
-                        ※ 챌린지 및 시승체험은 행사 기간(3일) 중<br>각각 1회에 한하여 참여 가능합니다.
+                        ※ 기념품 수령 및 시승 체험은 행사 기간 중<br>각각 1회에 한하여 참여 가능합니다.
                     </div>
 
                     <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="return validateForm();">
@@ -128,7 +128,7 @@
                                 </div>
                             </li>
                             <li>
-                                <div class="gubun">관심차량 정보</div>
+                                <div class="gubun">관심차량 선택</div>
                                 <div class="input">
                                     <select name="carModel" required>
                                         <option value="">선택해 주세요.</option>
@@ -144,14 +144,12 @@
                                 <div class="input">
                                     <select name="testDriveTime" id="testDriveTime" required>
                                         <option value="시승 미신청" selected>시승 미신청</option>
-                                        <option value="10:00">10:00</option>
-                                        <option value="11:00">11:00</option>
-                                        <option value="12:00">12:00</option>
-                                        <option value="13:00">13:00</option>
-                                        <option value="14:00">14:00</option>
-                                        <option value="15:00">15:00</option>
-                                        <option value="16:00">16:00</option>
-                                        <option value="17:00">17:00</option>
+                                        <option value="11:00">11:00 ~ 12:00 (1회차)</option>
+                                        <option value="13:00">13:00 ~ 14:00 (2회차)</option>
+                                        <option value="14:00">14:00 ~ 15:00 (3회차)</option>
+                                        <option value="15:00">15:00 ~ 16:00 (4회차)</option>
+                                        <option value="16:00">16:00 ~ 17:00 (5회차)</option>
+                                        <option value="17:00" class="weekend-only">17:00 ~ 18:00 (6회차)</option>
                                     </select>
                                 </div>
                             </li>
@@ -222,12 +220,84 @@
         };
 
         $(document).ready(function() {
+
+            // 오늘 요일을 판별하여 평일이면 주말 전용(17:00) 옵션 숨김
+            const today = new Date();
+            const isWeekend = today.getDay() === 0 || today.getDay() === 6; // 0:일요일, 6:토요일
+            if (!isWeekend) {
+                $(".weekend-only").remove();
+            }
+
             // 1. 페이지 로드 시 예약 현황 체크
             checkDriveTimeAvailability();
 
             // [핵심 추가] 고객이 셀렉트 박스를 클릭/터치할 때마다 실시간 현황 재체크
+            // 시승 시간 select 박스 클릭 시 잔여 현황 체크
             $('#testDriveTime').on('focus click touchstart', function() {
-                checkDriveTimeAvailability();
+                // step1.jsp의 select 박스 값 우선 찾기, 없으면 hidden input 찾기
+                var selectedCar = $("select[name='carModel']").val() || $("input[name='carModel']").val();
+
+                if(!selectedCar) {
+                    alert("관심 차량 정보를 먼저 선택해 주세요.");
+                    $(this).blur(); // 포커스 해제
+                    return false;
+                }
+
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMin = now.getMinutes();
+
+                $.ajax({
+                    url: "/apply/getDriveTimeStatus",
+                    type: "GET",
+                    data: { carModel: selectedCar }, // 선택된 차종 전달
+                    success: function(response) {
+                        const counts = response.counts;         // { "10:00": 2, "11:00": 1 ... }
+                        const maxCapacity = response.maxCapacity; // 차종별 제한 수 (예: 2)
+
+                        $('#testDriveTime option').each(function() {
+                            var timeVal = $(this).val();
+
+                            if(timeVal !== "시승 미신청") {
+                                // 초기화
+                                $(this).prop('disabled', false);
+                                $(this).text(timeVal);
+
+                                // 1순위: 시간이 지났는가?
+                                const timeParts = timeVal.split(':');
+                                const targetHour = parseInt(timeParts[0]);
+                                const targetMin = parseInt(timeParts[1]);
+
+                                let isPassed = false;
+                                if (currentHour > targetHour) {
+                                    isPassed = true;
+                                } else if (currentHour === targetHour && currentMin >= targetMin) {
+                                    isPassed = true;
+                                }
+
+                                // 2순위: 예약 인원이 해당 차종의 최대 캐파(2명) 꽉 찼는가?
+                                let isFull = false;
+                                if(counts[timeVal] && counts[timeVal] >= maxCapacity) {
+                                    isFull = true;
+                                }
+
+                                // 화면 렌더링
+                                if (isPassed) {
+                                    $(this).prop('disabled', true);
+                                    $(this).text(timeVal + ' (마감)');
+                                } else if (isFull) {
+                                    $(this).prop('disabled', true);
+                                    $(this).text(timeVal + ' (예약완료)');
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            // [UX 디테일] 차종을 변경하면, 시간이 초기화되도록 방어 (step1.jsp 또는 step2.jsp 로직에 추가)
+            $("select[name='carModel']").on('change', function() {
+                $('#testDriveTime').val('시승 미신청');
             });
 
             // 2. 백엔드 유효성 검사 실패 시 에러 메시지 출력
@@ -283,20 +353,34 @@
             const currentHour = now.getHours();
             const currentMin = now.getMinutes();
 
-
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
                 type: "GET",
                 success: function(response) {
+                    const counts = response.counts;
+                    const maxCapacity = response.maxCapacity;
+
+                    // 화면에 다시 뿌려줄 때 사용할 텍스트 매핑 객체
+                    const timeLabels = {
+                        "11:00": "11:00 ~ 12:00 (1회차)",
+                        "13:00": "13:00 ~ 14:00 (2회차)",
+                        "14:00": "14:00 ~ 15:00 (3회차)",
+                        "15:00": "15:00 ~ 16:00 (4회차)",
+                        "16:00": "16:00 ~ 17:00 (5회차)",
+                        "17:00": "17:00 ~ 18:00 (6회차)"
+                    };
+
                     $('#testDriveTime option').each(function() {
                         var timeVal = $(this).val();
 
                         if(timeVal !== "시승 미신청") {
-                            // 1. 상태 초기화 (누군가 취소해서 자리가 났을 경우를 대비해 일단 푼다)
-                            $(this).prop('disabled', false);
-                            $(this).text(timeVal);
+                            var labelText = timeLabels[timeVal] || timeVal;
 
-                            // 2. 검증 1순위: 시간이 지났는가?
+                            // 1. 상태 초기화
+                            $(this).prop('disabled', false);
+                            $(this).text(labelText);
+
+                            // 2. 시간 경과 검증
                             const timeParts = timeVal.split(':');
                             const targetHour = parseInt(timeParts[0]);
                             const targetMin = parseInt(timeParts[1]);
@@ -308,18 +392,19 @@
                                 isPassed = true;
                             }
 
-                            // 3. 검증 2순위: 예약 인원이 4명 꽉 찼는가?
-                            const isFull = response[timeVal] >= 4;
+                            // 3. 인원 마감 검증
+                            let isFull = false;
+                            if(counts[timeVal] && counts[timeVal] >= maxCapacity) {
+                                isFull = true;
+                            }
 
-                            // 4. 최종 판단 (우선순위 부여)
+                            // 4. 화면 적용
                             if (isPassed) {
-                                // [핵심] 취소 자리가 있든 없든, 시간이 지났으면 무조건 마감 처리
                                 $(this).prop('disabled', true);
-                                $(this).text(timeVal + ' (마감)');
+                                $(this).text(labelText + ' (마감)');
                             } else if (isFull) {
-                                // 시간이 안 지났어도 정원이 찼으면 마감 처리
                                 $(this).prop('disabled', true);
-                                $(this).text(timeVal + ' (마감)');
+                                $(this).text(labelText + ' (예약완료)');
                             }
                         }
                     });
@@ -364,7 +449,7 @@
 
             if($("#regionSelect").val() === "") { alert("지역을 선택해 주세요."); return false; }
             if($("#shopSelect").val() === "") { alert("방문 가능 전시장를 선택해 주세요."); return false; }
-            if($("select[name='carModel']").val() === "") { alert("관심차량 정보를 선택해 주세요."); return false; }
+            if($("select[name='carModel']").val() === "") { alert("관심차량을 선택해 주세요."); return false; }
 
             $("#hiddenThirdParty").val($("#thirdPartyAgree").is(":checked") ? "Y" : "N");
             $("#hiddenEntrust").val($("#entrustAgree").is(":checked") ? "Y" : "N");

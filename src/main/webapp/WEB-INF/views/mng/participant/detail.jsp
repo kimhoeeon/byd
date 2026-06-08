@@ -104,13 +104,22 @@
                             <tr>
                                 <th class="bg-light fw-bold">방문 가능 전시장</th>
                                 <td class="code-text" title="${data.shopInfo}">${empty data.shopInfo ? '-' : shopCode}</td>
-                                <th class="bg-light fw-bold">관심차량 정보</th>
+                                <th class="bg-light fw-bold">관심차량 선택</th>
                                 <td class="code-text" title="${data.carModel}">${empty data.carModel ? '-' : carCode}</td>
                             </tr>
                             <tr>
                                 <th class="bg-light fw-bold text-primary">시승 시간 선택</th>
                                 <td colspan="3">
-                                    <span class="fw-bolder fs-5 text-primary">${empty data.testDriveTime ? '-' : data.testDriveTime}</span>
+                                    <c:set var="detailDisplayTime" value="${empty data.testDriveTime ? '-' : data.testDriveTime}" />
+                                    <c:choose>
+                                        <c:when test="${data.testDriveTime == '11:00'}"><c:set var="detailDisplayTime" value="11:00 ~ 12:00" /></c:when>
+                                        <c:when test="${data.testDriveTime == '13:00'}"><c:set var="detailDisplayTime" value="13:00 ~ 14:00" /></c:when>
+                                        <c:when test="${data.testDriveTime == '14:00'}"><c:set var="detailDisplayTime" value="14:00 ~ 15:00" /></c:when>
+                                        <c:when test="${data.testDriveTime == '15:00'}"><c:set var="detailDisplayTime" value="15:00 ~ 16:00" /></c:when>
+                                        <c:when test="${data.testDriveTime == '16:00'}"><c:set var="detailDisplayTime" value="16:00 ~ 17:00" /></c:when>
+                                        <c:when test="${data.testDriveTime == '17:00'}"><c:set var="detailDisplayTime" value="17:00 ~ 18:00" /></c:when>
+                                    </c:choose>
+                                    <span class="fw-bolder fs-5 text-primary">${detailDisplayTime}</span>
                                 </td>
                             </tr>
 

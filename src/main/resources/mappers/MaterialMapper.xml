@@ -48,7 +48,8 @@
 
     <update id="updateMaterialQty">
         UPDATE material_master
-        SET total_qty = total_qty + #{qtyModifier}
+        SET total_qty = total_qty + #{qtyModifier},
+            init_qty = GREATEST(init_qty, total_qty + #{qtyModifier})
         WHERE seq = #{seq}
     </update>
 
