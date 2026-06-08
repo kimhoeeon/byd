@@ -237,6 +237,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
+        // 1. 전시장 데이터 맵
         const shopData = {
             "서울": [ "BYD 강동", "BYD 강서", "BYD 마포", "BYD 목동", "BYD 서초", "BYD 송파", "BYD 용산" ],
             "경기": [ "BYD 김포", "BYD 동탄", "BYD 부천", "BYD 분당", "BYD 수원", "BYD 스타필드 안성", "BYD 스타필드 운정", "BYD 스타필드 일산", "BYD 스타필드 하남", "BYD 안양", "BYD 의정부", "BYD 일산" ],
@@ -248,195 +249,22 @@
             "제주": [ "BYD 제주" ]
         };
 
-        // 서버에서 받아온 기존 지점 데이터
+        // 서버에서 받아온 기존 지점 데이터 및 본인 예약 시간
         const currentShopInfo = "${data.shopInfo}";
-
-        // 마이페이지에 사용할 본인 기존 예약 시간 변수
         const originalTestDriveTime = "${data.testDriveTime}";
 
-        $(document).ready(function() {
-            // 오늘이 평일일 경우, 17:00 옵션을 지우되 본인이 이미 선택한 시간이라면 살려둠.
-            const today = new Date();
-            const isWeekend = today.getDay() === 0 || today.getDay() === 6;
-            if (!isWeekend) {
-                $(".weekend-only:not(:selected)").remove();
-            }
+        // [최적화] 시간 마감 현황을 체크하는 단일 함수 (통합)
+        function updateDriveTimeStatus(showAlert = false) {
+            var selectedCar = $("select[name='carModel']").val() || $("input[name='carModel']").val();
 
-            // 1. QR 코드 클라이언트 렌더링
-            var qrUrl = "${data.qrCodeUrl}";
-            if(qrUrl) {
-                new QRCode(document.getElementById("qrcode"), {
-                    text: qrUrl,
-                    width: 200,
-                    height: 200,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-            }
-
-            // 2. 기존 데이터에 맞춰 지역 및 전시장 초기화
-            initRegionAndShop();
-
-            // 3. 예약 현황 체크 및 안전동의 영역 가시성 초기화
-            checkDriveTimeAvailability();
-
-            // [핵심 추가] 고객이 셀렉트 박스를 클릭/터치할 때마다 실시간으로 마감 현황을 다시 가져옵니다.
-            // 시승 시간 select 박스 클릭 시 잔여 현황 체크
-            $('#testDriveTime').on('focus click touchstart', function() {
-                // step1.jsp의 select 박스 값 우선 찾기, 없으면 hidden input 찾기
-                var selectedCar = $("select[name='carModel']").val() || $("input[name='carModel']").val();
-
-                if(!selectedCar) {
+            if(!selectedCar) {
+                if(showAlert) {
                     alert("관심 차량 정보를 먼저 선택해 주세요.");
-                    $(this).blur(); // 포커스 해제
-                    return false;
+                    $('#testDriveTime').blur();
                 }
-
-                const now = new Date();
-                const currentHour = now.getHours();
-                const currentMin = now.getMinutes();
-
-                $.ajax({
-                    url: "/apply/getDriveTimeStatus",
-                    type: "GET",
-                    data: { carModel: selectedCar }, // 선택된 차종 전달
-                    success: function(response) {
-                        const counts = response.counts;         // { "10:00": 2, "11:00": 1 ... }
-                        const maxCapacity = response.maxCapacity; // 차종별 제한 수 (예: 2)
-
-                        $('#testDriveTime option').each(function() {
-                            var timeVal = $(this).val();
-
-                            if(timeVal !== "시승 미신청") {
-                                // 초기화
-                                $(this).prop('disabled', false);
-                                $(this).text(timeVal);
-
-                                // 1순위: 시간이 지났는가?
-                                const timeParts = timeVal.split(':');
-                                const targetHour = parseInt(timeParts[0]);
-                                const targetMin = parseInt(timeParts[1]);
-
-                                let isPassed = false;
-                                if (currentHour > targetHour) {
-                                    isPassed = true;
-                                } else if (currentHour === targetHour && currentMin >= targetMin) {
-                                    isPassed = true;
-                                }
-
-                                // 2순위: 예약 인원이 해당 차종의 최대 캐파(2명) 꽉 찼는가?
-                                let isFull = false;
-                                if(counts[timeVal] && counts[timeVal] >= maxCapacity) {
-                                    isFull = true;
-                                }
-
-                                // 화면 렌더링
-                                if (isPassed) {
-                                    $(this).prop('disabled', true);
-                                    $(this).text(timeVal + ' (마감)');
-                                } else if (isFull) {
-                                    $(this).prop('disabled', true);
-                                    $(this).text(timeVal + ' (예약완료)');
-                                }
-                            }
-                        });
-                    }
-                });
-            });
-
-            // [UX 디테일] 차종을 변경하면, 시간이 초기화되도록 방어 (step1.jsp 또는 step2.jsp 로직에 추가)
-            $("select[name='carModel']").on('change', function() {
-                $('#testDriveTime').val('시승 미신청');
-            });
-
-            // 이메일 아이디 전체 입력 방지
-            $("#emailId").on("input", function() {
-                let val = $(this).val().replace(/\s/g, '');
-                if(val.includes('@')) {
-                    val = val.split('@')[0];
-                }
-                $(this).val(val);
-            });
-
-            // 셀렉트 박스 변경 시 도메인 인풋 처리 로직 (Show/Hide 대신 Readonly 제어)
-            $("#emailDomain").on("change", function() {
-                var selectedVal = $(this).val();
-
-                if(selectedVal === "direct") {
-                    // 직접 입력 시 readonly 해제 및 포커스, 값 초기화
-                    $("#customDomain").val("").prop("readonly", false).focus();
-                } else if(selectedVal === "") {
-                    // 이메일 선택(빈 값)일 경우
-                    $("#customDomain").val("").prop("readonly", true);
-                } else {
-                    // 특정 도메인 선택 시 해당 값을 넣고 readonly 처리
-                    $("#customDomain").val(selectedVal).prop("readonly", true);
-                }
-            });
-
-            // 4. 정보 수정 버튼 클릭 이벤트
-            $("#btnUpdate").on("click", function(e) {
-                e.preventDefault();
-
-                // 폼 유효성 검사 통과 시
-                if(validateCombinedForm()) {
-                    if(confirm("입력하신 정보로 시승 예약을 수정하시겠습니까?")) {
-                        var formData = $("#updateForm").serialize();
-
-                        $.ajax({
-                            type: "POST",
-                            url: "/apply/updateAjax",
-                            data: formData,
-                            success: function(response) {
-                                if(response.success) {
-                                    alert(response.message);
-                                    location.reload(); // 성공 시 페이지 새로고침하여 변경된 내용 갱신
-                                } else {
-                                    alert(response.message); // 정원 초과 등 백엔드 검증 실패 메시지 노출
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                alert("수정 중 오류가 발생했습니다. 다시 시도해주세요.");
-                                console.error("Error:", error);
-                            }
-                        });
-                    }
-                }
-            });
-        });
-
-        // 저장된 지점명으로 지역을 찾아 Select Box를 세팅하는 함수
-        function initRegionAndShop() {
-            if (currentShopInfo) {
-                for (const region in shopData) {
-                    if (shopData[region].includes(currentShopInfo)) {
-                        $("#regionSelect").val(region); // 지역 세팅
-                        updateShops(); // 지점 목록 생성
-                        $("#shopSelect").val(currentShopInfo); // 지점 세팅
-                        break;
-                    }
-                }
+                return false;
             }
-        }
 
-        // 전시장 업데이트
-        function updateShops() {
-            const regionSelect = document.getElementById("regionSelect");
-            const shopSelect = document.getElementById("shopSelect");
-            const selectedRegion = regionSelect.value;
-            shopSelect.innerHTML = '<option value="">전시장 선택</option>';
-            if (selectedRegion && shopData[selectedRegion]) {
-                shopData[selectedRegion].forEach(function(shop) {
-                    const option = document.createElement("option");
-                    option.value = shop; option.text = shop;
-                    shopSelect.appendChild(option);
-                });
-            }
-        }
-
-        // Ajax로 시간대별 예약자 4명 마감 여부 확인
-        function checkDriveTimeAvailability() {
             const now = new Date();
             const currentHour = now.getHours();
             const currentMin = now.getMinutes();
@@ -444,6 +272,7 @@
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
                 type: "GET",
+                data: { carModel: selectedCar }, // 선택된 차종 전달
                 success: function(response) {
                     const counts = response.counts;
                     const maxCapacity = response.maxCapacity;
@@ -482,6 +311,7 @@
                                 isFull = true;
                             }
 
+                            // [마이페이지 전용] 본인이 예약한 시간은 꽉 찼어도 무시
                             if (typeof originalTestDriveTime !== 'undefined' && timeVal === originalTestDriveTime) {
                                 isFull = false;
                             }
@@ -502,7 +332,126 @@
             });
         }
 
-        // 폼 통합 유효성 검사 (이름, 연락처 검증 제외)
+        $(document).ready(function() {
+            // 1. QR 코드 클라이언트 렌더링
+            var qrUrl = "${data.qrCodeUrl}";
+            if(qrUrl) {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: qrUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+
+            // 2. 평일일 경우 17:00 옵션 숨김 (본인이 선택한 상태면 제외)
+            const today = new Date();
+            const isWeekend = today.getDay() === 0 || today.getDay() === 6;
+            if (!isWeekend) {
+                $(".weekend-only:not(:selected)").remove();
+            }
+
+            // 3. 기존 데이터에 맞춰 지역 및 전시장 초기화
+            initRegionAndShop();
+
+            // 4. 페이지 로드 시 실시간 현황 최초 체크
+            updateDriveTimeStatus(false);
+
+            // 5. 차종 변경 시 시승 시간 미신청 처리 & 현황 갱신
+            $("select[name='carModel']").on('change', function() {
+                $('#testDriveTime').val('시승 미신청');
+                updateDriveTimeStatus(false);
+            });
+
+            // 6. 시승 시간 클릭 시 현황 갱신 (차종 미선택 시 경고창)
+            $('#testDriveTime').on('focus click touchstart', function() {
+                updateDriveTimeStatus(true);
+            });
+
+            // 이메일 아이디 입력 (공백 방지)
+            $("#emailId").on("input", function() {
+                let val = $(this).val().replace(/\s/g, '');
+                if(val.includes('@')) {
+                    val = val.split('@')[0];
+                }
+                $(this).val(val);
+            });
+
+            // 셀렉트 박스 변경 시 도메인 인풋 처리
+            $("#emailDomain").on("change", function() {
+                var selectedVal = $(this).val();
+
+                if(selectedVal === "direct") {
+                    $("#customDomain").val("").prop("readonly", false).focus();
+                } else if(selectedVal === "") {
+                    $("#customDomain").val("").prop("readonly", true);
+                } else {
+                    $("#customDomain").val(selectedVal).prop("readonly", true);
+                }
+            });
+
+            // 7. [마이페이지 고유] 정보 수정 버튼 클릭 시 AJAX 전송
+            $("#btnUpdate").on("click", function(e) {
+                e.preventDefault();
+
+                if(validateCombinedForm()) {
+                    if(confirm("입력하신 정보로 시승 예약을 수정하시겠습니까?")) {
+                        var formData = $("#updateForm").serialize();
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/apply/updateAjax",
+                            data: formData,
+                            success: function(response) {
+                                if(response.success) {
+                                    alert(response.message);
+                                    location.reload(); // 성공 시 새로고침
+                                } else {
+                                    alert(response.message); // 정원 초과 등 검증 실패 메시지
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                alert("수정 중 오류가 발생했습니다. 다시 시도해주세요.");
+                                console.error("Error:", error);
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        // 저장된 지점명으로 지역을 찾아 Select Box를 세팅하는 함수
+        function initRegionAndShop() {
+            if (currentShopInfo) {
+                for (const region in shopData) {
+                    if (shopData[region].includes(currentShopInfo)) {
+                        $("#regionSelect").val(region); // 지역 세팅
+                        updateShops(); // 지점 목록 생성
+                        $("#shopSelect").val(currentShopInfo); // 지점 세팅
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 전시장 업데이트 함수
+        function updateShops() {
+            const regionSelect = document.getElementById("regionSelect");
+            const shopSelect = document.getElementById("shopSelect");
+            const selectedRegion = regionSelect.value;
+            shopSelect.innerHTML = '<option value="">전시장 선택</option>';
+            if (selectedRegion && shopData[selectedRegion]) {
+                shopData[selectedRegion].forEach(function(shop) {
+                    const option = document.createElement("option");
+                    option.value = shop; option.text = shop;
+                    shopSelect.appendChild(option);
+                });
+            }
+        }
+
+        // 폼 제출 시 유효성 검사 (마이페이지용)
         function validateCombinedForm() {
             const emailId = $("#emailId").val().trim();
             const emailDomainSelect = $("#emailDomain").val();
@@ -520,7 +469,6 @@
                 return false;
             }
 
-            // 도메인 유효성 검사 로직
             const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if(!domainRegex.test(customDomain)) {
                 alert("유효한 이메일 도메인 형식이 아닙니다.\n(예: example.com)");

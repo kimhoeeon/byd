@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byd.mapper.QuizMapper">
+
+    <insert id="insertUser" parameterType="com.byd.vo.QuizUserVO" useGeneratedKeys="true" keyProperty="userSeq">
+        INSERT INTO quiz_user (name, phone, email, region, shop_info, car_model_code, privacy_agree, reg_date)
+        VALUES (#{name}, #{phone}, #{email}, #{region}, #{shopInfo}, #{carModelCode}, #{privacyAgree}, NOW())
+        ON DUPLICATE KEY UPDATE email          = #{email},
+                                region         = #{region},
+                                shop_info      = #{shopInfo},
+                                car_model_code = #{carModelCode},
+                                privacy_agree  = #{privacyAgree}
+    </insert>
+
+    <select id="getUserByNameAndPhone" resultType="com.byd.vo.QuizUserVO">
+        SELECT *
+        FROM quiz_user
+        WHERE name = #{name}
+          AND phone = #{phone}
+        LIMIT 1
+    </select>
+
+    <select id="getTodayHistory" resultType="com.byd.vo.QuizHistoryVO">
+        SELECT *
+        FROM quiz_history
+        WHERE user_seq = #{userSeq}
+          AND play_date = CURDATE()
+        LIMIT 1
+    </select>
+
+    <insert id="insertHistory" parameterType="com.byd.vo.QuizHistoryVO">
+        INSERT INTO quiz_history (user_seq, play_date, session_no, assigned_questions, score, status, gift_received_yn,
+                                  reg_date)
+        VALUES (#{userSeq}, CURDATE(), #{sessionNo}, #{assignedQuestions}, 0, 'IN_PROGRESS', 'N', NOW())
+    </insert>
+
+    <update id="updateHistoryScoreAndStatus" parameterType="com.byd.vo.QuizHistoryVO">
+        UPDATE quiz_history
+        SET score  = #{score},
+            status = #{status}
+        WHERE history_seq = #{historySeq}
+    </update>
+
+    <update id="updateGiftStatus">
+        UPDATE quiz_history
+        SET gift_received_yn = #{giftReceivedYn}
+        WHERE history_seq = #{historySeq}
+    </update>
+
+    <select id="getRandomQuestions" resultType="com.byd.vo.QuizQuestionVO">
+        SELECT *
+        FROM quiz_question
+        ORDER BY RAND()
+        LIMIT #{limit}
+    </select>
+
+    <select id="getHistoryBySeq" resultType="com.byd.vo.QuizHistoryVO">
+        SELECT * FROM quiz_history WHERE history_seq = #{historySeq}
+    </select>
+
+    <select id="getQuestionsByIds" resultType="com.byd.vo.QuizQuestionVO">
+        SELECT * FROM quiz_question WHERE question_id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">#{id}</foreach>
+        ORDER BY FIND_IN_SET(question_id, (SELECT GROUP_CONCAT(id SEPARATOR ',') FROM (
+        <foreach item="id" collection="ids" separator=" UNION ALL ">SELECT #{id} AS id</foreach>
+        ) t))
+    </select>
+
+    <resultMap id="AdminListMap" type="com.byd.vo.QuizUserVO">
+        <id property="userSeq" column="user_seq"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="region" column="region"/>
+        <result property="shopInfo" column="shop_info"/>
+        <result property="carModelCode" column="car_model_code"/>
+        <result property="privacyAgree" column="privacy_agree"/>
+        <result property="regDate" column="u_reg_date"/>
+        <collection property="historyList" ofType="com.byd.vo.QuizHistoryVO">
+            <id property="historySeq" column="history_seq"/>
+            <result property="playDate" column="play_date"/>
+            <result property="sessionNo" column="session_no"/>
+            <result property="score" column="score"/>
+            <result property="status" column="status"/>
+            <result property="giftReceivedYn" column="gift_received_yn"/>
+        </collection>
+    </resultMap>
+
+    <select id="getQuizAdminList" resultMap="AdminListMap">
+        SELECT
+        u.user_seq, u.name, u.phone, u.email, u.region, u.shop_info, u.car_model_code, u.privacy_agree, u.reg_date AS
+        u_reg_date,
+        h.history_seq, h.play_date, h.session_no, h.score, h.status, h.gift_received_yn
+        FROM quiz_user u
+        LEFT JOIN quiz_history h ON u.user_seq = h.user_seq
+        WHERE u.user_seq IN (
+        SELECT DISTINCT u2.user_seq FROM quiz_user u2
+        LEFT JOIN quiz_history h2 ON u2.user_seq = h2.user_seq
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (u2.name LIKE CONCAT('%', #{keyword}, '%') OR u2.phone LIKE CONCAT('%', #{keyword}, '%') OR u2.email
+                LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="perfectScoreOnly == 'Y'">
+                AND h2.score = 10
+            </if>
+        </where>
+        )
+        ORDER BY u.user_seq DESC, h.play_date DESC
+    </select>
+
+    <select id="getQuestionList" resultType="com.byd.vo.QuizQuestionVO">
+        SELECT * FROM quiz_question ORDER BY question_id ASC
+    </select>
+
+    <select id="getQuestionById" resultType="com.byd.vo.QuizQuestionVO">
+        SELECT * FROM quiz_question WHERE question_id = #{questionId}
+    </select>
+
+    <insert id="insertQuestion" parameterType="com.byd.vo.QuizQuestionVO" useGeneratedKeys="true" keyProperty="questionId">
+        INSERT INTO quiz_question (question_text, choice_1, choice_2, choice_3, choice_4, correct_answer)
+        VALUES (#{questionText}, #{choice1}, #{choice2}, #{choice3}, #{choice4}, #{correctAnswer})
+    </insert>
+
+    <update id="updateQuestion" parameterType="com.byd.vo.QuizQuestionVO">
+        UPDATE quiz_question
+        SET question_text = #{questionText},
+            choice_1 = #{choice1},
+            choice_2 = #{choice2},
+            choice_3 = #{choice3},
+            choice_4 = #{choice4},
+            correct_answer = #{correctAnswer}
+        WHERE question_id = #{questionId}
+    </update>
+
+    <delete id="deleteQuestion">
+        DELETE FROM quiz_question WHERE question_id = #{questionId}
+    </delete>
+
+</mapper>
