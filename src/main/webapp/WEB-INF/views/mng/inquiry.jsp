@@ -232,6 +232,30 @@
 
 <script>
     $(document).ready(function() {
+
+        // 검색창(#keyword) 자동 포맷팅 (이 부분은 남겨두세요!)
+        $('#keyword').on('input', function() {
+            var searchType = $('#searchType').val();
+
+            if (searchType === 'phone') {
+                var val = $(this).val().replace(/[^0-9]/g, '');
+                if (val.length > 11) val = val.substring(0, 11);
+                var formatted = '';
+                if (val.length < 4) formatted = val;
+                else if (val.length < 7) formatted = val.substring(0, 3) + '-' + val.substring(3);
+                else if (val.length < 11) formatted = val.substring(0, 3) + '-' + val.substring(3, 6) + '-' + val.substring(6);
+                else formatted = val.substring(0, 3) + '-' + val.substring(3, 7) + '-' + val.substring(7);
+                $(this).val(formatted);
+            } else {
+                var val = $(this).val().replace(/\s/g, '');
+                $(this).val(val);
+            }
+        });
+
+        $('#searchType').on('change', function() {
+            $('#keyword').val('').focus();
+        });
+
         // 라디오 버튼(탭)이 변경될 때마다 화면 즉시 새로고침
         $('input[name="eventType"]').on('change', function() {
             const keyword = $('#keyword').val().trim();
