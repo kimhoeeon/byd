@@ -28,9 +28,8 @@
         LIMIT 1
     </select>
 
-    <insert id="insertHistory" parameterType="com.byd.vo.QuizHistoryVO">
-        INSERT INTO quiz_history (user_seq, play_date, session_no, assigned_questions, score, status, gift_received_yn,
-                                  reg_date)
+    <insert id="insertHistory" parameterType="com.byd.vo.QuizHistoryVO" useGeneratedKeys="true" keyProperty="historySeq">
+        INSERT INTO quiz_history (user_seq, play_date, session_no, assigned_questions, score, status, gift_received_yn, reg_date)
         VALUES (#{userSeq}, CURDATE(), #{sessionNo}, #{assignedQuestions}, 0, 'IN_PROGRESS', 'N', NOW())
     </insert>
 

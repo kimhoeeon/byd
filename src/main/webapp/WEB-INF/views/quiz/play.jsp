@@ -23,7 +23,13 @@
     <script src="/js/script.js"></script>
     <style>
         .btn_multi label { word-break: keep-all; line-height: 1.3; }
-        .btn_disabled { background-color: #d3d3d3 !important; color: #888 !important; cursor: not-allowed !important; pointer-events: none; }
+        .btn_disabled {
+            background: #d3d3d3 !important;
+            border-color: #d3d3d3 !important;
+            color: #888 !important;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="quiz">
@@ -116,7 +122,7 @@
         renderQuestion(currentIndex);
 
         $('input[name="choice"]').on('change', function() {
-            $('#btnNext').removeClass('btn_disabled');
+            $('#btnNext').removeClass('btn_disabled').prop('disabled', false);
         });
 
         $('#btnNext').on('click', function() {
@@ -147,7 +153,7 @@
         $('#choiceLabel3').text(q.choice3);
         $('#choiceLabel4').text(q.choice4);
 
-        // [추가] 상단 진행바(bar) UI 업데이트 로직
+        // 상단 진행바(bar) UI 업데이트 로직
         $('.quiz_progress .progress_item').removeClass('on');
         $('.quiz_progress .progress_item').each(function(i) {
             if (i <= index) {
@@ -156,7 +162,7 @@
         });
 
         $('input[name="choice"]').prop('checked', false);
-        $('#btnNext').addClass('btn_disabled');
+        $('#btnNext').addClass('btn_disabled').prop('disabled', true);
 
         if (index === quizQuestions.length - 1) {
             $('#btnNext').text('결과 확인하기');
@@ -166,7 +172,7 @@
     }
 
     function submitQuiz() {
-        $('#btnNext').addClass('btn_disabled').text('채점 중입니다...');
+        $('#btnNext').addClass('btn_disabled').prop('disabled', true).text('채점 중입니다...');
 
         $.ajax({
             url: '/api/quiz/submit?historySeq=' + historySeq,

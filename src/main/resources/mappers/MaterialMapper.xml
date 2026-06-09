@@ -47,10 +47,17 @@
     </insert>
 
     <update id="updateMaterialQty">
+        <![CDATA[
         UPDATE material_master
         SET total_qty = total_qty + #{qtyModifier},
-            init_qty = GREATEST(init_qty, total_qty + #{qtyModifier})
+            init_qty = CASE
+                /* 입고(+ 수량)일 때만 '최종재고'를 증가시킴 */
+                           WHEN #{qtyModifier} > 0 THEN init_qty + #{qtyModifier}
+                /* 출고(- 수량)일 때는 '최종재고' 유지 */
+                           ELSE init_qty
+                END
         WHERE seq = #{seq}
+        ]]>
     </update>
 
     <insert id="insertHistory" parameterType="com.byd.vo.MaterialHistoryVO">

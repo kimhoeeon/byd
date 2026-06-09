@@ -100,25 +100,10 @@
                         <div class="input">
                             <select id="carModelCode">
                                 <option value="">선택해 주세요.</option>
-                                <option value="BYD DOLPHIN">BYD DOLPHIN</option>
-                                <option value="BYD ATTO 3">BYD ATTO 3</option>
-                                <option value="BYD SEAL">BYD SEAL</option>
-                                <option value="BYD SEALION 7">BYD SEALION 7</option>
-                                <option value="BYD Han">BYD Han</option>
-                                <option value="BYD Qin Plus">BYD Qin Plus</option>
-                                <option value="BYD Destroyer 05">BYD Destroyer 05</option>
-                                <option value="BYD Song Plus">BYD Song Plus</option>
-                                <option value="BYD Tang">BYD Tang</option>
-                                <option value="BYD Yuan Plus">BYD Yuan Plus</option>
-                                <option value="BYD Denza D9">BYD Denza D9</option>
-                                <option value="BYD Xia">BYD Xia</option>
-                                <option value="BYD Shark">BYD Shark</option>
-                                <option value="BYD Fangchengbao Bao 5">BYD Fangchengbao Bao 5</option>
-                                <option value="D9">D9</option>
-                                <option value="N7">N7</option>
-                                <option value="Z9 GT">Z9 GT</option>
-                                <option value="Yangwang U8">Yangwang U8</option>
-                                <option value="Yangwang U9">Yangwang U9</option>
+                                <option value="BYD0004">BYD DOLPHIN</option>
+                                <option value="BYD0001">BYD ATTO 3</option>
+                                <option value="BYD0005">BYD SEAL</option>
+                                <option value="BYD0019">BYD SEALION 7</option>
                             </select>
                         </div>
                     </li>

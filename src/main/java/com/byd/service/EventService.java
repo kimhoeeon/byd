@@ -330,7 +330,7 @@ public class EventService {
                 // 요청하신 도메인으로 URL 세팅
                 String ticketUrl = "https://byd-bimos2026.kr/apply/ticket?token=" + encodedToken;
 
-                // [추가] 문자 발송 시 시승 시간을 예쁘게 구간으로 텍스트 변환
+                // 문자 발송 시 시승 시간을 예쁘게 구간으로 텍스트 변환
                 String displayTime = p.getTestDriveTime();
                 switch (displayTime) {
                     case "11:00": displayTime = "11:00 ~ 12:00"; break;
@@ -353,7 +353,7 @@ public class EventService {
                         "시승 시간 경과 시 예약이 취소되거나 대기 순서가 변경될 수 있습니다.\n\n" +
                         "문의 : BYD 운영사무국\n" +
                         "▶ 시승 신청 내용 : " + displayTime + " / " + p.getCarModel() + "\n\n" +
-                        "※ 신청 타임 시작 15분 전까지 BYD부스 돌핀 포토존 앞 집합존으로 방문해주시기 바랍니다.";
+                        "※ 신청 타임 시작 15분 전까지 BYD 시승부스로 방문해 주세요.";
 
                 // 문자 전송 호출
                 sendAligoCustomMessage(p.getPhone(), msg);

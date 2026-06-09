@@ -28,7 +28,7 @@
                                 <h3 class="fw-bold text-dark mb-0">퀴즈 문제 관리 <span
                                         class="fs-6 text-muted">총 ${qList.size()}문제</span></h3>
                                 <div>
-                                    <a href="/mng/quiz/list" class="btn btn-light me-2">신청자 목록</a>
+                                    <a href="/mng/quiz/list" class="btn btn-dark me-2">신청자 목록</a>
                                     <button type="button" class="btn btn-primary fw-bold" onclick="openModal()">+ 새 문제
                                         추가
                                     </button>
@@ -88,7 +88,7 @@
 </div>
 
 <div class="modal fade" id="questionModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mw-650px">
+    <div class="modal-dialog modal-dialog-centered mw-900px">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="fw-bold" id="modalTitle">문제 등록</h2>
@@ -113,19 +113,19 @@
                     </div>
 
                     <div class="row mb-5">
-                        <div class="col-md-6 mb-5 fv-row">
+                        <div class="col-md-12 mb-5 fv-row">
                             <label class="fs-6 fw-semibold mb-2">보기 1</label>
                             <input type="text" class="form-control form-control-solid" name="choice1" id="choice1" required>
                         </div>
-                        <div class="col-md-6 mb-5 fv-row">
+                        <div class="col-md-12 mb-5 fv-row">
                             <label class="fs-6 fw-semibold mb-2">보기 2</label>
                             <input type="text" class="form-control form-control-solid" name="choice2" id="choice2" required>
                         </div>
-                        <div class="col-md-6 mb-5 fv-row">
+                        <div class="col-md-12 mb-5 fv-row">
                             <label class="fs-6 fw-semibold mb-2">보기 3</label>
                             <input type="text" class="form-control form-control-solid" name="choice3" id="choice3" required>
                         </div>
-                        <div class="col-md-6 mb-5 fv-row">
+                        <div class="col-md-12 mb-5 fv-row">
                             <label class="fs-6 fw-semibold mb-2">보기 4</label>
                             <input type="text" class="form-control form-control-solid" name="choice4" id="choice4" required>
                         </div>

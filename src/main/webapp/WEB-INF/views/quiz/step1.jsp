@@ -79,6 +79,12 @@
         </div>
     </div>
     <script>
+
+        // 이름 입력 시 공백(스페이스바) 완전 차단
+        $('#name').on('input', function () {
+            $(this).val($(this).val().replace(/\s/g, ''));
+        });
+
         // 연락처 숫자만 입력되도록 처리
         $('.onlyTel').on('input', function () {
             $(this).val($(this).val().replace(/[^0-9]/g, ''));
@@ -106,8 +112,24 @@
                 return;
             }
 
-            // 모든 검증이 통과하면 폼 제출 (step2로 데이터 전송)
-            $("#step1Form").submit();
+            // 오늘 이미 완료(COMPLETED)한 사용자인지 백엔드에 사전 조회
+            $.ajax({
+                url: '/api/quiz/check',
+                type: 'GET',
+                data: { name: name, phone: phone },
+                success: function(res) {
+                    if (res.eligible) {
+                        // 통과되면 폼 제출 (step2로 데이터 전송)
+                        $("#step1Form").submit();
+                    } else {
+                        // 이미 참여한 경우 경고창을 띄우고 다음 단계 진입 차단
+                        alert(res.message);
+                    }
+                },
+                error: function() {
+                    alert("검증 중 서버 오류가 발생했습니다.");
+                }
+            });
         }
     </script>
 </body>

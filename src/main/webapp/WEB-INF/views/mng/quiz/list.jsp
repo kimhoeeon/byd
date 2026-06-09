@@ -36,9 +36,9 @@
                                         </div>
                                         <button type="submit" class="btn btn-dark">검색</button>
                                         <a href="/mng/quiz/list" class="btn btn-light">초기화</a>
+                                        <a href="/mng/quiz/question/list" class="btn btn-primary fw-bold ms-auto">문제 관리 바로가기</a>
                                     </form>
                                 </div>
-                                <a href="/mng/quiz/question/list" class="btn btn-primary fw-bold">문제 관리 바로가기</a>
                             </div>
 
                             <div class="card shadow-sm">

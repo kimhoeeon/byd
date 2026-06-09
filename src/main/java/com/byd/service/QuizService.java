@@ -172,4 +172,23 @@ public class QuizService {
         quizMapper.deleteQuestion(questionId);
     }
 
+    public Map<String, Object> checkEligibility(String name, String phone) {
+        Map<String, Object> result = new HashMap<>();
+
+        QuizUserVO user = quizMapper.getUserByNameAndPhone(name, phone);
+        if (user != null) {
+            QuizHistoryVO todayHistory = quizMapper.getTodayHistory(user.getUserSeq());
+            // 오늘 이력이 존재하고, 이미 다 풀었다(COMPLETED)면 참여 불가 판정
+            if (todayHistory != null && "COMPLETED".equals(todayHistory.getStatus())) {
+                result.put("eligible", false);
+                result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다.\\n내일 다시 도전해 주세요!");
+                return result;
+            }
+        }
+
+        // 정보가 없거나 다 푼 기록이 없다면 참여 가능
+        result.put("eligible", true);
+        return result;
+    }
+
 }

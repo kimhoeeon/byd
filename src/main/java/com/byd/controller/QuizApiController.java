@@ -24,4 +24,9 @@ public class QuizApiController {
     public Map<String, Object> submitQuiz(@RequestParam("historySeq") int historySeq, @RequestBody Map<Integer, Integer> answers) {
         return quizService.submitQuiz(historySeq, answers);
     }
+
+    @GetMapping("/check")
+    public Map<String, Object> checkEligibility(@RequestParam("name") String name, @RequestParam("phone") String phone) {
+        return quizService.checkEligibility(name, phone);
+    }
 }

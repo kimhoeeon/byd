@@ -1,6 +1,7 @@
 package com.byd.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,7 @@ public class QuizController {
             @RequestParam("name") String name,
             @RequestParam("phone") String phone,
             @RequestParam("privacyAgree") String privacyAgree,
-            org.springframework.ui.Model model) {
+            Model model) {
 
         // step2.jsp에서 사용할 수 있도록 Model에 담아 전달
         model.addAttribute("name", name);
