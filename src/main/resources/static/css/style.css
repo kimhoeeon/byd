@@ -341,7 +341,7 @@ label:last-child {margin-right: 0;}
 .quiz input::placeholder{color: #fff;}
 .quiz input:focus{outline: #4390FF;}
 .quiz textarea:focus{outline: #4390FF;}
-.quiz .btn_box{margin-top: 40px;}
+.quiz .btn_box{margin-top: 20px;}
 
 .quiz input[type="text"],
 .quiz input[type="password"],
@@ -352,7 +352,7 @@ label:last-child {margin-right: 0;}
 
 .quiz .form_box .input select{background: #000 url(../img/icon_select_arrow.svg) no-repeat right 1em bottom 50%; border:1px solid #2A466C;border-radius: 10px; color: #fff;}
 
-.quiz .top_tit{position: fixed;width: 100%; padding-top:10px; top: 20px; left: 50%; transform: translateX(-50%);}
+.quiz .top_tit{position: fixed;width: 100%; padding-top:0px; top: 20px; left: 50%; transform: translateX(-50%);}
 .quiz .top_tit .inner{display: flex; margin: 0; align-items: center; justify-content: center;}
 .quiz .top_tit .inner .back{position: absolute; left: 20px;}
 
@@ -364,7 +364,7 @@ label:last-child {margin-right: 0;}
 .quiz_wrap {gap: 20px; padding: 20px 0;border: 1px solid #1B222C; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.06); justify-content: center; position: relative; border-radius: 10px;}
 .quiz_a {
     font-weight: 700; width: 100%; padding: 0 20px; line-height: 1.3; min-height: 75px;
-    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; color: #fff;
+    display: flex; align-items: start; justify-content: center; flex-direction: column; gap: 4px; color: #fff;
 }
 .quiz_a .numb {
     font-weight: 600; font-size: 18px; width:60px; height: 60px;
@@ -375,8 +375,8 @@ label:last-child {margin-right: 0;}
     background-origin: border-box;
     background-clip: content-box, border-box;
 }
-.quiz_a .ask {font-size: 18px;line-height: 24px;font-weight: 500; min-height: 140px; display: flex; align-items: center; text-align: center;}
-.quiz_q {min-height: 140px; display: flex; align-items: center; color: #fff;padding: 0 20px;}
+.quiz_a .ask {font-size: 18px;line-height: 24px;font-weight: 500; min-height: 80px; display: flex; align-items: center; text-align: center;}
+.quiz_q {min-height: 80px; display: flex; align-items: center; color: #fff;padding: 0 20px;}
 .quiz_q .multi {display: flex; flex-direction: column; gap: 10px; width: 100%;}
 .quiz_q .btn_multi input{ display:none;}
 .quiz_q .btn_multi label{display:flex;align-items:center;justify-content:center;font-weight: 500; min-width:100px;height:48px;padding:0 20px;border:1px solid #2A466C;border-radius:8px;background:inherit;color:#fff;cursor:pointer;transition:.2s;box-sizing:border-box;}
@@ -495,6 +495,9 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 .footer .logo{display: flex; align-items: center; gap: 40px;font-size: 22px;}
 .footer .logo img{max-width: 120px;}
 .footer .copy{margin-top: 20px; font-size: 16px;}
+
+.time_box{position: absolute; right:150px; top: 10px;user-select: none;}
+.time_box #timer{font-size: 160px;text-align: center; aspect-ratio: 16 / 9; font-family: 'LABDigital-Regular';}
 
 @media screen and (max-width:1400px) {
     .main_car .car_top{width: 90%;font-size: 48px;padding: 240px 0;}

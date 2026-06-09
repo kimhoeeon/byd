@@ -63,14 +63,16 @@ $(document).ready(function () {
 
 document.addEventListener("DOMContentLoaded", function () {
     const iframe = document.getElementById("vimeo-player");
-    const player = new Vimeo.Player(iframe);
+    if(iframe){
+        const player = new Vimeo.Player(iframe);
 
-    gsap.registerPlugin(ScrollTrigger);
+        gsap.registerPlugin(ScrollTrigger);
 
-    ScrollTrigger.create({
-        trigger: ".video_container .video_content",
-        start: "top 80%",
-        onEnter: () => player.play(),
-        onLeaveBack: () => player.pause()
-    });
+        ScrollTrigger.create({
+            trigger: ".video_container .video_content",
+            start: "top 80%",
+            onEnter: () => player.play(),
+            onLeaveBack: () => player.pause()
+        });
+    }
 });
