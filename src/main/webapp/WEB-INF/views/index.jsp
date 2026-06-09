@@ -89,11 +89,7 @@
                     <div class="video_container">
                         <div class="yt-wrapper">
                             <div class="video_content">
-                                <iframe id="vimeo-player"
-                                        src="https://player.vimeo.com/video/1199335845?h=b9ac112efc&badge=0&autopause=0&player_id=0&muted=1&loop=1&playsinline=1&controls=0"
-                                        frameborder="0"
-                                        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                                        data-ready="true">
+                                <iframe id="vimeo-player" src="https://player.vimeo.com/video/1199335845?h=b9ac112efc&badge=0&autopause=0&player_id=0&muted=1&loop=1&playsinline=1&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" data-ready="true">
                                 </iframe>
                             </div>
                             <script src="https://player.vimeo.com/api/player.js"></script>
@@ -110,24 +106,26 @@
                 <div class="car_top">
                     <div>DRIVE IS</div>
                     <div>PLAYFUL</div>
-                    <img src="/img/car_top.png" alt="차량 이미지">
+                    <img src="/img/car_list01_big.png" alt="차량 이미지" class="main_car_img">
                 </div>
+
                 <div class="car_list">
                     <ul>
-                        <li>
-                            <img src="/img/car_list01.png" alt="차량 이미지">
+                        <li data-num="1" class="on">
+                            <img src="/img/car_list01.png" alt="">
                             <div>BYD DOLPHIN</div>
                         </li>
-                        <li>
-                            <img src="/img/car_list02.png" alt="차량 이미지">
+                        <li data-num="2">
+                            <img src="/img/car_list02.png" alt="">
                             <div>BYD ATTO 3</div>
                         </li>
-                        <li>
-                            <img src="/img/car_list03.png" alt="차량 이미지">
+                        <li data-num="3">
+                            <img src="/img/car_list03.png" alt="">
                             <div>BYD SEAL</div>
                         </li>
-                        <li>
-                            <img src="/img/car_list04.png" alt="차량 이미지">
+
+                        <li data-num="4">
+                            <img src="/img/car_list04.png" alt="">
                             <div>BYD SEALION 7</div>
                         </li>
                     </ul>

@@ -1,15 +1,23 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <meta name="format-detection" content="telephone=no"/>
-    <title>BYD 퀴즈 이벤트</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="format-detection" content="telephone=no,email=no,address=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:site_name" content="BYD">
+
+    <!-- swiper 외부 라이브러리 -->
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <link href="/css/reset.css" rel="stylesheet">
@@ -21,13 +29,20 @@
     <script src="/js/jquery.cookie.min.js"></script>
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
+
+    <title>BYD 퀴즈 이벤트</title>
+
 </head>
+
 <body class="host">
 
+    <!-- container -->
     <div id="container">
 
+        <!-- check-in -->
         <div class="ck-in center">
 
+            <!-- title -->
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
@@ -36,6 +51,9 @@
 
                 </div>
             </div>
+            <!-- //title -->
+
+            <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
                     <div class="tit">
@@ -45,9 +63,15 @@
                 </div>
             </div>
             <div class="btn_box_pc">
-                <a href="/quiz/step1" class="btn_st05">시작하기</a>
+                <a href="/host/quest" class="btn_st05">시작하기</a>
             </div>
+            <!-- //info -->
+
         </div>
+        <!-- //check-in -->
+
     </div>
+    <!-- //container -->
+
 </body>
 </html>

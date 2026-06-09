@@ -44,7 +44,7 @@
                     </a>
                 </div>
                 <div class="tit">
-                    <a href="/quiz/main">
+                    <a href="/quiz/step1">
                         <img src="/img/logo.png" alt="logo">
                     </a>
                 </div>
@@ -74,6 +74,14 @@
                     <div class="ask" id="questionText">문제를 불러오는 중입니다...</div>
                 </div>
                 <div class="quiz_q">
+                    <!-- 타이머 -->
+                    <%--<div class="time_box">
+                        <div class="timerBox">
+                            <div id="timer">10</div>
+                        </div>
+                    </div>--%>
+                    <!-- 타이머 -->
+
                     <div class="multi">
                         <div class="btn_multi">
                             <input type="radio" id="choice1" name="choice" value="1">
@@ -114,7 +122,7 @@
 
         if (!storedQuestions || !historySeq) {
             alert("비정상적인 접근이거나 세션이 만료되었습니다.");
-            location.replace("/quiz/main");
+            location.replace("/quiz/step1");
             return;
         }
 
@@ -185,7 +193,7 @@
                     location.replace("/quiz/result");
                 } else {
                     alert(res.message);
-                    location.replace("/quiz/main");
+                    location.replace("/quiz/step1");
                 }
             },
             error: function() {

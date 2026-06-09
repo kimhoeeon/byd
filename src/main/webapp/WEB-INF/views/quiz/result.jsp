@@ -33,7 +33,7 @@
         <div class="top_tit">
             <div class="inner">
                 <div class="tit">
-                    <a href="/quiz/main">
+                    <a href="/quiz/step1">
                         <img src="/img/logo.png" alt="logo">
                     </a>
                 </div>
@@ -93,7 +93,7 @@
         // 점수 데이터가 없으면 강제 접근으로 간주하고 튕겨냄
         if (scoreStr === null || scoreStr === "") {
             alert("정상적인 접근이 아닙니다. 퀴즈를 다시 진행해 주세요.");
-            location.replace("/quiz/main");
+            location.replace("/quiz/step1");
             return;
         }
 

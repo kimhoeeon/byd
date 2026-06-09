@@ -13,21 +13,15 @@ import javax.servlet.http.HttpSession;
 @RequestMapping("/quiz")
 public class QuizController {
 
-    // 1. 퀴즈 메인 페이지 (quiz_main.html)
-    @GetMapping("/main")
-    public String mainPage(HttpSession session) {
+    // 2. 정보 입력 1단계
+    @GetMapping("/step1")
+    public String step1(HttpSession session) {
         // 기존 퀴즈 세션 정보가 있다면 초기화
         session.removeAttribute("quizUserInfo");
-        return "quiz/main";
+        return "quiz/step1";
     }
 
-    // 2. 정보 입력 1단계 (apply_01.html)
-    @GetMapping("/step1")
-    public String step1() {
-        return "quiz/step1"; // WEB-INF/views/quiz/step1.jsp
-    }
-
-    // 3. 정보 입력 2단계 (apply_02.html) - step1에서 POST로 넘어온 데이터 수신
+    // 3. 정보 입력 2단계
     @PostMapping("/step2")
     public String step2(
             @RequestParam("name") String name,
@@ -49,15 +43,30 @@ public class QuizController {
         return "redirect:/quiz/step1";
     }
 
-    // 4. 퀴즈 진행 페이지 (quiz.html)
+    // 4. 퀴즈 진행 페이지
     @GetMapping("/play")
     public String play() {
         return "quiz/play";
     }
 
-    // 5. 퀴즈 결과 페이지 (end.html)
+    // 5. 퀴즈 결과 페이지
     @GetMapping("/result")
     public String result() {
         return "quiz/result";
+    }
+
+    @GetMapping("/host/main")
+    public String hostMain() {
+        return "quiz/host/main";
+    }
+
+    @GetMapping("/host/quest")
+    public String hostQuiz() {
+        return "quiz/host/quest";
+    }
+
+    @GetMapping("/host/end")
+    public String hostEnd() {
+        return "quiz/host/end";
     }
 }

@@ -11,22 +11,33 @@ $(document).ready(function () {
         $(this).siblings('.viewEng').slideToggle(300);
     });
 
-    // 맵 보기
+    // 맵 보기    
     $('#viewMapBtn, #viewMap .close').on('click', function () {
         $('#viewMap').toggleClass('on');
         $('body').toggleClass('lock_scroll')
     });
 
-    // 영상 팝업 재생 (주석 처리된 원본 유지)
-    // $('#viewVideoBtn, #viewVideo .close').on('click', function() { ... });
+    // 영상 팝업 재생
+    // $('#viewVideoBtn, #viewVideo .close').on('click', function() {
+    //     $('#viewVideo').toggleClass('on');
+    //     $('body').toggleClass('lock_scroll');
+    //     var video = $('#playVideo')[0];
+
+    //     if (video.paused) {
+    //         video.currentTime = 0;
+    //         video.play();
+    //     } else {
+    //         video.pause();
+    //     }
+    // });
 
     // 영상 소리 제어
     $('#viewVideoBtn').on('click', function () {
         var video = $('#mutedOn')[0];
-        video.muted = !video.muted;
+        video.muted = !video.muted; // 소리를 토글(켜기/끄기)
     });
 
-    // 직원확인용팝업
+    // 직원확인용팝업    
     $('#enterCodeBtn, .enterCode .btn a').on('click', function () {
         $('.enterCode').toggleClass('on');
         $('body').toggleClass('lock_scroll')
@@ -37,8 +48,10 @@ $(document).ready(function () {
         $(this).val($(this).val().replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));
     });
 
-    // 코스 슬라이드
+
+    //코스 슬라이드
     var swiper = new Swiper('.swiper_gallery', {
+        // direction: "vertical",
         slidesPerView: 1,
         spaceBetween: 20,
         autoHeight: true,
@@ -51,14 +64,18 @@ $(document).ready(function () {
             resize: function () {
                 swiper.changeDirection(getDirection());
             },
+
         },
+
     });
 
     function getDirection() {
         var windowWidth = window.innerWidth;
         var direction = window.innerWidth <= 0 ? 'vertical' : 'horizontal';
+
         return direction;
     }
+
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -75,4 +92,21 @@ document.addEventListener("DOMContentLoaded", function () {
             onLeaveBack: () => player.pause()
         });
     }
+});
+
+
+$(document).on('click', '.car_list li', function () {
+    const num = $(this).data('num');
+    const newSrc = '/img/car_list0' + num + '_big.png';
+    const $mainImg = $('.main_car_img');
+
+    $('.car_list li').removeClass('on');
+    $(this).addClass('on');
+
+    $mainImg.css('opacity', 0);
+
+    setTimeout(function () {
+        $mainImg.attr('src', newSrc);
+        $mainImg.css('opacity', 1);
+    }, 200);
 });

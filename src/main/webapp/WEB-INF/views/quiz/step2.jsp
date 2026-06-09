@@ -36,7 +36,7 @@
                     </a>
                 </div>
                 <div class="tit">
-                    <a href="/quiz/main">
+                    <a href="/quiz/step1">
                         <img src="/img/logo.png" alt="logo">
                     </a>
                 </div>
@@ -245,7 +245,7 @@
                 } else {
                     // 중복 참여 등으로 막힌 경우
                     alert(res.message);
-                    location.href = "/quiz/main"; // 메인으로 돌려보냄
+                    location.href = "/quiz/step1"; // 메인으로 돌려보냄
                 }
             },
             error: function () {
