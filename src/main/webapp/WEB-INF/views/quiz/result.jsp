@@ -76,7 +76,7 @@
                     <div class="desc">너무 아쉬워요 <br/>대신 다른 모델을 둘러보세요.</div>
                     <img src="/img/img_car.png" alt="자동차 이미지">
                     <div class="btn_box">
-                        <a href="https://www.byd.com/kr" class="btn_st05_f">모델 둘러보기</a>
+                        <a href="/" class="btn_st05_f">모델 둘러보기</a>
                     </div>
                 </div>
 

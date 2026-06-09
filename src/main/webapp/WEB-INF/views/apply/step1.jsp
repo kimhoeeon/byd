@@ -15,15 +15,6 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
     <meta property="og:site_name" content="BYD">
-    <%--<meta property="og:title" content="BYD | 야구 직관 기록 앱">
-    <meta property="og:description" content="야구 직관 기록을 더 쉽고 재미있게! 경기 결과, 기록, 사진과 함께 나만의 야구 직관일기를 남겨보세요.">
-    <meta name="keywords" content="BYD / 야구 직관 / 프로야구 직관 / 직관 후기 / 직관일기 / KBO / KBO 직관 / 프로야구 앱 / 야구팬 앱">
-    <meta property="og:url" content="https://byd-bimos2026.kr/">
-    <meta property="og:image" content="https://byd-bimos2026.kr/img/og_img.jpg">
-
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="manifest" href="/site.webmanifest" />--%>
 
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 

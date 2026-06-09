@@ -30,6 +30,11 @@ public class EventController {
 
     private static final String SECRET_KEY = "bydEventTokenKey";
 
+    @GetMapping("/")
+    public String index() {
+        return "index";
+    }
+
     // 시승 신청 1페이지 (이름, 연락처 입력)
     @GetMapping("/step1")
     public String step1(HttpSession session) {
