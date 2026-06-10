@@ -19,7 +19,7 @@ public class QuizAdminController {
 
     private final QuizService quizService;
 
-    // [수정됨] 날짜와 회차 검색 파라미터 추가
+    // 날짜와 회차 검색 파라미터 추가
     @GetMapping("/list")
     public String quizList(@RequestParam(required = false) String keyword,
                            @RequestParam(required = false) String perfectScoreOnly,

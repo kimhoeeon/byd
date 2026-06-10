@@ -67,4 +67,17 @@
         WHERE play_date = #{playDate} AND session_no = #{sessionNo}
     </select>
 
+    <select id="getLatestLiveSession" resultType="com.byd.vo.QuizLiveSessionVO">
+        SELECT play_date AS playDate,
+               session_no AS sessionNo,
+               current_question_no AS currentQuestionNo,
+               status,
+               assigned_questions AS assignedQuestions,
+               updated_at AS updatedAt
+        FROM quiz_live_session
+        WHERE play_date = #{playDate}
+        ORDER BY updated_at DESC
+        LIMIT 1
+    </select>
+
 </mapper>

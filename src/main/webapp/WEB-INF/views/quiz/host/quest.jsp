@@ -89,8 +89,10 @@
             </div>
 
             <!-- 타이머 -->
-            <div class="timer_box">
-                <div class="time"><span id="timer_label">10</span></div>
+            <div class="time_box">
+                <div class="timer_box">
+                    <div id="timer" class="time"><span id="timer_label">10</span></div>
+                </div>
             </div>
 
             <!-- info -->
@@ -158,7 +160,7 @@
             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         }
 
-        // 1. 순수 자바스크립트로 최상위에서 키보드/클리커 이벤트 강제 캡처
+        // 최상위 키보드/클리커 이벤트 강제 캡처
         document.addEventListener('keydown', function(e) {
             // 34(PageDown), 39(우측방향), 32(스페이스바), 13(엔터), 40(하단방향)
             if (e.keyCode === 34 || e.keyCode === 39 || e.keyCode === 32 || e.keyCode === 13 || e.keyCode === 40) {
@@ -167,7 +169,7 @@
             }
         }, true);
 
-        // 2. 빈 화면(배경)을 마우스나 클리커로 클릭해도 다음으로 넘어가게 설정 (PPT 방식)
+        // 빈 화면(배경) 클릭 시 진행
         $(document).on('click', function(e) {
             if (e.target.id !== 'btnClicker' && $(e.target).closest('.btn_multi').length === 0) {
                 processNextStep();
@@ -191,24 +193,20 @@
                 }
             });
 
-            // 명시적 하단 버튼 클릭
             $('#btnClicker').on('click', function(e) {
                 e.preventDefault();
                 processNextStep();
             });
 
-            // 참가자 카운트 갱신
             fetchParticipantCount();
             setInterval(fetchParticipantCount, 2000);
         });
 
-        // 클리커, 마우스클릭, 하단버튼클릭 모두 이 함수로 일원화
         function processNextStep() {
             const btn = $('#btnClicker');
-            if(btn.css('pointer-events') === 'none') return; // 비활성화(타이머 도중) 방어
+            if(btn.css('pointer-events') === 'none') return; // 비활성화 방어
 
             if (currentState === STATE.READY) {
-                // [동작 1: 문제 공개 및 타이머 시작]
                 currentState = STATE.PLAYING;
                 updateServerState(STATE.PLAYING);
 
@@ -224,7 +222,6 @@
                 btn.text('10초 카운트다운 진행중...').css({'opacity': '0.5', 'pointer-events': 'none'});
 
             } else if (currentState === STATE.PLAYING) {
-                // [동작 2: 정답 공개] (타이머가 0이 되어야 진입 가능)
                 currentState = STATE.SHOW_ANSWER;
                 updateServerState(STATE.SHOW_ANSWER);
                 showCorrectAnswer();
@@ -233,7 +230,6 @@
                 btn.text(isLast ? '결과 보기 페이지로 이동' : '다음 문제 준비하기');
 
             } else if (currentState === STATE.SHOW_ANSWER) {
-                // [동작 3: 다음 문제 세팅 또는 종료]
                 const isLast = (currentQIndex === questions.length - 1);
                 if (isLast) {
                     updateServerState('ENDED');
@@ -263,7 +259,6 @@
             $('#timer_label').text('10');
             $('#btnClicker').text('현재 문제 시작 (클릭)').css({'opacity': '1', 'pointer-events': 'auto'});
 
-            // 상단 진행바(Progress Bar) 누적 갱신
             $('.quiz_progress .progress_item').removeClass('on');
             $('.quiz_progress .progress_item').each(function(i) {
                 if (i <= currentQIndex) $(this).addClass('on');

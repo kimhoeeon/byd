@@ -34,4 +34,7 @@ public interface QuizLiveMapper {
 
     // 8. 특정 일자/회차의 현재 입장 완료 참가자 수 조회
     int getParticipantCount(@Param("playDate") String playDate, @Param("sessionNo") int sessionNo);
+
+    // 9. 오늘 날짜로 MC가 개설한 '가장 최근' 라이브 세션 조회
+    QuizLiveSessionVO getLatestLiveSession(@Param("playDate") String playDate);
 }

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -20,34 +19,26 @@ import java.util.*;
 public class QuizService {
 
     private final QuizMapper quizMapper;
-    private final QuizLiveMapper quizLiveMapper; // 라이브 세션 조회를 위해 연동
-
-    private int getCurrentSessionNo() {
-        int hour = LocalTime.now().getHour();
-        if (hour < 12) return 1;
-        if (hour < 14) return 2;
-        if (hour < 16) return 3;
-        return 4;
-    }
+    private final QuizLiveMapper quizLiveMapper;
 
     private String getTodayString() {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
-    // [신규 요건 1, 2 적용] step1 진입 전 참여 가능 여부 확인
     public Map<String, Object> checkEligibility(String name, String phone) {
         Map<String, Object> result = new HashMap<>();
         String today = getTodayString();
-        int sessionNo = getCurrentSessionNo();
 
-        // 1. 현재 라이브 세션이 열려있는지, 대기중(WAITING)인지 확인 (지각자 난입 차단)
-        QuizLiveSessionVO liveSession = quizLiveMapper.getLiveSession(today, sessionNo);
+        // 1. 가장 최근에 활성화된 오늘자 라이브 세션 조회
+        QuizLiveSessionVO liveSession = quizLiveMapper.getLatestLiveSession(today);
         if (liveSession == null) {
             result.put("eligible", false);
             result.put("message", "현재 진행 예정인 퀴즈 세션이 없습니다.");
             return result;
         }
-        if (!"WAITING".equals(liveSession.getStatus())) {
+
+        // READY 상태일 때만 입장을 허용
+        if (!"READY".equals(liveSession.getStatus())) {
             result.put("eligible", false);
             result.put("message", "현재 퀴즈가 이미 진행 중이므로 참여할 수 없습니다.");
             return result;
@@ -72,15 +63,18 @@ public class QuizService {
     public Map<String, Object> startQuiz(QuizUserVO userVO) {
         Map<String, Object> result = new HashMap<>();
         String today = getTodayString();
-        int sessionNo = getCurrentSessionNo();
 
-        // 1. 라이브 세션 정보 가져오기 (공통 문제 목록 추출용)
-        QuizLiveSessionVO liveSession = quizLiveMapper.getLiveSession(today, sessionNo);
-        if (liveSession == null || !"WAITING".equals(liveSession.getStatus())) {
+        // 1. 가장 최근 활성화된 세션 조회
+        QuizLiveSessionVO liveSession = quizLiveMapper.getLatestLiveSession(today);
+
+        // READY 상태일 때만 퀴즈 시작(입장) 허용
+        if (liveSession == null || !"READY".equals(liveSession.getStatus())) {
             result.put("success", false);
             result.put("message", "퀴즈가 이미 진행 중이거나 준비되지 않았습니다.");
             return result;
         }
+
+        int sessionNo = liveSession.getSessionNo();
 
         List<String> qIds = Arrays.asList(liveSession.getAssignedQuestions().split(","));
         List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
@@ -97,7 +91,6 @@ public class QuizService {
                 result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다.");
                 return result;
             } else {
-                // IN_PROGRESS (재접속자)
                 result.put("success", true);
                 result.put("questions", sanitizeAnswers(questions));
                 result.put("historySeq", todayHistory.getHistorySeq());
@@ -112,7 +105,7 @@ public class QuizService {
         QuizHistoryVO newHistory = new QuizHistoryVO();
         newHistory.setUserSeq(savedUser.getUserSeq());
         newHistory.setSessionNo(sessionNo);
-        newHistory.setUserAnswers("0,0,0,0,0,0,0,0,0,0"); // 10문제 빈 답안 세팅
+        newHistory.setUserAnswers("0,0,0,0,0,0,0,0,0,0");
         quizMapper.insertHistory(newHistory);
 
         result.put("success", true);
@@ -137,7 +130,6 @@ public class QuizService {
             result.put("success", false); result.put("message", "이미 채점된 퀴즈입니다."); return result;
         }
 
-        // 라이브 세션의 정답 가져오기
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         QuizLiveSessionVO liveSession = quizLiveMapper.getLiveSession(today, history.getSessionNo());
         if (liveSession == null) {
@@ -147,10 +139,8 @@ public class QuizService {
         List<String> qIds = Arrays.asList(liveSession.getAssignedQuestions().split(","));
         List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
 
-        // 유저가 찍은 답안 (Auto-save로 저장된 "1,3,2,0..." 배열)
         String[] userAnswersArr = history.getUserAnswers().split(",");
 
-        // 대조 및 채점
         int calculatedScore = 0;
         for (int i = 0; i < questions.size(); i++) {
             QuizQuestionVO q = questions.get(i);
