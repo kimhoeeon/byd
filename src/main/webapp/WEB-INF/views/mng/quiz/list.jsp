@@ -69,6 +69,8 @@
                                                 <th class="min-w-100px">이름</th>
                                                 <th class="min-w-150px">연락처</th>
                                                 <th class="min-w-150px">이메일</th>
+                                                <th class="min-w-100px">방문 지역</th>
+                                                <th class="min-w-150px">방문 전시장</th>
                                                 <th class="min-w-100px">관심차량</th>
                                                 <th class="min-w-150px">참여날짜(회차)</th>
                                                 <th class="min-w-100px">퀴즈현황</th>
@@ -76,7 +78,7 @@
                                             </thead>
                                             <tbody class="fw-semibold text-gray-600 text-center">
                                             <c:if test="${empty list}">
-                                                <tr><td colspan="7" class="py-10">참여자가 없습니다.</td></tr>
+                                                <tr><td colspan="9" class="py-10">참여자가 없습니다.</td></tr>
                                             </c:if>
 
                                             <c:forEach items="${list}" var="user">
@@ -92,7 +94,8 @@
                                                     <td class="fw-bold text-dark">${user.name}</td>
                                                     <td>${user.phone}</td>
                                                     <td>${user.email}</td>
-
+                                                    <td>${not empty user.region ? user.region : '-'}</td>
+                                                    <td>${not empty user.shopInfo ? user.shopInfo : '-'}</td>
                                                     <td>
                                                         <span class="badge badge-light-primary fs-7" data-bs-toggle="tooltip"
                                                               title="${user.carModelCode == 'BYD0019' ? 'BYD SEALION 7' :
