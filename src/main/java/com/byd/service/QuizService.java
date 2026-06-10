@@ -37,22 +37,25 @@ public class QuizService {
             return result;
         }
 
-        // READY 상태일 때만 입장을 허용
+        // 기존 참여자인지 "먼저" 확인합니다!
+        QuizUserVO user = quizMapper.getUserByNameAndPhone(name, phone);
+        if (user != null) {
+            QuizHistoryVO todayHistory = quizMapper.getTodayHistory(user.getUserSeq());
+            if (todayHistory != null) {
+                if ("COMPLETED".equals(todayHistory.getStatus())) {
+                    result.put("eligible", false); result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다."); return result;
+                } else {
+                    // 튕겼다가 다시 들어온 사람 (IN_PROGRESS) -> 방 상태(READY) 무관하게 무사 통과!
+                    result.put("eligible", true); return result;
+                }
+            }
+        }
+
+        // 기존 참여자가 아닌 신규 참여자라면? -> 방이 READY 상태일 때만 입장 허용 (지각생 난입 방지)
         if (!"READY".equals(liveSession.getStatus())) {
             result.put("eligible", false);
             result.put("message", "현재 퀴즈가 이미 진행 중이므로 참여할 수 없습니다.");
             return result;
-        }
-
-        // 2. 오늘 이미 다 푼 기록이 있는지 확인
-        QuizUserVO user = quizMapper.getUserByNameAndPhone(name, phone);
-        if (user != null) {
-            QuizHistoryVO todayHistory = quizMapper.getTodayHistory(user.getUserSeq());
-            if (todayHistory != null && "COMPLETED".equals(todayHistory.getStatus())) {
-                result.put("eligible", false);
-                result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다.\n내일 다시 도전해 주세요!");
-                return result;
-            }
         }
 
         result.put("eligible", true);
@@ -66,16 +69,13 @@ public class QuizService {
 
         // 1. 가장 최근 활성화된 세션 조회
         QuizLiveSessionVO liveSession = quizLiveMapper.getLatestLiveSession(today);
-
-        // READY 상태일 때만 퀴즈 시작(입장) 허용
-        if (liveSession == null || !"READY".equals(liveSession.getStatus())) {
+        if (liveSession == null) {
             result.put("success", false);
-            result.put("message", "퀴즈가 이미 진행 중이거나 준비되지 않았습니다.");
+            result.put("message", "진행 중인 세션이 없습니다.");
             return result;
         }
 
         int sessionNo = liveSession.getSessionNo();
-
         List<String> qIds = Arrays.asList(liveSession.getAssignedQuestions().split(","));
         List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
 
@@ -91,6 +91,7 @@ public class QuizService {
                 result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다.");
                 return result;
             } else {
+                // 재접속자 복귀 처리
                 result.put("success", true);
                 result.put("questions", sanitizeAnswers(questions));
                 result.put("historySeq", todayHistory.getHistorySeq());
@@ -99,6 +100,13 @@ public class QuizService {
                 result.put("playDate", today);
                 return result;
             }
+        }
+
+        // 신규 참여자일 경우 방 상태 검증
+        if (!"READY".equals(liveSession.getStatus())) {
+            result.put("success", false);
+            result.put("message", "퀴즈가 이미 진행 중이므로 참여할 수 없습니다.");
+            return result;
         }
 
         // 4. 신규 참여자 이력 생성 (userAnswers 초기화)

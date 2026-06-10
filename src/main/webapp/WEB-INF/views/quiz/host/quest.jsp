@@ -176,28 +176,78 @@
             }
         });
 
-        $(document).ready(function() {
+        $(document).ready(function () {
+            // 1. 현재 서버의 상태를 먼저 조회 (새로고침 시 복구용)
             $.ajax({
-                url: '/api/quiz/live/host/questions',
+                url: '/api/quiz/live/status',
                 type: 'GET',
-                data: { playDate: playDate, sessionNo: sessionNo },
-                success: function(res) {
-                    if(res.success && res.questions.length > 0) {
-                        questions = res.questions;
-                        loadQuestionUI();
-                        updateServerState(STATE.READY);
-                    } else {
-                        alert("문제를 불러올 수 없습니다. 회차를 초기화해주세요.");
-                        location.href = '/quiz/host/main';
+                data: {playDate: playDate, sessionNo: sessionNo},
+                success: function (statusRes) {
+                    if (statusRes.success) {
+                        // 서버에 저장된 현재 진행 번호와 상태를 JS에 강제 주입
+                        currentQIndex = statusRes.currentQuestionNo > 0 ? statusRes.currentQuestionNo - 1 : 0;
+                        currentState = statusRes.status;
+
+                        // 2. 이어서 문제 목록 로드
+                        $.ajax({
+                            url: '/api/quiz/live/host/questions',
+                            type: 'GET',
+                            data: {playDate: playDate, sessionNo: sessionNo},
+                            success: function (res) {
+                                if (res.success && res.questions.length > 0) {
+                                    questions = res.questions;
+
+                                    // 상태에 맞게 UI 즉시 복구
+                                    if (currentState === 'PLAYING' || currentState === 'SHOW_ANSWER') {
+                                        // 이미 진행 중이던 문제면 텍스트를 바로 띄움
+                                        const q = questions[currentQIndex];
+                                        $('.quiz_a .numb').text(currentQIndex + 1);
+                                        $('.quiz_a .ask').text(q.questionText);
+                                        const labels = $('.quiz_q .btn_multi label');
+                                        $(labels[0]).text(q.choice1);
+                                        $(labels[1]).text(q.choice2);
+                                        $(labels[2]).text(q.choice3);
+                                        $(labels[3]).text(q.choice4);
+
+                                        $('.quiz_progress .progress_item').removeClass('on');
+                                        $('.quiz_progress .progress_item').each(function (i) {
+                                            if (i <= currentQIndex) $(this).addClass('on');
+                                        });
+
+                                        if (currentState === 'PLAYING') {
+                                            startTimer(); // 타이머 재가동
+                                            $('#btnClicker').text('10초 카운트다운 진행중...').css({
+                                                'opacity': '0.5',
+                                                'pointer-events': 'none'
+                                            });
+                                        } else {
+                                            showCorrectAnswer();
+                                            const isLast = (currentQIndex === questions.length - 1);
+                                            $('#btnClicker').text(isLast ? '결과 보기 페이지로 이동' : '다음 문제 준비하기').css({
+                                                'opacity': '1',
+                                                'pointer-events': 'auto'
+                                            });
+                                        }
+                                    } else {
+                                        // 대기(READY) 상태면 블라인드 UI 로드
+                                        loadQuestionUI();
+                                        updateServerState(STATE.READY);
+                                    }
+                                } else {
+                                    alert("문제를 불러올 수 없습니다.");
+                                    location.href = '/quiz/host/main';
+                                }
+                            }
+                        });
                     }
                 }
             });
 
-            $('#btnClicker').on('click', function(e) {
+            // (기존 클릭 이벤트, 폴링 등 유지)
+            $('#btnClicker').on('click', function (e) {
                 e.preventDefault();
                 processNextStep();
             });
-
             fetchParticipantCount();
             setInterval(fetchParticipantCount, 2000);
         });
