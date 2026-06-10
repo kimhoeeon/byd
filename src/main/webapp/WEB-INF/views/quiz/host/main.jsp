@@ -48,7 +48,6 @@
                     <div class="tit">
                         <img src="/img/logo.png" alt="logo">
                     </div>
-
                 </div>
             </div>
             <!-- //title -->
@@ -62,8 +61,19 @@
                     </div>
                 </div>
             </div>
+
+            <div style="margin: 30px 0;">
+                <p style="margin-bottom: 10px; font-weight: bold; color: #fff; text-align: center;">진행할 회차를 선택해 주세요</p>
+                <select name="sessionNo" id="sessionNo" style="width: 100%;">
+                </select>
+            </div>
+
             <div class="btn_box_pc">
-                <a href="/host/quest" class="btn_st05">시작하기</a>
+                <a href="javascript:void(0);" onclick="startLiveQuiz()" class="btn_st05">시작하기</a>
+            </div>
+
+            <div class="btn_box_pc" style="margin-top: 15px;">
+                <a href="javascript:void(0);" onclick="resetLiveQuiz()" class="btn_st05" style="background:#444; border-color:#444;">현재 회차 강제 초기화</a>
             </div>
             <!-- //info -->
 
@@ -73,5 +83,64 @@
     </div>
     <!-- //container -->
 
+    <script>
+        $(document).ready(function() {
+            // 평일 4회차, 주말 5회차 자동 세팅 로직
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0: 일, 1: 월 ... 6: 토
+            const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+            const maxSession = isWeekend ? 5 : 4;
+
+            let selectHtml = "";
+            for(let i = 1; i <= maxSession; i++) {
+                selectHtml += `<option value="` + i + `">` + i + `회차 진행</option>`;
+            }
+            $('#sessionNo').html(selectHtml);
+        });
+
+        function getTodayStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        function startLiveQuiz() {
+            const sessionNo = $('#sessionNo').val();
+
+            $.ajax({
+                url: '/api/quiz/live/host/start',
+                type: 'POST',
+                data: { playDate: getTodayStr(), sessionNo: sessionNo },
+                success: function(res) {
+                    if(res.success) {
+                        // 성공 시 MC 문제 진행 화면으로 이동
+                        location.href = '/quiz/host/quest?sessionNo=' + sessionNo;
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function() {
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
+            });
+        }
+
+        function resetLiveQuiz() {
+            const sessionNo = $('#sessionNo').val();
+            if(confirm("정말 " + sessionNo + "회차를 강제 초기화하시겠습니까?\n(참여자의 퀴즈 진행이 모두 중단됩니다)")) {
+                $.ajax({
+                    url: '/api/quiz/live/host/reset',
+                    type: 'POST',
+                    data: { playDate: getTodayStr(), sessionNo: sessionNo },
+                    success: function(res) {
+                        if(res.success) {
+                            alert("초기화가 완료되었습니다. 다시 시작해주세요.");
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>

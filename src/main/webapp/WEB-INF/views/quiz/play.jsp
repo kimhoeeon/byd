@@ -22,186 +22,217 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
     <style>
-        .btn_multi label { word-break: keep-all; line-height: 1.3; }
-        .btn_disabled {
-            background: #d3d3d3 !important;
-            border-color: #d3d3d3 !important;
-            color: #888 !important;
-            cursor: not-allowed !important;
-            pointer-events: none;
-        }
+        /* 정답 공개 시 하이라이트 스타일 (MC 화면과 동일하게 맞춤) */
+        .correct { background-color: #000 !important; color: #fff !important; font-weight: bold !important; border-color: #000 !important; }
     </style>
 </head>
 <body class="quiz">
 
-<div id="container">
-    <div class="ck-in center">
-        <div class="top_tit">
-            <div class="inner">
-                <div class="back">
-                    <a href="javascript:history.back();">
-                        <img src="/img/left_arrow.svg" alt="뒤로가기">
-                    </a>
-                </div>
-                <div class="tit">
-                    <a href="/quiz/step1">
-                        <img src="/img/logo.png" alt="logo">
-                    </a>
+    <div id="container">
+        <div class="ck-in center">
+            <div class="top_tit">
+                <div class="inner">
+                    <div class="tit">
+                        <a href="/">
+                            <img src="/img/logo.png" alt="logo">
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="bar">
-            <div class="tit">BYD <span>퀴즈 이벤트</span></div>
-            <div class="quiz_progress">
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-                <div class="progress_item"></div>
-            </div>
-        </div>
-
-        <div id="content">
-            <div class="ct_wrap quiz_wrap">
-                <div class="quiz_a">
-                    <div class="numb" id="progressText">Q.1</div>
-                    <div class="ask" id="questionText">문제를 불러오는 중입니다...</div>
+            <div class="bar">
+                <div class="tit">BYD <span>퀴즈 이벤트</span></div>
+                <div class="quiz_progress">
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
+                    <div class="progress_item"></div>
                 </div>
-                <div class="quiz_q">
-                    <!-- 타이머 -->
-                    <%--<div class="time_box">
-                        <div class="timerBox">
-                            <div id="timer">10</div>
-                        </div>
-                    </div>--%>
-                    <!-- 타이머 -->
+            </div>
 
-                    <div class="multi">
-                        <div class="btn_multi">
-                            <input type="radio" id="choice1" name="choice" value="1">
-                            <label for="choice1" id="choiceLabel1">보기1</label>
-                        </div>
-                        <div class="btn_multi">
-                            <input type="radio" id="choice2" name="choice" value="2">
-                            <label for="choice2" id="choiceLabel2">보기2</label>
-                        </div>
-                        <div class="btn_multi">
-                            <input type="radio" id="choice3" name="choice" value="3">
-                            <label for="choice3" id="choiceLabel3">보기3</label>
-                        </div>
-                        <div class="btn_multi">
-                            <input type="radio" id="choice4" name="choice" value="4">
-                            <label for="choice4" id="choiceLabel4">보기4</label>
+            <div id="content">
+                <div class="ct_wrap quiz_wrap">
+                    <div class="quiz_a">
+                        <div class="numb">1</div>
+                        <div class="ask">MC가 문제를 준비 중입니다...</div>
+                    </div>
+
+                    <div style="text-align:center; color:#fff; font-size:16px; margin-top:20px; font-weight:bold;" id="quizStatusTxt">
+                        잠시만 기다려 주세요.
+                    </div>
+
+                    <div class="quiz_q">
+                        <div class="multi">
+                            <div class="btn_multi">
+                                <input type="radio" id="choice1" name="choice" value="1" disabled>
+                                <label for="choice1" id="choiceLabel1">보기 1</label>
+                            </div>
+                            <div class="btn_multi">
+                                <input type="radio" id="choice2" name="choice" value="2" disabled>
+                                <label for="choice2" id="choiceLabel2">보기 2</label>
+                            </div>
+                            <div class="btn_multi">
+                                <input type="radio" id="choice3" name="choice" value="3" disabled>
+                                <label for="choice3" id="choiceLabel3">보기 3</label>
+                            </div>
+                            <div class="btn_multi">
+                                <input type="radio" id="choice4" name="choice" value="4" disabled>
+                                <label for="choice4" id="choiceLabel4">보기 4</label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="btn_box">
-            <button type="button" class="btn_st05 btn_disabled" id="btnNext" style="width:100%; border:none;">다음</button>
-        </div>
     </div>
-</div>
 
-<script>
-    let quizQuestions = [];
-    let historySeq = null;
-    let currentIndex = 0;
-    let userAnswers = {};
+    <script>
+        let quizQuestions = [];
+        const historySeq = sessionStorage.getItem("quizHistorySeq");
+        const userSeq = sessionStorage.getItem("quizUserSeq");
+        const sessionNo = sessionStorage.getItem("quizSessionNo");
+        const playDate = sessionStorage.getItem("quizPlayDate");
 
-    $(document).ready(function() {
-        const storedQuestions = sessionStorage.getItem("quizQuestions");
-        historySeq = sessionStorage.getItem("quizHistorySeq");
+        let currentQIndex = -1;
+        let currentState = '';
 
-        if (!storedQuestions || !historySeq) {
-            alert("비정상적인 접근이거나 세션이 만료되었습니다.");
-            location.replace("/quiz/step1");
-            return;
-        }
-
-        quizQuestions = JSON.parse(storedQuestions);
-        renderQuestion(currentIndex);
-
-        $('input[name="choice"]').on('change', function() {
-            $('#btnNext').removeClass('btn_disabled').prop('disabled', false);
-        });
-
-        $('#btnNext').on('click', function() {
-            if ($(this).hasClass('btn_disabled')) return;
-
-            const selectedVal = $('input[name="choice"]:checked').val();
-            const currentQId = quizQuestions[currentIndex].questionId;
-            userAnswers[currentQId] = parseInt(selectedVal);
-
-            currentIndex++;
-
-            if (currentIndex < quizQuestions.length) {
-                renderQuestion(currentIndex);
-            } else {
-                submitQuiz();
+        $(document).ready(function () {
+            if (!historySeq || !sessionNo) {
+                alert("정상적인 접근이 아닙니다.");
+                location.replace("/quiz/step1");
+                return;
             }
-        });
-    });
 
-    function renderQuestion(index) {
-        const q = quizQuestions[index];
+            quizQuestions = JSON.parse(sessionStorage.getItem("quizQuestions"));
 
-        // 텍스트 업데이트
-        $('#progressText').text('Q.' + (index + 1));
-        $('#questionText').text(q.questionText);
-        $('#choiceLabel1').text(q.choice1);
-        $('#choiceLabel2').text(q.choice2);
-        $('#choiceLabel3').text(q.choice3);
-        $('#choiceLabel4').text(q.choice4);
-
-        // 상단 진행바(bar) UI 업데이트 로직
-        $('.quiz_progress .progress_item').removeClass('on');
-        $('.quiz_progress .progress_item').each(function(i) {
-            if (i <= index) {
-                $(this).addClass('on');
-            }
+            // 1초마다 MC 화면의 상태를 가져옴 (Polling)
+            setInterval(pollLiveStatus, 1000);
         });
 
-        $('input[name="choice"]').prop('checked', false);
-        $('#btnNext').addClass('btn_disabled').prop('disabled', true);
+        function pollLiveStatus() {
+            $.ajax({
+                url: '/api/quiz/live/status',
+                type: 'GET',
+                data: { playDate: playDate, sessionNo: sessionNo },
+                success: function(res) {
+                    if(res.success) {
+                        // MC가 퀴즈를 최종 종료한 경우
+                        if (res.status === 'ENDED') {
+                            submitFinalScore();
+                            return;
+                        }
 
-        if (index === quizQuestions.length - 1) {
-            $('#btnNext').text('결과 확인하기');
-        } else {
-            $('#btnNext').text('다음');
-        }
-    }
-
-    function submitQuiz() {
-        $('#btnNext').addClass('btn_disabled').prop('disabled', true).text('채점 중입니다...');
-
-        $.ajax({
-            url: '/api/quiz/submit?historySeq=' + historySeq,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(userAnswers),
-            success: function(res) {
-                if (res.success) {
-                    sessionStorage.setItem("quizScore", res.score);
-                    location.replace("/quiz/result");
-                } else {
-                    alert(res.message);
-                    location.replace("/quiz/step1");
+                        // 문제 번호나 진행 상태(READY, PLAYING, SHOW_ANSWER)가 바뀌었을 때만 화면 갱신
+                        if (currentQIndex !== (res.currentQuestionNo - 1) || currentState !== res.status) {
+                            currentQIndex = res.currentQuestionNo - 1;
+                            currentState = res.status;
+                            renderUI(res);
+                        }
+                    } else {
+                        alert("MC에 의해 세션이 초기화되었거나 종료되었습니다.");
+                        location.replace("/quiz/step1");
+                    }
+                },
+                error: function() {
+                    // 간헐적인 통신 장애 시 튕기지 않도록 에러 무시
                 }
-            },
-            error: function() {
-                alert("채점 중 오류가 발생했습니다.");
-                $('#btnNext').removeClass('btn_disabled').text('결과 확인하기');
+            });
+        }
+
+        function renderUI(res) {
+            if (currentQIndex < 0) return; // 아직 1번 문제가 세팅되지 않음
+
+            const q = quizQuestions[currentQIndex];
+            $('.quiz_a .numb').text(currentQIndex + 1);
+            $('.quiz_a .ask').text(q.questionText);
+            $('#choiceLabel1').text(q.choice1);
+            $('#choiceLabel2').text(q.choice2);
+            $('#choiceLabel3').text(q.choice3);
+            $('#choiceLabel4').text(q.choice4);
+
+            // 상단 프로그레스 바 갱신
+            $('.quiz_progress .progress_item').removeClass('on');
+            $('.quiz_progress .progress_item').each(function(i) {
+                if (i <= currentQIndex) $(this).addClass('on');
+            });
+
+            // 상태별 UI(버튼 활성/비활성, 정답 표시) 제어
+            if (currentState === 'READY') {
+                $('input[name="choice"]').prop('disabled', true);
+                $('.quiz_q .btn_multi label').removeClass('correct');
+                $('#quizStatusTxt').text("MC가 문제를 시작하기를 대기 중입니다...");
+                restoreSavedAnswer(); // 혹시 저장된 답이 있으면 유지
+
+            } else if (currentState === 'PLAYING') {
+                $('input[name="choice"]').prop('disabled', false);
+                $('.quiz_q .btn_multi label').removeClass('correct');
+                $('#quizStatusTxt').text("10초 내에 화면에서 정답을 선택해 주세요!");
+                restoreSavedAnswer();
+
+            } else if (currentState === 'SHOW_ANSWER') {
+                $('input[name="choice"]').prop('disabled', true);
+                $('#quizStatusTxt').text("정답이 공개되었습니다.");
+
+                // 서버에서 내려준 정답 번호에 하이라이트 표시
+                if(res.correctAnswer) {
+                    const correctIndex = res.correctAnswer - 1;
+                    $('.quiz_q .btn_multi label').eq(correctIndex).addClass('correct');
+                }
             }
+        }
+
+        // 통신 끊김 대비: 사용자가 이전에 찍어둔 답이 있으면 화면 갱신 시 다시 체크해줌
+        function restoreSavedAnswer() {
+            const savedAns = sessionStorage.getItem("ans_" + currentQIndex);
+            if (savedAns) {
+                $('#choice' + savedAns).prop('checked', true);
+            } else {
+                $('input[name="choice"]').prop('checked', false);
+            }
+        }
+
+        // 사용자가 보기를 터치할 때마다 즉시 서버에 임시 저장 (Auto-Save)
+        $('input[name="choice"]').on('change', function() {
+            const answerId = $(this).val();
+            sessionStorage.setItem("ans_" + currentQIndex, answerId); // 화면 새로고침 대비 로컬 보관
+
+            $.ajax({
+                url: '/api/quiz/live/auto-save',
+                type: 'POST',
+                data: {
+                    userSeq: userSeq,
+                    playDate: playDate,
+                    sessionNo: sessionNo,
+                    questionIndex: currentQIndex + 1, // 서버 DB 저장을 위해 1~10으로 전달
+                    answerId: answerId
+                }
+            });
         });
-    }
-</script>
+
+        // MC가 최종 10번 문제를 끝내고 ENDED 처리 시, 서버에 일괄 채점 요청 후 결과창 이동
+        function submitFinalScore() {
+            $.ajax({
+                url: '/api/quiz/submit?historySeq=' + historySeq,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({}), // 답안은 이미 Auto-save 되었으므로 빈 객체 전송
+                success: function(res) {
+                    if(res.success) {
+                        sessionStorage.setItem("quizScore", res.score);
+                        location.replace("/quiz/result");
+                    } else {
+                        alert(res.message);
+                        location.replace("/quiz/step1");
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>

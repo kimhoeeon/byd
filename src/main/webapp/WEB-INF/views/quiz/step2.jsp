@@ -238,6 +238,9 @@
                 if (res.success) {
                     // 성공 시 발급받은 참여 이력 번호(historySeq)와 문제 10개를 SessionStorage에 보관!
                     sessionStorage.setItem("quizHistorySeq", res.historySeq);
+                    sessionStorage.setItem("quizUserSeq", res.userSeq);
+                    sessionStorage.setItem("quizSessionNo", res.sessionNo);
+                    sessionStorage.setItem("quizPlayDate", res.playDate);
                     sessionStorage.setItem("quizQuestions", JSON.stringify(res.questions));
 
                     // 대망의 퀴즈 문제 풀이 화면으로 이동!

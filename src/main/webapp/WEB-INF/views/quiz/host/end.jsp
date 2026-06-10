@@ -69,6 +69,9 @@
                         </div>
                     </div>
                 </div>
+                <div class="btn_box">
+                    <a href="/quiz/host/main" class="btn_st05">다음 회차 준비하기 (메인으로)</a>
+                </div>
             </div>
             <!-- //info -->
 

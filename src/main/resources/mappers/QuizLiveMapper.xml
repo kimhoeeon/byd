@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byd.mapper.QuizLiveMapper">
+
+    <select id="getLiveSession" resultType="com.byd.vo.QuizLiveSessionVO">
+        SELECT play_date AS playDate,
+               session_no AS sessionNo,
+               current_question_no AS currentQuestionNo,
+               status,
+               assigned_questions AS assignedQuestions,
+               updated_at AS updatedAt
+        FROM quiz_live_session
+        WHERE play_date = #{playDate} AND session_no = #{sessionNo}
+    </select>
+
+    <insert id="insertLiveSession" parameterType="com.byd.vo.QuizLiveSessionVO">
+        INSERT INTO quiz_live_session (
+            play_date, session_no, current_question_no, status, assigned_questions
+        ) VALUES (
+                     #{playDate}, #{sessionNo}, #{currentQuestionNo}, #{status}, #{assignedQuestions}
+                 )
+    </insert>
+
+    <update id="updateLiveSession" parameterType="com.byd.vo.QuizLiveSessionVO">
+        UPDATE quiz_live_session
+        SET current_question_no = #{currentQuestionNo},
+            status = #{status}
+        WHERE play_date = #{playDate} AND session_no = #{sessionNo}
+    </update>
+
+    <delete id="deleteLiveSession">
+        DELETE FROM quiz_live_session
+        WHERE play_date = #{playDate} AND session_no = #{sessionNo}
+    </delete>
+
+    <select id="getRandomQuestionIds" resultType="java.lang.Integer">
+        SELECT question_id
+        FROM quiz_question
+        ORDER BY RAND()
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateUserAnswers">
+        UPDATE quiz_history
+        SET user_answers = #{userAnswers}
+        WHERE user_seq = #{userSeq}
+          AND play_date = #{playDate}
+          AND session_no = #{sessionNo}
+    </update>
+
+    <select id="getUserAnswers" resultType="java.lang.String">
+        SELECT user_answers
+        FROM quiz_history
+        WHERE user_seq = #{userSeq}
+          AND play_date = #{playDate}
+          AND session_no = #{sessionNo}
+    </select>
+
+</mapper>
