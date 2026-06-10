@@ -116,19 +116,19 @@
                     <div class="car_list">
                         <ul>
                             <li data-num="1" class="on">
-                                <img src="/img/car_list01.png" alt="차량 이미지">
+                                <img src="/img/car_list01.png?ver=20260610" alt="차량 이미지">
                                 <div>BYD DOLPHIN</div>
                             </li>
                             <li data-num="2">
-                                <img src="/img/car_list02.png" alt="차량 이미지">
+                                <img src="/img/car_list02.png?ver=20260610" alt="차량 이미지">
                                 <div>BYD ATTO 3</div>
                             </li>
                             <li data-num="3">
-                                <img src="/img/car_list03.png" alt="차량 이미지">
+                                <img src="/img/car_list03.png?ver=20260610" alt="차량 이미지">
                                 <div>BYD SEAL</div>
                             </li>
                             <li data-num="4">
-                                <img src="/img/car_list04.png" alt="차량 이미지">
+                                <img src="/img/car_list04.png?ver=20260610" alt="차량 이미지">
                                 <div>BYD SEALION 7</div>
                             </li>
                         </ul>
