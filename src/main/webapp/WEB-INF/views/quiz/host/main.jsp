@@ -62,13 +62,12 @@
                 </div>
             </div>
 
-            <div style="margin: 30px 0;">
+            <div class="btn_box_pc">
                 <p style="margin-bottom: 10px; font-weight: bold; color: #fff; text-align: center;">진행할 회차를 선택해 주세요</p>
-                <select name="sessionNo" id="sessionNo" style="width: 100%;">
-                </select>
+                <select name="sessionNo" id="sessionNo" style="width: 100%;"></select>
             </div>
 
-            <div class="btn_box_pc">
+            <div class="btn_box_pc" style="margin-top: 15px;">
                 <a href="javascript:void(0);" onclick="startLiveQuiz()" class="btn_st05">시작하기</a>
             </div>
 
@@ -84,10 +83,12 @@
     <!-- //container -->
 
     <script>
+        let isStarting = false; // 중복 실행 방지용
+
         $(document).ready(function() {
-            // 평일 4회차, 주말 5회차 자동 세팅 로직
+            // 평일 4회차, 주말 5회차 자동 세팅
             const today = new Date();
-            const dayOfWeek = today.getDay(); // 0: 일, 1: 월 ... 6: 토
+            const dayOfWeek = today.getDay();
             const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
             const maxSession = isWeekend ? 5 : 4;
 
@@ -98,12 +99,24 @@
             $('#sessionNo').html(selectHtml);
         });
 
+        // 최상위 클리커(키보드) 캡처 이벤트
+        document.addEventListener('keydown', function(e) {
+            // 34(PageDown), 39(우측방향), 32(스페이스바), 13(엔터), 40(하단방향)
+            if (e.keyCode === 34 || e.keyCode === 39 || e.keyCode === 32 || e.keyCode === 13 || e.keyCode === 40) {
+                e.preventDefault();
+                if(!isStarting) {
+                    startLiveQuiz();
+                }
+            }
+        }, true);
+
         function getTodayStr() {
             const d = new Date();
             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         }
 
         function startLiveQuiz() {
+            isStarting = true; // 중복 클릭 방지
             const sessionNo = $('#sessionNo').val();
 
             $.ajax({
@@ -112,14 +125,15 @@
                 data: { playDate: getTodayStr(), sessionNo: sessionNo },
                 success: function(res) {
                     if(res.success) {
-                        // 성공 시 MC 문제 진행 화면으로 이동
                         location.href = '/quiz/host/quest?sessionNo=' + sessionNo;
                     } else {
                         alert(res.message);
+                        isStarting = false;
                     }
                 },
                 error: function() {
                     alert('서버 통신 중 오류가 발생했습니다.');
+                    isStarting = false;
                 }
             });
         }

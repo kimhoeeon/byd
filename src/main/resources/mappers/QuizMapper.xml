@@ -58,11 +58,16 @@
     </select>
 
     <select id="getQuestionsByIds" resultType="com.byd.vo.QuizQuestionVO">
-        SELECT * FROM quiz_question WHERE question_id IN
-        <foreach item="id" collection="ids" open="(" separator="," close=")">#{id}</foreach>
-        ORDER BY FIND_IN_SET(question_id, (SELECT GROUP_CONCAT(id SEPARATOR ',') FROM (
-        <foreach item="id" collection="ids" separator=" UNION ALL ">SELECT #{id} AS id</foreach>
-        ) t))
+        SELECT * FROM quiz_question
+        WHERE question_id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY FIELD(question_id,
+        <foreach item="id" collection="ids" separator=",">
+            #{id}
+        </foreach>
+        )
     </select>
 
     <resultMap id="AdminListMap" type="com.byd.vo.QuizUserVO">
@@ -87,8 +92,7 @@
 
     <select id="getQuizAdminList" resultMap="AdminListMap">
         SELECT
-        u.user_seq, u.name, u.phone, u.email, u.region, u.shop_info, u.car_model_code, u.privacy_agree, u.reg_date AS
-        u_reg_date,
+        u.user_seq, u.name, u.phone, u.email, u.region, u.shop_info, u.car_model_code, u.privacy_agree, u.reg_date AS u_reg_date,
         h.history_seq, h.play_date, h.session_no, h.score, h.status, h.gift_received_yn
         FROM quiz_user u
         LEFT JOIN quiz_history h ON u.user_seq = h.user_seq
@@ -97,15 +101,20 @@
         LEFT JOIN quiz_history h2 ON u2.user_seq = h2.user_seq
         <where>
             <if test="keyword != null and keyword != ''">
-                AND (u2.name LIKE CONCAT('%', #{keyword}, '%') OR u2.phone LIKE CONCAT('%', #{keyword}, '%') OR u2.email
-                LIKE CONCAT('%', #{keyword}, '%'))
+                AND (u2.name LIKE CONCAT('%', #{keyword}, '%') OR u2.phone LIKE CONCAT('%', #{keyword}, '%') OR u2.email LIKE CONCAT('%', #{keyword}, '%'))
             </if>
             <if test="perfectScoreOnly == 'Y'">
                 AND h2.score = 10
             </if>
+            <if test="searchDate != null and searchDate != ''">
+                AND h2.play_date = #{searchDate}
+            </if>
+            <if test="searchSession != null">
+                AND h2.session_no = #{searchSession}
+            </if>
         </where>
         )
-        ORDER BY u.user_seq DESC, h.play_date DESC
+        ORDER BY h.play_date DESC, h.session_no DESC, u.user_seq DESC
     </select>
 
     <select id="getQuestionList" resultType="com.byd.vo.QuizQuestionVO">

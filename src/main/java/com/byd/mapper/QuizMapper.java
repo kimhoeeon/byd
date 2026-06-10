@@ -31,7 +31,10 @@ public interface QuizMapper {
     QuizHistoryVO getHistoryBySeq(@Param("historySeq") int historySeq);
 
     // 관리자 페이지 조회용
-    List<QuizUserVO> getQuizAdminList(@Param("keyword") String keyword, @Param("perfectScoreOnly") String perfectScoreOnly);
+    List<QuizUserVO> getQuizAdminList(@Param("keyword") String keyword,
+                                      @Param("perfectScoreOnly") String perfectScoreOnly,
+                                      @Param("searchDate") String searchDate,
+                                      @Param("searchSession") Integer searchSession);
 
     // --- 퀴즈 문제 관리용 ---
     List<QuizQuestionVO> getQuestionList();

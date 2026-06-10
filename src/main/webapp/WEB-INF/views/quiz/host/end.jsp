@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <div class="btn_box">
-                    <a href="/quiz/host/main" class="btn_st05">다음 회차 준비하기 (메인으로)</a>
+                    <a href="/quiz/host/main" class="btn_st05" style="background:#555;">다음 회차 준비하기 (메인으로)</a>
                 </div>
             </div>
             <!-- //info -->
@@ -80,6 +80,23 @@
 
     </div>
     <!-- //container -->
+
+    <script>
+        // 최상위 클리커 캡처 (클리커 누르면 바로 메인으로 이동)
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode === 34 || e.keyCode === 39 || e.keyCode === 32 || e.keyCode === 13 || e.keyCode === 40) {
+                e.preventDefault();
+                location.href = '/quiz/host/main';
+            }
+        }, true);
+
+        // 빈 화면 클릭해도 넘어가게 설정
+        $(document).on('click', function(e) {
+            if (e.target.tagName !== 'A') {
+                location.href = '/quiz/host/main';
+            }
+        });
+    </script>
 
 </body>
 </html>

@@ -19,14 +19,22 @@ public class QuizAdminController {
 
     private final QuizService quizService;
 
+    // [수정됨] 날짜와 회차 검색 파라미터 추가
     @GetMapping("/list")
     public String quizList(@RequestParam(required = false) String keyword,
                            @RequestParam(required = false) String perfectScoreOnly,
+                           @RequestParam(required = false) String searchDate,
+                           @RequestParam(required = false) Integer searchSession,
                            Model model) {
-        List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly);
+
+        List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly, searchDate, searchSession);
+
         model.addAttribute("list", list);
         model.addAttribute("keyword", keyword);
         model.addAttribute("perfectScoreOnly", perfectScoreOnly);
+        model.addAttribute("searchDate", searchDate);
+        model.addAttribute("searchSession", searchSession);
+
         return "mng/quiz/list";
     }
 
@@ -44,14 +52,12 @@ public class QuizAdminController {
         return res;
     }
 
-    // 1. 문제 관리 페이지 화면
     @GetMapping("/question/list")
     public String questionList(Model model) {
         model.addAttribute("qList", quizService.getQuestionList());
-        return "mng/quiz/question/list"; // 신규 생성할 jsp 경로
+        return "mng/quiz/question/list";
     }
 
-    // 2. 단건 조회 (모달에 데이터 뿌려주기용)
     @GetMapping("/question/api/get")
     @ResponseBody
     public Map<String, Object> getQuestion(@RequestParam("questionId") int questionId) {
@@ -65,7 +71,6 @@ public class QuizAdminController {
         return res;
     }
 
-    // 3. 문제 저장 및 수정 API
     @PostMapping("/question/api/save")
     @ResponseBody
     public Map<String, Object> saveQuestion(QuizQuestionVO question) {
@@ -81,7 +86,6 @@ public class QuizAdminController {
         return res;
     }
 
-    // 4. 문제 삭제 API
     @PostMapping("/question/api/delete")
     @ResponseBody
     public Map<String, Object> deleteQuestion(@RequestParam("questionId") int questionId) {

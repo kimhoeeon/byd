@@ -33,6 +33,11 @@
         WHERE play_date = #{playDate} AND session_no = #{sessionNo}
     </delete>
 
+    <delete id="deleteHistoryBySession">
+        DELETE FROM quiz_history
+        WHERE play_date = #{playDate} AND session_no = #{sessionNo}
+    </delete>
+
     <select id="getRandomQuestionIds" resultType="java.lang.Integer">
         SELECT question_id
         FROM quiz_question
@@ -54,6 +59,12 @@
         WHERE user_seq = #{userSeq}
           AND play_date = #{playDate}
           AND session_no = #{sessionNo}
+    </select>
+
+    <select id="getParticipantCount" resultType="int">
+        SELECT COUNT(*)
+        FROM quiz_history
+        WHERE play_date = #{playDate} AND session_no = #{sessionNo}
     </select>
 
 </mapper>

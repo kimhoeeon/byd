@@ -63,6 +63,7 @@ public class QuizLiveService {
     @Transactional
     public void resetLiveSession(String playDate, int sessionNo) {
         quizLiveMapper.deleteLiveSession(playDate, sessionNo);
+        quizLiveMapper.deleteHistoryBySession(playDate, sessionNo);
     }
 
     // 유저 답안 실시간 저장 (Auto-save) - 화면 이탈 시에도 마지막 찍은 답으로 인정
@@ -84,5 +85,10 @@ public class QuizLiveService {
 
         String updatedAnswers = String.join(",", answersArr);
         quizLiveMapper.updateUserAnswers(userSeq, playDate, sessionNo, updatedAnswers);
+    }
+
+    // 현재 접속 완료된 참가자 수 반환
+    public int getLiveParticipantCount(String playDate, int sessionNo) {
+        return quizLiveMapper.getParticipantCount(playDate, sessionNo);
     }
 }

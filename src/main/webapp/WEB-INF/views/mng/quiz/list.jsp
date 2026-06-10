@@ -26,14 +26,32 @@
 
                             <div class="card shadow-sm mb-5">
                                 <div class="card-body py-5">
-                                    <form action="/mng/quiz/list" method="get" class="d-flex align-items-center gap-3 w-100">
-                                        <div class="form-check form-check-custom form-check-solid form-check-danger me-5">
+                                    <form action="/mng/quiz/list" method="get" class="d-flex align-items-center gap-3 w-100 flex-wrap">
+
+                                        <div class="position-relative mw-150px">
+                                            <input type="date" name="searchDate" value="${searchDate}" class="form-control form-control-solid" title="참여 날짜">
+                                        </div>
+
+                                        <div class="position-relative mw-125px">
+                                            <select name="searchSession" class="form-select form-select-solid" data-control="select2" data-hide-search="true">
+                                                <option value="">전체 회차</option>
+                                                <option value="1" ${searchSession == 1 ? 'selected' : ''}>1회차</option>
+                                                <option value="2" ${searchSession == 2 ? 'selected' : ''}>2회차</option>
+                                                <option value="3" ${searchSession == 3 ? 'selected' : ''}>3회차</option>
+                                                <option value="4" ${searchSession == 4 ? 'selected' : ''}>4회차</option>
+                                                <option value="5" ${searchSession == 5 ? 'selected' : ''}>5회차</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-check form-check-custom form-check-solid form-check-danger me-2">
                                             <input class="form-check-input" type="checkbox" name="perfectScoreOnly" value="Y" id="chkPerfect" ${perfectScoreOnly == 'Y' ? 'checked' : ''}/>
                                             <label class="form-check-label fw-bold text-gray-700" for="chkPerfect">만점자(10점)만 조회</label>
                                         </div>
-                                        <div class="position-relative flex-grow-1 mw-300px">
-                                            <input type="text" name="keyword" value="${keyword}" class="form-control form-control-solid" placeholder="이름 / 연락처 / 이메일 검색">
+
+                                        <div class="position-relative flex-grow-1 mw-250px">
+                                            <input type="text" name="keyword" value="${keyword}" class="form-control form-control-solid" placeholder="이름 / 연락처 검색">
                                         </div>
+
                                         <button type="submit" class="btn btn-dark">검색</button>
                                         <a href="/mng/quiz/list" class="btn btn-light">초기화</a>
                                         <a href="/mng/quiz/question/list" class="btn btn-primary fw-bold ms-auto">문제 관리 바로가기</a>

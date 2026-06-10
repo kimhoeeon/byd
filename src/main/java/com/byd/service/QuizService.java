@@ -173,10 +173,10 @@ public class QuizService {
     }
 
     // -------------------------------------------------------------------------
-    // 기존 관리자용 메서드 (유지)
+    // 관리자용 퀴즈 목록 조회 (날짜 및 회차 필터 추가)
     // -------------------------------------------------------------------------
-    public List<QuizUserVO> getQuizAdminList(String keyword, String perfectScoreOnly) {
-        return quizMapper.getQuizAdminList(keyword, perfectScoreOnly);
+    public List<QuizUserVO> getQuizAdminList(String keyword, String perfectScoreOnly, String searchDate, Integer searchSession) {
+        return quizMapper.getQuizAdminList(keyword, perfectScoreOnly, searchDate, searchSession);
     }
 
     public void toggleGiftStatus(int historySeq, String status) {

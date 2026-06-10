@@ -127,4 +127,19 @@ public class QuizLiveApiController {
         }
         return result;
     }
+
+    // 7. [MC용 API] 실시간 입장 완료 참가자 수 조회
+    @GetMapping("/host/participant-count")
+    public Map<String, Object> getParticipantCount(@RequestParam("playDate") String playDate,
+                                                   @RequestParam("sessionNo") int sessionNo) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            int count = quizLiveService.getLiveParticipantCount(playDate, sessionNo);
+            result.put("success", true);
+            result.put("count", count);
+        } catch (Exception e) {
+            result.put("success", false);
+        }
+        return result;
+    }
 }
