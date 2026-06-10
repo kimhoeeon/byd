@@ -67,7 +67,7 @@
                         <ul>
                             <li>
                                 <img src="/img/date_icon.png" alt="아이콘">
-                                <div>2026.6.26(금) - 7. 5(일)</div>
+                                <div>2026. 6. 26(금) - 7. 5(일)</div>
                             </li>
                             <li>
                                 <img src="/img/map_icon.png" alt="아이콘">
