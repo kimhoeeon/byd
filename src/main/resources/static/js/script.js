@@ -96,9 +96,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 $(document).on('click', '.car_list li', function () {
+
     const num = $(this).data('num');
-    const newSrc = '/img/car_list0' + num + '_big.png';
+    const link = $(this).data('link');
+
+    const newSrc = '/img/car_list0' + num + '_big.png?ver=20260612';
+
     const $mainImg = $('.main_car_img');
+    const $mainLink = $('.main_car_link');
 
     $('.car_list li').removeClass('on');
     $(this).addClass('on');
@@ -106,7 +111,12 @@ $(document).on('click', '.car_list li', function () {
     $mainImg.css('opacity', 0);
 
     setTimeout(function () {
+
         $mainImg.attr('src', newSrc);
+        $mainLink.attr('href', link);
+
         $mainImg.css('opacity', 1);
+
     }, 200);
+
 });

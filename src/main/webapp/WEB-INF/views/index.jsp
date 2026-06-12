@@ -110,25 +110,27 @@
                     <div class="car_top">
                         <div>DRIVE IS</div>
                         <div>PLAYFUL</div>
-                        <img src="/img/car_list01_big.png" alt="차량 이미지" class="main_car_img">
+                        <a href="https://www.bydauto.kr/car/byd-dolphin" class="main_car_link" target="_blank">
+                            <img src="/img/car_list01_big.png" alt="차량 이미지" class="main_car_img">
+                        </a>
                     </div>
 
                     <div class="car_list">
                         <ul>
-                            <li data-num="1" class="on">
-                                <img src="/img/car_list01.png?ver=20260610" alt="차량 이미지">
+                            <li data-num="1" class="on" data-link="https://www.bydauto.kr/car/byd-dolphin">
+                                <img src="/img/car_list01.png?ver=20260612" alt="차량 이미지">
                                 <div>BYD DOLPHIN</div>
                             </li>
-                            <li data-num="2">
-                                <img src="/img/car_list02.png?ver=20260610" alt="차량 이미지">
+                            <li data-num="2" data-link="https://www.bydauto.kr/car/byd-atto3">
+                                <img src="/img/car_list02.png?ver=20260612" alt="차량 이미지">
                                 <div>BYD ATTO 3</div>
                             </li>
-                            <li data-num="3">
-                                <img src="/img/car_list03.png?ver=20260610" alt="차량 이미지">
+                            <li data-num="3" data-link="https://www.bydauto.kr/car/byd-seal">
+                                <img src="/img/car_list03.png?ver=20260612" alt="차량 이미지">
                                 <div>BYD SEAL</div>
                             </li>
-                            <li data-num="4">
-                                <img src="/img/car_list04.png?ver=20260610" alt="차량 이미지">
+                            <li data-num="4" data-link="https://www.bydauto.kr/car/byd-sealion7">
+                                <img src="/img/car_list04.png?ver=20260612" alt="차량 이미지">
                                 <div>BYD SEALION 7</div>
                             </li>
                         </ul>
@@ -142,7 +144,7 @@
                 <div class="location">
                     <div class="tit">EVENT LOCATION</div>
                     <ul class="info">
-                        <li>명칭: BUSAN MOBITILY SHOW 2026</li>
+                        <li>명칭: BUSAN INTERNATIONAL MOBILITY SHOW 2026</li>
                         <li>주최: BYD</li>
                         <li>일시: 2026. 6. 26(금) ~ 7. 5(일), 10일간</li>
                         <li>장소: BEXCO</li>
@@ -159,7 +161,7 @@
                 <div class="f_info">
                     <div class="logo">
                         <img src="/img/logo.png" alt="로고">
-                        Busan Mobility Show 2026
+                        BUSAN INTERNATIONAL MOBILITY SHOW 2026
                     </div>
                     <div class="copy">Copyright ©2026 BYD Company Ltd. All rights reserved.</div>
                 </div>
