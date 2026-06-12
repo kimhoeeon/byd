@@ -148,6 +148,9 @@
         let timer = 10;
         let countdownInterval;
 
+        // 연타 방지용 락(Lock) 변수
+        let isProcessing = false;
+
         const STATE = {
             READY: 'READY',             // 문제 공개 전 대기
             PLAYING: 'PLAYING',         // 10초 카운트 시작
@@ -253,8 +256,17 @@
         });
 
         function processNextStep() {
+            // 1. 연타 방어 로직: 처리 중이면 입력을 무시함
+            if (isProcessing) return;
+
             const btn = $('#btnClicker');
-            if(btn.css('pointer-events') === 'none') return; // 비활성화 방어
+            if(btn.css('pointer-events') === 'none') return; // 타이머 진행 중 비활성화 방어
+
+            // 2. 입력 접수됨 -> 0.8초 동안 잠금(Lock)
+            isProcessing = true;
+            setTimeout(function() {
+                isProcessing = false;
+            }, 800);
 
             if (currentState === STATE.READY) {
                 currentState = STATE.PLAYING;
