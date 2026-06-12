@@ -51,6 +51,12 @@
 
 <body class="host">
 
+    <div id="sessionInfoBox" style="position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.6); padding: 10px 18px; border-radius: 20px; z-index: 9999; border: 1px solid rgba(255,255,255,0.15);">
+        <span style="color: #ccc; font-size: 15px; font-weight: bold;">
+            <span id="displayDate">0000-00-00</span> &nbsp;|&nbsp; <span style="color: #fff;">제 <span id="displaySession" style="color:#ffcc00;">0</span> 회차</span>
+        </span>
+    </div>
+
     <div id="liveCountBox" style="position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); padding: 12px 20px; border-radius: 30px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
         <span style="color: #fff; font-size: 16px; font-weight: bold;">
             접속 인원 : <span id="liveCount" style="color: #00ffcc; font-size: 22px;">0</span> 명
@@ -180,6 +186,11 @@
         });
 
         $(document).ready(function () {
+
+            // 좌측 상단 안내판에 날짜와 회차 데이터 바인딩
+            $('#displayDate').text(playDate);
+            $('#displaySession').text(sessionNo);
+
             // 1. 현재 서버의 상태를 먼저 조회 (새로고침 시 복구용)
             $.ajax({
                 url: '/api/quiz/live/status',
@@ -251,6 +262,7 @@
                 e.preventDefault();
                 processNextStep();
             });
+
             fetchParticipantCount();
             setInterval(fetchParticipantCount, 2000);
         });
