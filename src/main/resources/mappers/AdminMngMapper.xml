@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.byd.mapper.AdminMngMapper">
 
-    <!-- 검색 조건 공통 조각 -->
     <sql id="searchCondition">
         <if test="searchType == 'name' and keyword != null and keyword != ''">
             AND name LIKE CONCAT('%', #{keyword}, '%')
@@ -10,10 +9,11 @@
         <if test="searchType == 'phone' and keyword != null and keyword != ''">
             AND REPLACE(phone, '-', '') LIKE CONCAT('%', REPLACE(#{keyword}, '-', ''), '%')
         </if>
-        <if test="arrivalStatus == 'Y'">
+
+        <if test='arrivalStatus == "Y"'>
             AND qr_scan_time IS NOT NULL
         </if>
-        <if test="arrivalStatus == 'N'">
+        <if test='arrivalStatus == "N"'>
             AND qr_scan_time IS NULL
         </if>
         <if test="startDate != null and startDate != ''">
@@ -29,7 +29,6 @@
         FROM admin WHERE admin_id = #{adminId}
     </select>
 
-    <!-- 총 데이터 개수 구하기 (페이징용) -->
     <select id="getTotalCount" resultType="int">
         SELECT COUNT(*) FROM event_participant
         <where>
@@ -37,7 +36,6 @@
         </where>
     </select>
 
-    <!-- 목록 조회 (페이징 및 검색 적용) -->
     <select id="getList" resultType="com.byd.vo.ParticipantVO">
         SELECT * FROM event_participant
         <where>
@@ -101,10 +99,10 @@
 
     <select id="getDashboardSummary" resultType="com.byd.vo.StatsVO">
         SELECT
-        COUNT(*) AS totalCnt,
-        SUM(CASE WHEN DATE(reg_date) = CURDATE() THEN 1 ELSE 0 END) AS todayCnt,
-        SUM(CASE WHEN challenge_check_yn = 'Y' OR drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS qrCheckCnt,
-        SUM(CASE WHEN drive_check_yn = 'N' AND test_drive_time != '시승 미신청' THEN 1 ELSE 0 END) AS driveWaitCnt
+            COUNT(*) AS totalCnt,
+            SUM(CASE WHEN DATE(reg_date) = CURDATE() THEN 1 ELSE 0 END) AS todayCnt,
+            SUM(CASE WHEN challenge_check_yn = 'Y' OR drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS qrCheckCnt,
+            SUM(CASE WHEN drive_check_yn = 'N' AND test_drive_time != '시승 미신청' THEN 1 ELSE 0 END) AS driveWaitCnt
         FROM event_participant
     </select>
 
