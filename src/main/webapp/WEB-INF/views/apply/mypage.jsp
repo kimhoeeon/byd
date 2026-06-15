@@ -84,7 +84,7 @@
                         <c:set var="emailParts" value="${fn:split(data.email, '@')}" />
                         <c:set var="savedEmailId" value="${emailParts[0]}" />
                         <c:set var="savedEmailDomain" value="${fn:length(emailParts) > 1 ? emailParts[1] : ''}" />
-                        <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'google.com' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
+                        <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'gmail.com' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
 
                         <input type="hidden" name="email" id="fullEmail" value="${data.email}">
                         <input type="hidden" name="mktAgree" id="hiddenMkt" value="${data.mktAgree}">
@@ -109,7 +109,7 @@
                                         <select id="emailDomain">
                                             <option value="">이메일 선택</option>
                                             <option value="naver.com" <c:if test="${savedEmailDomain == 'naver.com'}">selected</c:if>>naver.com</option>
-                                            <option value="google.com" <c:if test="${savedEmailDomain == 'google.com'}">selected</c:if>>google.com</option>
+                                            <option value="gmail.com" <c:if test="${savedEmailDomain == 'gmail.com'}">selected</c:if>>gmail.com</option>
                                             <option value="hanmail.net" <c:if test="${savedEmailDomain == 'hanmail.net'}">selected</c:if>>hanmail.net</option>
                                             <option value="nate.com" <c:if test="${savedEmailDomain == 'nate.com'}">selected</c:if>>nate.com</option>
                                             <option value="direct" <c:if test="${isCustomDomain}">selected</c:if>>직접 입력</option>
