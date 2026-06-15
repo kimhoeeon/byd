@@ -95,10 +95,10 @@
         u.user_seq, u.name, u.phone, u.email, u.region, u.shop_info, u.car_model_code, u.privacy_agree, u.reg_date AS u_reg_date,
         h.history_seq, h.play_date, h.session_no, h.score, h.status, h.gift_received_yn
         FROM quiz_user u
-        LEFT JOIN quiz_history h ON u.user_seq = h.user_seq
+        INNER JOIN quiz_history h ON u.user_seq = h.user_seq
         WHERE u.user_seq IN (
         SELECT DISTINCT u2.user_seq FROM quiz_user u2
-        LEFT JOIN quiz_history h2 ON u2.user_seq = h2.user_seq
+        INNER JOIN quiz_history h2 ON u2.user_seq = h2.user_seq
         <where>
             <if test="keyword != null and keyword != ''">
                 AND (u2.name LIKE CONCAT('%', #{keyword}, '%') OR u2.phone LIKE CONCAT('%', #{keyword}, '%') OR u2.email LIKE CONCAT('%', #{keyword}, '%'))

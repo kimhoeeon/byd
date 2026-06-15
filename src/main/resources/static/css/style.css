@@ -432,8 +432,8 @@ label:last-child {margin-right: 0;}
 .host .quiz_q{min-height: inherit;margin-top: 200px;}
 .host .quiz_q .multi{flex-direction: row;}
 .host .quiz_q .multi .btn_multi{width: 100%;}
-.host .quiz_q .btn_multi label{background: #242424;user-select:none; font-size: 24px; border: 3px solid #2A466C;height: 70px; line-height: 70px;}
-.host .quiz_a .ask{font-size: 36px;min-height: inherit;user-select:none;}
+.host .quiz_q .btn_multi label{background: #242424;user-select:none; font-size: 24px; border: 3px solid #2A466C;height: 70px; line-height: 30px;}
+.host .quiz_a .ask{font-size: 36px;min-height: inherit;user-select:none;line-height: 42px;}
 .host .quiz_progress{margin-top: 20px;}
 .host .quiz_a .numb{width: 100px; height: 100px;line-height: 100px;font-size: 36px;user-select:none;}
 .host .quiz_q .btn_multi input:checked + label{background: #242424;font-weight: 500; border: 3px solid #2A466C; color: #fff;}
@@ -496,7 +496,7 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 .footer .logo img{max-width: 120px;}
 .footer .copy{margin-top: 20px; font-size: 16px;}
 
-.time_box{position: absolute; right:150px; top: 10px;user-select: none;}
+.time_box{position: absolute; right:170px; top: 10px;user-select: none;}
 .time_box #timer{font-size: 160px;text-align: center; aspect-ratio: 16 / 9; font-family: 'LABDigital-Regular';}
 
 .scroll {animation: scrollMove 1.8s ease-in-out infinite}
