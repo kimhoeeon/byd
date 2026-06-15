@@ -64,8 +64,8 @@
                     <div class="end_success">
                         <div class="txt_box">
                             <img src="/img/ico_present.png" alt="선물">
-                            <div class="txt">기념품 수령 안내</div>
-                            <div class="desc">기념품은 1인 1개만 수령 가능합니다. 어쩌고 저쩌고 기념품은 1인 1개만 수령 가능합니다. 어쩌고 저쩌고 기념품은 1인 1개만 수령 가능</div>
+                            <div class="txt">퀴즈 이벤트 리워드 안내</div>
+                            <div class="desc">BYD 퀴즈 이벤트에 참여해 주셔서 감사합니다.<br>등록하신 연락처로 커피 쿠폰이 순차 발송될 예정입니다.</div>
                         </div>
                     </div>
                 </div>

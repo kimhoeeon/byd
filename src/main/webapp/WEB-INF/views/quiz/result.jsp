@@ -65,7 +65,7 @@
                     <div class="desc">안내센터로 가서 기념품을 수령해 보세요.</div>
                     <div class="txt_box">
                         <img src="/img/ico_present.png" alt="선물">
-                        <div class="txt">퀴즈이벤트 리워드 안내</div>
+                        <div class="txt">퀴즈 이벤트 리워드 안내</div>
                         <div class="desc">BYD 퀴즈 이벤트에 참여해 주셔서 감사합니다.<br>등록하신 연락처로 커피 쿠폰이 순차 발송될 예정입니다.</div>
                     </div>
                 </div>
