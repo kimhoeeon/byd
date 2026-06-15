@@ -103,9 +103,11 @@
             <if test="keyword != null and keyword != ''">
                 AND (u2.name LIKE CONCAT('%', #{keyword}, '%') OR u2.phone LIKE CONCAT('%', #{keyword}, '%') OR u2.email LIKE CONCAT('%', #{keyword}, '%'))
             </if>
-            <if test="perfectScoreOnly == 'Y'">
+
+            <if test='perfectScoreOnly != null and perfectScoreOnly == "Y"'>
                 AND h2.score = 10
             </if>
+
             <if test="searchDate != null and searchDate != ''">
                 AND h2.play_date = #{searchDate}
             </if>
