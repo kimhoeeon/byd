@@ -164,6 +164,8 @@
 
                 $('input[name="choice"]').prop('disabled', true);
                 $('.quiz_q .btn_multi label').removeClass('correct');
+                $('.quiz_q .multi').css({'pointer-events': 'none', 'opacity': '0.5'});
+
                 restoreSavedAnswer();
 
             } else if (currentState === 'PLAYING') {
@@ -176,6 +178,8 @@
 
                 $('input[name="choice"]').prop('disabled', false);
                 $('.quiz_q .btn_multi label').removeClass('correct');
+                $('.quiz_q .multi').css({'pointer-events': 'auto', 'opacity': '1'});
+
                 restoreSavedAnswer();
 
             } else if (currentState === 'SHOW_ANSWER') {
@@ -187,6 +191,10 @@
                 $('#choiceLabel4').text(q.choice4);
 
                 $('input[name="choice"]').prop('disabled', true);
+                $('.quiz_q .multi').css({'pointer-events': 'none', 'opacity': '1'});
+
+                // 정답 공개 상태에서 새로고침해도 '내가 고른 답(파란 테두리)'이 복구되도록 추가
+                restoreSavedAnswer();
 
                 if(res.correctAnswer) {
                     const correctIndex = res.correctAnswer - 1;
@@ -195,18 +203,32 @@
             }
         }
 
+        // 저장된 답안 복구 및 잔상 제거 로직
         function restoreSavedAnswer() {
+            // 1. 함수가 실행될 때 무조건 모든 선택 상태와 CSS 잔상(on, active)을 싹 강제 초기화!
+            $('input[name="choice"]').prop('checked', false).blur();
+            $('.quiz_q .btn_multi label').removeClass('on active').blur();
+
             const savedAns = sessionStorage.getItem("ans_" + currentQIndex);
+
             if (savedAns) {
+                // 2. 저장된 답이 있으면 해당 답만 체크하고 'on' 클래스를 다시 붙여줍니다.
                 $('#choice' + savedAns).prop('checked', true);
+                $('#choice' + savedAns).next('label').addClass('on');
             } else {
+                // 3. 저장된 답이 없으면 완벽하게 비워진 상태를 유지합니다. (else문 보강)
                 $('input[name="choice"]').prop('checked', false);
+                $('.quiz_q .btn_multi label').removeClass('on active');
             }
         }
 
         $('input[name="choice"]').on('change', function() {
             const answerId = $(this).val();
             sessionStorage.setItem("ans_" + currentQIndex, answerId);
+
+            // 스크립트 충돌을 막기 위해 내가 클릭한 요소 외의 라벨 잔상을 지워줌
+            $('.quiz_q .btn_multi label').removeClass('on active');
+            $(this).next('label').addClass('on');
 
             $.ajax({
                 url: '/api/quiz/live/auto-save',
