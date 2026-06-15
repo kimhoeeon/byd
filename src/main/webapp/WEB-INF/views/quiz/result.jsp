@@ -65,8 +65,8 @@
                     <div class="desc">안내센터로 가서 기념품을 수령해 보세요.</div>
                     <div class="txt_box">
                         <img src="/img/ico_present.png" alt="선물">
-                        <div class="txt">기념품 수령 안내</div>
-                        <div class="desc">안내 데스크 직원에게 본 화면을 제시해 주시면 기념품을 증정해 드립니다. <br>(기념품은 1인 1개 한정 수령 가능)</div>
+                        <div class="txt">퀴즈이벤트 리워드 안내</div>
+                        <div class="desc">BYD 퀴즈 이벤트에 참여해 주셔서 감사합니다.<br>등록하신 연락처로 커피 쿠폰이 순차 발송될 예정입니다.</div>
                     </div>
                 </div>
 

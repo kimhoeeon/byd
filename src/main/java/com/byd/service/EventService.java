@@ -303,16 +303,16 @@ public class EventService {
     }
 
     /**
-     * [시승 10분 전 리마인드 문자 자동 발송 스케줄러]
-     * 매 분 0초마다 실행되어, 현재 시간 기준 10분 뒤에 시승 예약이 있는 대상자를 찾아 문자를 발송합니다.
+     * [시승 15분 전 리마인드 문자 자동 발송 스케줄러]
+     * 매 분 0초마다 실행되어, 현재 시간 기준 15분 뒤에 시승 예약이 있는 대상자를 찾아 문자를 발송합니다.
      */
     @Scheduled(cron = "0 * * * * *")
     public void sendTestDriveReminders() {
-        // 1. 현재 시간에서 정확히 10분 뒤의 시간을 구함 (예: 현재 09:50 이면 targetTime은 "10:00")
-        LocalTime targetTime = LocalTime.now().plusMinutes(10);
+        // 1. 현재 시간에서 정확히 15분 뒤의 시간을 구함 (예: 현재 09:45 이면 targetTime은 "10:00")
+        LocalTime targetTime = LocalTime.now().plusMinutes(15);
         String targetTimeStr = targetTime.format(DateTimeFormatter.ofPattern("HH:mm"));
 
-        // 2. 대상자 조회 (오늘자 + 10분 뒤 시간 예약자 + 미출석)
+        // 2. 대상자 조회 (오늘자 + 15분 뒤 시간 예약자 + 미출석)
         List<ParticipantVO> targetList = eventMapper.getParticipantsForReminder(targetTimeStr);
 
         if (targetList == null || targetList.isEmpty()) {
@@ -342,22 +342,20 @@ public class EventService {
                 }
 
                 // 요청하신 메시지 양식 완벽 매핑
-                String msg = "[BYD 시승 안내] " + p.getName() + "님, 예약하신\n" +
-                        "시승이 10분 후 시작 예정입니다.\n\n" +
-                        "원활한 진행을 위해 지금 바로\n" +
-                        "BYD 시승존으로 방문해 주시기 바랍니다.\n\n" +
-                        "시승 접수 시 아래 모바일 티켓(QR)을 제시해 주세요.\n\n" +
-                        "▶ 모바일 티켓 보기:\n" +
+                String msg = "[BYD KOREA BIMOS 2026 시승 안내]\n\n" + p.getName() + "님\n" +
+                        "예약하신 시승이 15분 후 시작됩니다.\n\n" +
+                        "원활한 진행을 위해 BYD 시승 부스로\n" +
+                        "방문해 주시기 바랍니다.\n\n" +
+                        "접수 시 아래 모바일 티켓(QR)을 제시해 주세요.\n\n" +
+                        "▶ 모바일 티켓 확인\n" +
                         ticketUrl + "\n\n" +
-                        "※ 시승 체험 시간에 맞춰 방문해 주시기 바랍니다.\n" +
-                        "시승 시간 경과 시 예약이 취소되거나 대기 순서가 변경될 수 있습니다.\n\n" +
-                        "문의 : BYD 운영사무국\n" +
-                        "▶ 시승 신청 내용 : " + displayTime + " / " + p.getCarModel() + "\n\n" +
-                        "※ 신청 타임 시작 15분 전까지 BYD 시승부스로 방문해 주세요.";
+                        "※ 예약 시간 이후 도착 시 시승이 취소되거나 대기 순서가 변경될 수 있습니다.\n" +
+                        "※ 음주자는 시승에 참여하실 수 없습니다.\n" +
+                        "※ 실물 운전면허증을 반드시 지참해 주시기 바랍니다.";
 
                 // 문자 전송 호출
                 sendAligoCustomMessage(p.getPhone(), msg);
-                System.out.println("10분 전 리마인드 발송 완료: " + p.getPhone());
+                System.out.println("15분 전 리마인드 발송 완료: " + p.getPhone());
 
             } catch (Exception e) {
                 System.err.println("리마인드 문자 발송 중 오류 발생: " + p.getPhone());
