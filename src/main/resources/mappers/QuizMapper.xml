@@ -147,4 +147,17 @@
         DELETE FROM quiz_question WHERE question_id = #{questionId}
     </delete>
 
+    <insert id="insertQuizVisit">
+        INSERT INTO quiz_visit_stats (visit_date, visit_count)
+        VALUES (CURDATE(), 1)
+        ON DUPLICATE KEY UPDATE visit_count = visit_count + 1
+    </insert>
+
+    <select id="getQuizDailyVisitStats" resultType="com.byd.vo.DailyStatsVO">
+        SELECT DATE_FORMAT(visit_date, '%m.%d') AS regDateStr, visit_count AS cnt
+        FROM quiz_visit_stats
+        WHERE visit_date >= DATE(DATE_SUB(NOW(), INTERVAL 6 DAY))
+        ORDER BY visit_date ASC
+    </select>
+
 </mapper>

@@ -6,7 +6,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8"/>
-    <title>BYD ADMIN | 퀴즈 신청자 관리</title>
+    <title>BYD ADMIN | 퀴즈 관리</title>
     <link rel="stylesheet" href="/assets/plugins/global/plugins.bundle.css">
     <link rel="stylesheet" href="/assets/css/style.bundle.css">
 </head>
@@ -23,6 +23,28 @@
                 <div class="d-flex flex-column flex-column-fluid">
                     <div id="kt_app_content" class="app-content flex-column-fluid mt-8">
                         <div class="app-container container-fluid">
+
+                            <div class="card shadow-sm mb-5">
+                                <div class="card-header border-0 pt-5">
+                                    <h3 class="card-title align-items-start flex-column">
+                                        <span class="card-label fw-bold fs-3 mb-1">일자별 참가자 접속 현황</span>
+                                        <span class="text-muted mt-1 fw-semibold fs-7">퀴즈 이벤트 대기실 최근 7일 방문자 추이</span>
+                                    </h3>
+                                </div>
+                                <div class="card-body py-4">
+                                    <div class="d-flex flex-wrap gap-5 justify-content-start">
+                                        <c:forEach items="${visitStats}" var="stat">
+                                            <div class="border border-gray-300 border-dashed rounded min-w-100px py-3 px-4 d-flex flex-column align-items-center">
+                                                <div class="text-gray-500 fw-bold fs-6 mb-2">${stat.regDateStr}</div>
+                                                <div class="fs-2 fw-bolder text-dark">${stat.cnt} <span class="fs-6 fw-normal text-muted">명</span></div>
+                                            </div>
+                                        </c:forEach>
+                                        <c:if test="${empty visitStats}">
+                                            <div class="text-muted py-5">아직 수집된 접속 데이터가 없습니다.</div>
+                                        </c:if>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="card shadow-sm mb-5">
                                 <div class="card-body py-5">

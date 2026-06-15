@@ -2,10 +2,7 @@ package com.byd.service;
 
 import com.byd.mapper.QuizLiveMapper;
 import com.byd.mapper.QuizMapper;
-import com.byd.vo.QuizHistoryVO;
-import com.byd.vo.QuizLiveSessionVO;
-import com.byd.vo.QuizQuestionVO;
-import com.byd.vo.QuizUserVO;
+import com.byd.vo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -208,4 +205,14 @@ public class QuizService {
     public void deleteQuestion(int questionId) {
         quizMapper.deleteQuestion(questionId);
     }
+
+    @Transactional
+    public void recordVisit() {
+        quizMapper.insertQuizVisit();
+    }
+
+    public List<DailyStatsVO> getQuizDailyVisitStats() {
+        return quizMapper.getQuizDailyVisitStats();
+    }
+
 }

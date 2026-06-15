@@ -1,6 +1,7 @@
 package com.byd.controller;
 
 import com.byd.service.QuizService;
+import com.byd.vo.DailyStatsVO;
 import com.byd.vo.QuizQuestionVO;
 import com.byd.vo.QuizUserVO;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,11 @@ public class QuizAdminController {
 
         List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly, searchDate, searchSession);
 
+        // 최근 7일 접속자 통계 데이터 조회
+        List<DailyStatsVO> visitStats = quizService.getQuizDailyVisitStats();
+
         model.addAttribute("list", list);
+        model.addAttribute("visitStats", visitStats);
         model.addAttribute("keyword", keyword);
         model.addAttribute("perfectScoreOnly", perfectScoreOnly);
         model.addAttribute("searchDate", searchDate);

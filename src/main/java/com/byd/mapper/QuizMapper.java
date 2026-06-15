@@ -1,5 +1,6 @@
 package com.byd.mapper;
 
+import com.byd.vo.DailyStatsVO;
 import com.byd.vo.QuizHistoryVO;
 import com.byd.vo.QuizQuestionVO;
 import com.byd.vo.QuizUserVO;
@@ -46,4 +47,9 @@ public interface QuizMapper {
     void updateQuestion(QuizQuestionVO question);
 
     void deleteQuestion(@Param("questionId") int questionId);
+
+    void insertQuizVisit();
+
+    List<DailyStatsVO> getQuizDailyVisitStats();
+
 }
