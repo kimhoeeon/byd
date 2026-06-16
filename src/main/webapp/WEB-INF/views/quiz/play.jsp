@@ -232,7 +232,7 @@
                 $('#choice' + savedAns).prop('checked', true);
                 $('#choice' + savedAns).next('label').addClass('on');
             } else {
-                // 3. 저장된 답이 없으면 완벽하게 비워진 상태를 유지합니다. (else문 보강)
+                // 3. 저장된 답이 없으면 완벽하게 비워진 상태를 유지합니다.
                 $('input[name="choice"]').prop('checked', false);
                 $('.quiz_q .btn_multi label').removeClass('on active');
             }

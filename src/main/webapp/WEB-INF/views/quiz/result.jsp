@@ -62,7 +62,7 @@
                 <div class="end_success" id="successView">
                     <img src="/img/icon_success.png" alt="성공">
                     <div class="tit text-primary">10문제 정답!</div>
-                    <div class="desc">안내센터로 가서 기념품을 수령해 보세요.</div>
+                    <%--<div class="desc">안내센터로 가서 기념품을 수령해 보세요.</div>--%>
                     <div class="txt_box">
                         <img src="/img/ico_present.png" alt="선물">
                         <div class="txt">퀴즈 이벤트 리워드 안내</div>
