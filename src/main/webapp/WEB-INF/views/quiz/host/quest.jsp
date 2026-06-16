@@ -322,7 +322,7 @@
                 const isLast = (currentQIndex === questions.length - 1);
                 if (isLast) {
                     updateServerState('ENDED');
-                    location.href = '/quiz/host/end';
+                    location.href = '/quiz/host/perfect?sessionNo=' + sessionNo;
                 } else {
                     currentQIndex++;
                     loadQuestionUI();

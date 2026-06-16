@@ -518,6 +518,17 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 .car_list li:hover {opacity: 1;transform: translateY(-4px);}
 .main_car_img {transition: opacity .3s ease;}
 
+.prize{width: 100%; max-width: 100% !important;overflow: auto;}
+.prize_list{ max-height: 210px; max-width: 800px; margin: 0 auto; display:flex; flex-wrap: wrap; justify-content: center;} 
+.prize_list li{width: 50%;}
+.prize_tit{margin-bottom: 40px !important;}
+.mb-50{margin-bottom: 50px !important;}
+.prize::-webkit-scrollbar {width: 6px;}
+.prize::-webkit-scrollbar-track {background: rgba(255, 255, 255, 0.08);border-radius: 999px;}
+.prize::-webkit-scrollbar-thumb {background: rgba(255, 255, 255, 0.35);border-radius: 999px;}
+.prize::-webkit-scrollbar-thumb:hover {background: rgba(255, 255, 255, 0.5);}
+.prize {scrollbar-width: thin;scrollbar-color: rgba(255, 255, 255, 0.35) rgba(255, 255, 255, 0.08);}
+
 @media screen and (max-width:1400px) {
     .main_car .car_top{width: 90%;font-size: 48px;padding: 240px 0;}
     .main_car .car_top a{width: 60%;}

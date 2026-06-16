@@ -181,4 +181,24 @@ public class QuizLiveApiController {
         }
         return result;
     }
+
+    // 8. [MC용 API] 해당 회차 만점자 리스트 조회
+    @GetMapping("/host/perfect-scorers")
+    public Map<String, Object> getPerfectScorers(@RequestParam("playDate") String playDate,
+                                                 @RequestParam(value = "sessionNo", defaultValue = "0") int sessionNo) {
+        Map<String, Object> result = new HashMap<>();
+        if (sessionNo == 0) {
+            result.put("success", false);
+            return result;
+        }
+
+        try {
+            List<Map<String, Object>> list = quizLiveService.getPerfectScorers(playDate, sessionNo);
+            result.put("success", true);
+            result.put("scorers", list);
+        } catch (Exception e) {
+            result.put("success", false);
+        }
+        return result;
+    }
 }

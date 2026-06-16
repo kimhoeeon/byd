@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,5 +86,10 @@ public class QuizLiveService {
     // 현재 접속 완료된 참가자 수 반환
     public int getLiveParticipantCount(String playDate, int sessionNo) {
         return quizLiveMapper.getParticipantCount(playDate, sessionNo);
+    }
+
+    // 특정 회차 만점자 목록 가져오기
+    public List<Map<String, Object>> getPerfectScorers(String playDate, int sessionNo) {
+        return quizLiveMapper.getPerfectScorers(playDate, sessionNo);
     }
 }

@@ -79,6 +79,11 @@ public class QuizController {
         return "quiz/host/quest";
     }
 
+    @GetMapping("/host/perfect")
+    public String hostPerfect() {
+        return "quiz/host/perfect";
+    }
+
     @GetMapping("/host/end")
     public String hostEnd() {
         return "quiz/host/end";

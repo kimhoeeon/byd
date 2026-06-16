@@ -80,4 +80,14 @@
         LIMIT 1
     </select>
 
+    <select id="getPerfectScorers" resultType="java.util.LinkedHashMap">
+        SELECT u.name, RIGHT(u.phone, 4) AS phoneLast4
+        FROM quiz_history h
+        INNER JOIN quiz_user u ON h.user_seq = u.user_seq
+        WHERE h.play_date = #{playDate}
+          AND h.session_no = #{sessionNo}
+          AND h.score = 10
+        ORDER BY h.reg_date ASC
+    </select>
+
 </mapper>

@@ -37,4 +37,7 @@ public interface QuizLiveMapper {
 
     // 9. 오늘 날짜로 MC가 개설한 '가장 최근' 라이브 세션 조회
     QuizLiveSessionVO getLatestLiveSession(@Param("playDate") String playDate);
+
+    // 10. 특정 회차의 만점자(score=10) 목록 조회
+    List<java.util.Map<String, Object>> getPerfectScorers(@Param("playDate") String playDate, @Param("sessionNo") int sessionNo);
 }
