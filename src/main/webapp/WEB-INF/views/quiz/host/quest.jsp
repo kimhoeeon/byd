@@ -79,7 +79,7 @@
             <!-- //title -->
 
             <div class="bar">
-                <div class="tit">BYD <span>퀴즈 이벤트</span></div>
+                <%--<div class="tit">BYD <span>퀴즈 이벤트</span></div>--%>
                 <div class="quiz_progress">
                     <div class="progress_item"></div>
                     <div class="progress_item"></div>
@@ -131,7 +131,7 @@
                         </div>
                         <!-- //객관식 -->
                     </div>
-                    <div class="btn_box" style="margin-top: 30px;">
+                    <div class="btn_box" style="margin-top: 30px; display:none;">
                         <a href="javascript:void(0);" id="btnClicker" class="btn_st05">문제 로딩 중...</a>
                     </div>
                 </div>

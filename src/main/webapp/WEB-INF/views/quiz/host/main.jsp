@@ -126,8 +126,11 @@
                     if(res.success) {
                         location.href = '/quiz/host/quest?sessionNo=' + sessionNo;
                     } else {
-                        alert(res.message);
                         isStarting = false;
+                        // 이미 방이 존재할 경우 복구 진입 여부를 묻습니다.
+                        if(confirm("이미 개설되어 진행 중이거나 중단된 회차입니다.\n기존 화면으로 [이어서 진행] 하시겠습니까?\n\n※ 처음부터 다시 하려면 '취소'를 누른 뒤 하단의 [강제 초기화]를 진행해주세요.")) {
+                            location.href = '/quiz/host/quest?sessionNo=' + sessionNo;
+                        }
                     }
                 },
                 error: function() {
@@ -139,14 +142,14 @@
 
         function resetLiveQuiz() {
             const sessionNo = $('#sessionNo').val();
-            if(confirm("정말 " + sessionNo + "회차를 강제 초기화하시겠습니까?\n(참여자의 퀴즈 진행이 모두 중단됩니다)")) {
+            if(confirm("정말 " + sessionNo + "회차를 강제 초기화하시겠습니까?\n(현재 방에 있는 참가자들의 퀴즈 진행이 모두 중단됩니다)")) {
                 $.ajax({
                     url: '/api/quiz/live/host/reset',
                     type: 'POST',
                     data: { playDate: getTodayStr(), sessionNo: sessionNo },
                     success: function(res) {
                         if(res.success) {
-                            alert("초기화가 완료되었습니다. 다시 시작해주세요.");
+                            alert("초기화가 완료되었습니다. [시작하기]를 눌러 새로 개설해주세요.");
                         } else {
                             alert(res.message);
                         }

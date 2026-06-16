@@ -41,7 +41,7 @@
         </div>
 
         <div class="bar">
-            <div class="tit">BYD <span>퀴즈 이벤트</span></div>
+            <%--<div class="tit">BYD <span>퀴즈 이벤트</span></div>--%>
             <div class="end_progress">
                 <div class="progress_item on"></div>
                 <div class="progress_item on"></div>

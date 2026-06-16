@@ -25,10 +25,20 @@ public class QuizAdminController {
     public String quizList(@RequestParam(required = false) String keyword,
                            @RequestParam(required = false) String perfectScoreOnly,
                            @RequestParam(required = false) String searchDate,
-                           @RequestParam(required = false) Integer searchSession,
+                           @RequestParam(required = false) String searchSession,
                            Model model) {
 
-        List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly, searchDate, searchSession);
+        // 빈 문자열("") 방어 로직 추가: 값이 있을 때만 숫자로 변환
+        Integer sessionNo = null;
+        if (searchSession != null && !searchSession.trim().isEmpty()) {
+            try {
+                sessionNo = Integer.parseInt(searchSession);
+            } catch (NumberFormatException e) {
+                sessionNo = null;
+            }
+        }
+
+        List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly, searchDate, sessionNo);
 
         // 최근 7일 접속자 통계 데이터 조회
         List<DailyStatsVO> visitStats = quizService.getQuizDailyVisitStats();
@@ -38,7 +48,7 @@ public class QuizAdminController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("perfectScoreOnly", perfectScoreOnly);
         model.addAttribute("searchDate", searchDate);
-        model.addAttribute("searchSession", searchSession);
+        model.addAttribute("searchSession", sessionNo);
 
         return "mng/quiz/list";
     }
