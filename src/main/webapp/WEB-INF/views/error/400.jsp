@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>잘못된 접근 - BYD 시승신청</title>
     <link rel="stylesheet" type="text/css" href="/css/reset.css">
-    <link rel="stylesheet" type="text/css" href="/css/style.css?ver=20260615">
+    <link rel="stylesheet" type="text/css" href="/css/style.css?ver=20260616">
     <style>
         .error-container {
             text-align: center;

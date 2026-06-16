@@ -14,7 +14,7 @@
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <link href="/css/reset.css" rel="stylesheet">
     <link href="/css/font.css" rel="stylesheet">
-    <link href="/css/style.css?ver=20260615" rel="stylesheet">
+    <link href="/css/style.css?ver=20260616" rel="stylesheet">
 
     <script src="/js/jquery-1.9.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
@@ -63,7 +63,20 @@
                                             (필수) 개인정보 수집·이용 동의
                                         </span>
                                     </label>
-                                    <textarea readonly>시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집 이용하고자 합니다. 시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집 이용하고자 합니다.시승 신청 및 원활한 안내를 위해 아래와 같이 개인정보를 수집 이용하고자 합니다.</textarea>
+                                    <textarea readonly>퀴즈쇼 참여를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. 내용을 확인하신 후 동의 여부를 결정하여 주시기 바랍니다.&#10;&#10;
+                                        1. 수집 항목&#10;
+                                        * 필수항목: 이름, 연락처, 이메일, 관심 전시장, 관심 차종&#10;&#10;
+                                        2. 수집 및 이용 목적&#10;
+                                        * 퀴즈쇼 참가자 확인 및 본인 식별&#10;
+                                        * 퀴즈 진행 및 결과 확인&#10;
+                                        * 경품·쿠폰 지급 대상 확인 및 안내&#10;
+                                        * 행사 운영 및 참가자 통계 분석&#10;
+                                        * 행사 및 전시 운영 개선을 위한 참고자료 활용&#10;&#10;
+                                        3. 보유 및 이용 기간&#10;
+                                        * 수집일로부터 6개월간 보관 후 지체 없이 파기&#10;&#10;
+                                        4. 동의 거부 권리 및 불이익&#10;
+                                        * 귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다.&#10;
+                                        * 다만, 필수항목 수집에 대한 동의를 거부할 경우 퀴즈쇼 참여가 제한될 수 있습니다.</textarea>
                                 </div>
                             </li>
                         </ul>

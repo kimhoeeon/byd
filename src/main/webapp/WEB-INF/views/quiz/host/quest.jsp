@@ -21,7 +21,7 @@
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <link href="/css/reset.css" rel="stylesheet">
     <link href="/css/font.css" rel="stylesheet">
-    <link href="/css/style.css?ver=20260615" rel="stylesheet">
+    <link href="/css/style.css?ver=20260616" rel="stylesheet">
 
     <script src="/js/jquery-1.9.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
@@ -160,9 +160,15 @@
         const STATE = {
             READY: 'READY',             // 문제 공개 전 대기
             PLAYING: 'PLAYING',         // 10초 카운트 시작
+            TIME_UP: 'TIME_UP',
             SHOW_ANSWER: 'SHOW_ANSWER'  // 정답 공개
         };
         let currentState = STATE.READY;
+
+        // 사운드 객체 미리 로드
+        const soundTimerIng = new Audio('/audio/timer_ing.mp3');
+        const soundTimerEnd = new Audio('/audio/timer_end.mp3');
+        const soundComplete = new Audio('/audio/complete.mp3');
 
         function getTodayStr() {
             const d = new Date();
@@ -186,7 +192,6 @@
         });
 
         $(document).ready(function () {
-
             // 좌측 상단 안내판에 날짜와 회차 데이터 바인딩
             $('#displayDate').text(playDate);
             $('#displaySession').text(sessionNo);
@@ -212,7 +217,7 @@
                                     questions = res.questions;
 
                                     // 상태에 맞게 UI 즉시 복구
-                                    if (currentState === 'PLAYING' || currentState === 'SHOW_ANSWER') {
+                                    if(currentState === 'PLAYING' || currentState === 'TIME_UP' || currentState === 'SHOW_ANSWER') {
                                         // 이미 진행 중이던 문제면 텍스트를 바로 띄움
                                         const q = questions[currentQIndex];
                                         $('.quiz_a .numb').text(currentQIndex + 1);
@@ -233,6 +238,12 @@
                                             $('#btnClicker').text('10초 카운트다운 진행중...').css({
                                                 'opacity': '0.5',
                                                 'pointer-events': 'none'
+                                            });
+                                        } else if (currentState === 'TIME_UP') {
+                                            $('#timer_label').text('0');
+                                            $('#btnClicker').text('정답 공개 (클릭)').css({
+                                                'opacity': '1',
+                                                'pointer-events': 'auto'
                                             });
                                         } else {
                                             showCorrectAnswer();
@@ -295,10 +306,14 @@
                 startTimer();
                 btn.text('10초 카운트다운 진행중...').css({'opacity': '0.5', 'pointer-events': 'none'});
 
-            } else if (currentState === STATE.PLAYING) {
+            } else if (currentState === STATE.PLAYING || currentState === STATE.TIME_UP) {
                 currentState = STATE.SHOW_ANSWER;
                 updateServerState(STATE.SHOW_ANSWER);
                 showCorrectAnswer();
+
+                // 정답 공개 시 완료 사운드 재생
+                soundComplete.currentTime = 0; // 연속 클릭 시 처음부터 재생되도록 초기화
+                soundComplete.play().catch(function(e) { console.log('사운드 재생 에러:', e); });
 
                 const isLast = (currentQIndex === questions.length - 1);
                 btn.text(isLast ? '결과 보기 페이지로 이동' : '다음 문제 준비하기');
@@ -351,6 +366,10 @@
             timer = 10;
             $('#timer_label').text(timer);
 
+            // 카운트다운 시작 시 진행음(timer_ing) 재생
+            soundTimerIng.currentTime = 0;
+            soundTimerIng.play().catch(function(e) { console.log('사운드 재생 에러:', e); });
+
             countdownInterval = setInterval(function () {
                 timer--;
                 $('#timer_label').text(timer);
@@ -358,6 +377,15 @@
                 if (timer <= 0) {
                     clearInterval(countdownInterval);
                     $('#btnClicker').text('정답 공개 (클릭)').css({'opacity': '1', 'pointer-events': 'auto'});
+
+                    // 0초 도달 시 진행음 중지 & 종료음(timer_end) 재생
+                    soundTimerIng.pause();
+                    soundTimerEnd.currentTime = 0;
+                    soundTimerEnd.play().catch(function(e) { console.log('사운드 재생 에러:', e); });
+
+                    // 카운트다운이 0이 되는 순간 참가자 폰에 락을 걸기 위해 즉시 TIME_UP 전송!
+                    currentState = STATE.TIME_UP;
+                    updateServerState(STATE.TIME_UP);
                 }
             }, 1000);
         }

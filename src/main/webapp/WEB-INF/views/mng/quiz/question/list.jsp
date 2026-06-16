@@ -54,14 +54,13 @@
                                                 </tr>
                                             </c:if>
 
-                                            <c:forEach items="${qList}" var="q">
+                                            <c:forEach items="${qList}" var="q" varStatus="st">
                                                 <tr>
-                                                    <td>${q.questionId}</td>
+                                                    <td>${st.index + 1}</td>
                                                     <td class="text-start">
                                                         <span class="text-dark fw-bold fs-6">${q.questionText}</span>
                                                         <div class="text-muted fs-7 mt-1">
-                                                            ① ${q.choice1} / ② ${q.choice2} / ③ ${q.choice3} /
-                                                            ④ ${q.choice4}
+                                                            ① ${q.choice1} / ② ${q.choice2} / ③ ${q.choice3} / ④ ${q.choice4}
                                                         </div>
                                                     </td>
                                                     <td><span

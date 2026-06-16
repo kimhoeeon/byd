@@ -23,8 +23,16 @@ public class QuizLiveApiController {
     // 1. [유저용 Polling API] 1초마다 휴대폰이 서버에 물어보는 현재 상태
     @GetMapping("/status")
     public Map<String, Object> getLiveStatus(@RequestParam("playDate") String playDate,
-                                             @RequestParam("sessionNo") int sessionNo) {
+                                             @RequestParam(value = "sessionNo", defaultValue = "0") int sessionNo) {
         Map<String, Object> result = new HashMap<>();
+
+        // sessionNo가 비어서 0으로 들어오면 에러 없이 바로 차단
+        if (sessionNo == 0) {
+            result.put("success", false);
+            result.put("message", "세션 정보가 없습니다.");
+            return result;
+        }
+
         QuizLiveSessionVO session = quizLiveService.getCurrentLiveSession(playDate, sessionNo);
 
         if (session != null) {
@@ -50,12 +58,17 @@ public class QuizLiveApiController {
 
     // 2. [유저용 Auto-Save API] 참가자가 보기를 터치할 때마다 즉시 저장
     @PostMapping("/auto-save")
-    public Map<String, Object> autoSaveAnswer(@RequestParam("userSeq") int userSeq,
+    public Map<String, Object> autoSaveAnswer(@RequestParam(value = "userSeq", defaultValue = "0") int userSeq,
                                               @RequestParam("playDate") String playDate,
-                                              @RequestParam("sessionNo") int sessionNo,
-                                              @RequestParam("questionIndex") int questionIndex,
-                                              @RequestParam("answerId") int answerId) {
+                                              @RequestParam(value = "sessionNo", defaultValue = "0") int sessionNo,
+                                              @RequestParam(value = "questionIndex", defaultValue = "0") int questionIndex,
+                                              @RequestParam(value = "answerId", defaultValue = "0") int answerId) {
         Map<String, Object> result = new HashMap<>();
+        if (userSeq == 0 || sessionNo == 0) {
+            result.put("success", false);
+            return result;
+        }
+
         try {
             quizLiveService.saveUserAnswer(userSeq, playDate, sessionNo, questionIndex, answerId);
             result.put("success", true);
@@ -69,10 +82,15 @@ public class QuizLiveApiController {
     // 3. [MC용 API] 클리커 제어
     @PostMapping("/host/control")
     public Map<String, Object> hostControl(@RequestParam("playDate") String playDate,
-                                           @RequestParam("sessionNo") int sessionNo,
-                                           @RequestParam("targetQuestionNo") int targetQuestionNo,
+                                           @RequestParam(value = "sessionNo", defaultValue = "0") int sessionNo,
+                                           @RequestParam(value = "targetQuestionNo", defaultValue = "0") int targetQuestionNo,
                                            @RequestParam("targetStatus") String targetStatus) {
         Map<String, Object> result = new HashMap<>();
+        if (sessionNo == 0) {
+            result.put("success", false);
+            return result;
+        }
+
         try {
             quizLiveService.controlLiveSession(playDate, sessionNo, targetQuestionNo, targetStatus);
             result.put("success", true);
@@ -86,8 +104,14 @@ public class QuizLiveApiController {
     // 4. [MC용 API] 퀴즈쇼 회차 최초 생성 및 시작
     @PostMapping("/host/start")
     public Map<String, Object> hostStart(@RequestParam("playDate") String playDate,
-                                         @RequestParam("sessionNo") int sessionNo) {
+                                         @RequestParam(value = "sessionNo", defaultValue = "0") int sessionNo) {
         Map<String, Object> result = new HashMap<>();
+        if (sessionNo == 0) {
+            result.put("success", false);
+            result.put("message", "회차 정보가 누락되었습니다.");
+            return result;
+        }
+
         boolean isStarted = quizLiveService.startNewLiveSession(playDate, sessionNo);
         result.put("success", isStarted);
         if(!isStarted) {
@@ -99,8 +123,13 @@ public class QuizLiveApiController {
     // 5. [MC용 API] 긴급 상황 시 회차 초기화
     @PostMapping("/host/reset")
     public Map<String, Object> hostReset(@RequestParam("playDate") String playDate,
-                                         @RequestParam("sessionNo") int sessionNo) {
+                                         @RequestParam(value = "sessionNo", defaultValue = "0") int sessionNo) {
         Map<String, Object> result = new HashMap<>();
+        if (sessionNo == 0) {
+            result.put("success", false);
+            return result;
+        }
+
         try {
             quizLiveService.resetLiveSession(playDate, sessionNo);
             result.put("success", true);
@@ -113,8 +142,13 @@ public class QuizLiveApiController {
     // 6. [MC용 API] 해당 회차 전체 문제 조회
     @GetMapping("/host/questions")
     public Map<String, Object> getHostQuestions(@RequestParam("playDate") String playDate,
-                                                @RequestParam("sessionNo") int sessionNo) {
+                                                @RequestParam(value = "sessionNo", defaultValue = "0") int sessionNo) {
         Map<String, Object> result = new HashMap<>();
+        if (sessionNo == 0) {
+            result.put("success", false);
+            return result;
+        }
+
         QuizLiveSessionVO session = quizLiveService.getCurrentLiveSession(playDate, sessionNo);
 
         if (session != null && session.getAssignedQuestions() != null) {
@@ -131,8 +165,13 @@ public class QuizLiveApiController {
     // 7. [MC용 API] 실시간 입장 완료 참가자 수 조회
     @GetMapping("/host/participant-count")
     public Map<String, Object> getParticipantCount(@RequestParam("playDate") String playDate,
-                                                   @RequestParam("sessionNo") int sessionNo) {
+                                                   @RequestParam(value = "sessionNo", defaultValue = "0") int sessionNo) {
         Map<String, Object> result = new HashMap<>();
+        if (sessionNo == 0) {
+            result.put("success", false);
+            return result;
+        }
+
         try {
             int count = quizLiveService.getLiveParticipantCount(playDate, sessionNo);
             result.put("success", true);

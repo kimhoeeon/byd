@@ -15,7 +15,7 @@
 
     <link href="/css/reset.css" rel="stylesheet">
     <link href="/css/font.css" rel="stylesheet">
-    <link href="/css/style.css?ver=20260615" rel="stylesheet">
+    <link href="/css/style.css?ver=20260616" rel="stylesheet">
 
     <script src="/js/jquery-1.9.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>

@@ -14,7 +14,7 @@
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <link href="/css/reset.css" rel="stylesheet">
     <link href="/css/font.css" rel="stylesheet">
-    <link href="/css/style.css?ver=20260615" rel="stylesheet">
+    <link href="/css/style.css?ver=20260616" rel="stylesheet">
 
     <script src="/js/jquery-1.9.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
@@ -179,6 +179,22 @@
                 $('input[name="choice"]').prop('disabled', false);
                 $('.quiz_q .btn_multi label').removeClass('correct');
                 $('.quiz_q .multi').css({'pointer-events': 'auto', 'opacity': '1'});
+
+                restoreSavedAnswer();
+
+            } else if (currentState === 'TIME_UP') {
+                // 카운트가 끝났으므로 화면은 유지하되 강제 터치 잠금!
+                $('.quiz_a .ask').text(q.questionText);
+                $('#choiceLabel1').text(q.choice1);
+                $('#choiceLabel2').text(q.choice2);
+                $('#choiceLabel3').text(q.choice3);
+                $('#choiceLabel4').text(q.choice4);
+
+                $('input[name="choice"]').prop('disabled', true);
+                $('.quiz_q .btn_multi label').removeClass('correct');
+
+                // 더 이상 수정하지 못하게 잠그지만, 자기가 고른 답은 잘 보이게 투명도는 1로 유지
+                $('.quiz_q .multi').css({'pointer-events': 'none', 'opacity': '1'});
 
                 restoreSavedAnswer();
 
