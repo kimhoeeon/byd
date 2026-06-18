@@ -60,7 +60,7 @@
                         <div class="txt_img">
                             <img src="/img/main_tit.png" alt="메인 타이틀">
                         </div>
-                        <div class="txt">The Power of Duailty</div>
+                        <div class="txt">The Power of Duality</div>
                     </div>
                     <div class="date_box">
                         <ul>
@@ -88,11 +88,8 @@
                         <div class="video_container">
                             <div class="yt-wrapper">
                                 <div class="video_content">
-                                    <iframe id="vimeo-player"
-                                            src="https://player.vimeo.com/video/1199335845?h=b9ac112efc&badge=0&autopause=0&player_id=0&muted=1&loop=1&playsinline=1&controls=0"
-                                            frameborder="0"
-                                            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                                            data-ready="true">
+                                    <iframe id="vimeo-player" src="https://player.vimeo.com/video/1202328106?h=b9ac112efc&badge=0&autopause=0&player_id=0&muted=1&loop=1&playsinline=1&controls=0"
+                                            frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" data-ready="true">
                                     </iframe>
                                 </div>
                                 <script src="https://player.vimeo.com/api/player.js"></script>

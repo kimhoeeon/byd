@@ -464,6 +464,7 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 .main .date_box ul li:last-child:after{display: none;}
 .main .scroll{color: #fff;text-align: center;position: absolute;bottom: 50px;left: 50%; transform: translateX(-50%);}
 .main .scroll::after{content: ''; background: url(/img/main_arrow.png) no-repeat; width: 24px; height: 24px;display: block;position: absolute;left: 50%; transform: translateX(-50%);}
+.main .scroll div{left: 50%;}
 
 .main_video .bg_video {width: 100%; height: 100%;}
 .main_video .bg_video video,
@@ -504,13 +505,13 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 
 @keyframes scrollMove {
     0% {
-        transform: translateY(0);
+        transform: translate(-50%, 0);
     }
     50% {
-        transform: translateY(10px);
+        transform: translate(-50%, 10px);
     }
     100% {
-        transform: translateY(0);
+        transform: translate(-50%, 0);
     }
 }
 .car_list li {cursor: pointer;opacity: .5;transition: opacity .3s ease, transform .3s ease;}
