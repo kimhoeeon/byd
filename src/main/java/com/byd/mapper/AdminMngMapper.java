@@ -54,4 +54,7 @@ public interface AdminMngMapper {
 
     // 노쇼 처리 상태 업데이트
     void updateNoshow(int seq);
+
+    // 노쇼 취소 처리
+    void cancelNoshow(int seq);
 }

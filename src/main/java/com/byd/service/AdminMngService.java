@@ -109,4 +109,8 @@ public class AdminMngService {
     public void updateNoshow(int seq) {
         adminMngMapper.updateNoshow(seq);
     }
+
+    public void cancelNoshow(int seq) {
+        adminMngMapper.cancelNoshow(seq);
+    }
 }

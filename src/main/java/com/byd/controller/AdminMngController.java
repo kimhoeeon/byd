@@ -236,6 +236,22 @@ public class AdminMngController {
         return response;
     }
 
+    // 시승 노쇼(No-show) 취소 API 추가
+    @PostMapping("/api/participant/cancelNoshow")
+    @ResponseBody
+    public ResponseDTO cancelNoshow(@RequestParam("seq") int seq) {
+        ResponseDTO response = new ResponseDTO();
+        try {
+            adminMngService.cancelNoshow(seq);
+            response.setSuccess(true);
+            response.setMessage("노쇼 처리가 취소되었습니다. 다시 '미도착' 상태로 변경됩니다.");
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("노쇼 취소 처리 중 오류가 발생했습니다.");
+        }
+        return response;
+    }
+
     // 삭제 기능 API 추가
     @PostMapping("/api/participant/delete")
     @ResponseBody

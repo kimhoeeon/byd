@@ -151,18 +151,22 @@
                                     <th class="bg-light fw-bold">시승 도착 확인</th>
                                     <td>
                                         <div class="d-flex align-items-center">
+                                            <!-- 상태 렌더링 -->
                                             <c:choose>
                                                 <c:when test="${data.driveCheckYn eq 'Y'}">
                                                     <span class="text-success fw-bold">도착 확인 완료</span>
                                                 </c:when>
                                                 <c:when test="${data.driveCheckYn eq 'X'}">
                                                     <span class="text-warning fw-bold">노쇼 (No-show)</span>
+                                                    <!-- 노쇼 취소 버튼 추가 -->
+                                                    <button type="button" class="btn btn-sm btn-light-primary ms-3 py-1 px-2" onclick="cancelNoshow(${data.seq})">노쇼 취소</button>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="text-danger fw-bold">미도착</span>
                                                 </c:otherwise>
                                             </c:choose>
 
+                                            <!-- 노쇼 처리 버튼 -->
                                             <c:if test="${data.testDriveTime ne '시승 미신청' and data.driveCheckYn ne 'Y' and data.driveCheckYn ne 'X'}">
                                                 <button type="button" class="btn btn-sm btn-light-danger ms-3 py-1 px-2" onclick="processNoshow(${data.seq})">노쇼 처리</button>
                                             </c:if>
@@ -215,11 +219,33 @@
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
     <script>
-        // 노쇼 처리 스크립트
+        // 노쇼 처리
         function processNoshow(seq) {
             if(confirm("해당 고객을 노쇼(No-show) 처리하시겠습니까?\n처리 즉시 해당 시간대의 시승 예약 T/O가 1자리 복구됩니다.")) {
                 $.ajax({
                     url: '/mng/api/participant/noshow',
+                    type: 'POST',
+                    data: { seq: seq },
+                    success: function(res) {
+                        if(res.success) {
+                            alert(res.message);
+                            location.reload();
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function() {
+                        alert("서버 통신 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+        }
+
+        // 노쇼 취소 처리
+        function cancelNoshow(seq) {
+            if(confirm("노쇼 처리를 취소하고 다시 '미도착' 상태로 변경하시겠습니까?\n해당 시승 슬롯의 빈자리가 다시 1자리 차감됩니다.")) {
+                $.ajax({
+                    url: '/mng/api/participant/cancelNoshow',
                     type: 'POST',
                     data: { seq: seq },
                     success: function(res) {

@@ -171,4 +171,10 @@
         SET drive_check_yn = 'X'
         WHERE seq = #{seq}
     </update>
+
+    <update id="cancelNoshow" parameterType="int">
+        UPDATE event_participant
+        SET drive_check_yn = 'N'
+        WHERE seq = #{seq}
+    </update>
 </mapper>
