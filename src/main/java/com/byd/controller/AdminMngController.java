@@ -220,6 +220,22 @@ public class AdminMngController {
         return response;
     }
 
+    // 시승 노쇼(No-show) 처리 API 추가
+    @PostMapping("/api/participant/noshow")
+    @ResponseBody
+    public ResponseDTO processNoshow(@RequestParam("seq") int seq) {
+        ResponseDTO response = new ResponseDTO();
+        try {
+            adminMngService.updateNoshow(seq);
+            response.setSuccess(true);
+            response.setMessage("노쇼 처리가 완료되어 해당 시승 슬롯이 복구되었습니다.");
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("노쇼 처리 중 오류가 발생했습니다.");
+        }
+        return response;
+    }
+
     // 삭제 기능 API 추가
     @PostMapping("/api/participant/delete")
     @ResponseBody
@@ -341,7 +357,6 @@ public class AdminMngController {
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         Row headerRow = sheet.createRow(0);
-        // 엑셀 헤더 규격 업데이트
         String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "이메일", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보수집동의", "제3자제공동의", "처리위탁동의", "마케팅동의", "챌린지참여", "시승참여", "경품수령"};
 
         for (int i = 0; i < headers.length; i++) {
@@ -361,7 +376,14 @@ public class AdminMngController {
                 regDateStr = sdf.format(vo.getRegDate());
             }
 
-            // 엑셀 데이터 매핑 업데이트
+            // 노쇼 고객의 경우 엑셀 다운로드에서도 '노쇼'로 직관적으로 표시
+            String driveStatusText = "N";
+            if ("Y".equals(vo.getDriveCheckYn())) {
+                driveStatusText = "Y";
+            } else if ("X".equals(vo.getDriveCheckYn())) {
+                driveStatusText = "노쇼";
+            }
+
             String[] rowData = {
                     regDateStr,
                     getShopCode(vo.getShopInfo()),
@@ -379,7 +401,7 @@ public class AdminMngController {
                     vo.getEntrustAgree() != null ? vo.getEntrustAgree() : "N",
                     vo.getMktAgree() != null ? vo.getMktAgree() : "N",
                     vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N",
-                    vo.getDriveCheckYn() != null ? vo.getDriveCheckYn() : "N",
+                    driveStatusText,
                     vo.getGiftCheckYn() != null ? vo.getGiftCheckYn() : "N"
             };
 
@@ -391,7 +413,6 @@ public class AdminMngController {
         }
 
         for (int i = 0; i < headers.length; i++) {
-            // 모든 컬럼을 넉넉하게 고정 너비(약 4500)로 세팅
             sheet.setColumnWidth(i, 4500);
         }
 

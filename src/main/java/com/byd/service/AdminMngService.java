@@ -106,4 +106,7 @@ public class AdminMngService {
         adminMngMapper.updateSignatureAndArrival(seq, signatureData, adminCode);
     }
 
+    public void updateNoshow(int seq) {
+        adminMngMapper.updateNoshow(seq);
+    }
 }

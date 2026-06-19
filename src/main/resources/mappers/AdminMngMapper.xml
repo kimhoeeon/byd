@@ -166,4 +166,9 @@
         WHERE seq = #{seq}
     </update>
 
+    <update id="updateNoshow" parameterType="int">
+        UPDATE event_participant
+        SET drive_check_yn = 'X'
+        WHERE seq = #{seq}
+    </update>
 </mapper>

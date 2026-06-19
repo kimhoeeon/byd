@@ -34,8 +34,6 @@
 
     <style>
         .notice-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; margin-top: 10px; font-size: 14px; color: #e50000; font-weight: bold; text-align: center; line-height: 1.4; border: 1px solid #ffcccc; }
-
-        /* readonly 인풋 박스 스타일링 (비활성화 느낌 부여) */
         input[readonly] { background-color: #2a2a2a !important; color: #888 !important; outline: none; }
     </style>
 </head>
@@ -226,7 +224,6 @@
 
             const now = new Date();
             const currentHour = now.getHours();
-            const currentMin = now.getMinutes();
 
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
@@ -256,12 +253,9 @@
 
                             const timeParts = timeVal.split(':');
                             const targetHour = parseInt(timeParts[0]);
-                            const targetMin = parseInt(timeParts[1]);
 
                             let isPassed = false;
                             if (currentHour > targetHour) {
-                                isPassed = true;
-                            } else if (currentHour === targetHour && currentMin >= targetMin) {
                                 isPassed = true;
                             }
 
@@ -310,7 +304,7 @@
 
             // 백엔드 유효성 검사 실패 시 에러 메시지 출력
             <c:if test="${not empty errorMsg}">
-            alert("${errorMsg}");
+                alert("${errorMsg}");
             </c:if>
 
             // 이메일 아이디 전체 입력 방지

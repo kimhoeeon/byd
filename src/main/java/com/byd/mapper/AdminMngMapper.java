@@ -51,4 +51,7 @@ public interface AdminMngMapper {
     void updateSignatureAndArrival(@Param("seq") int seq,
                                    @Param("signatureData") String signatureData,
                                    @Param("adminCode") String adminCode);
+
+    // 노쇼 처리 상태 업데이트
+    void updateNoshow(int seq);
 }
