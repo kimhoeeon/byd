@@ -18,6 +18,24 @@ public class AdminMngService {
 
     private final AdminMngMapper adminMngMapper;
 
+    // 차종별 최대 예약 가능 인원 
+    private final Map<String, Integer> carCapacityMap = new HashMap<String, Integer>() {{
+        put("BYD DOLPHIN", 2);
+        put("BYD ATTO 3", 2);
+        put("BYD SEAL", 2);
+        put("BYD SEALION 7", 2);
+    }};
+
+    public int getCarCapacity(String carModel) {
+        if(carModel == null || carModel.isEmpty()) return 2;
+        return carCapacityMap.getOrDefault(carModel.toUpperCase(), 2);
+    }
+
+    // 현재 유효한(노쇼가 아닌) 예약자 수 조회
+    public int getValidReservationCount(java.util.Date regDate, String testDriveTime, String carModel) {
+        return adminMngMapper.getValidReservationCount(regDate, testDriveTime, carModel);
+    }
+    
     public AdminVO getAdminById(String adminId) {
         return adminMngMapper.getAdminById(adminId);
     }

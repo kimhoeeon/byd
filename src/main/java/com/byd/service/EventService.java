@@ -74,16 +74,17 @@ public class EventService {
     }
 
     private void validateDriveTime(String testDriveTime, String carModel) {
-        // [방어 1] 널(Null) 값 즉시 컷
         if (testDriveTime == null || "시승 미신청".equals(testDriveTime)) return;
 
         try {
             java.time.LocalTime now = java.time.LocalTime.now();
-            // [방어 2] 조작된 시간 텍스트(예: "10", "abc") 파싱 시도
             java.time.LocalTime targetTime = java.time.LocalTime.parse(testDriveTime);
 
-            if (now.isAfter(targetTime)) {
-                throw new RuntimeException("이미 지난 시간은 예약할 수 없습니다.");
+            // 💡 59분 마감 규칙: 타겟 시간의 '시(Hour)'보다 현재 '시(Hour)'가 완전히 컸을 때만 마감.
+            // (예: target이 11:00 이고, 현재가 11:59 이면 통과. 12:00가 되는 순간 차단!)
+            if (now.getHour() > targetTime.getHour()) {
+                // 🚨 RuntimeException 대신 컨트롤러가 잡아낼 수 있는 IllegalStateException 사용
+                throw new IllegalStateException("이미 마감된 시승 시간입니다. 다른 시간을 선택해 주세요.");
             }
         } catch (java.time.format.DateTimeParseException e) {
             // 형식 오류 무시
@@ -94,7 +95,8 @@ public class EventService {
         int maxCapacity = getCarCapacity(carModel);
 
         if (currentCount >= maxCapacity) {
-            throw new RuntimeException("선택하신 시승 시간은 [" + carModel + "] 예약이 마감되었습니다. 다른 시간을 선택해 주세요.");
+            // 🚨 정원 초과 시에도 IllegalStateException 사용
+            throw new IllegalStateException("선택하신 시승 시간은 [" + carModel + "] 예약이 마감되었습니다. 다른 시간을 선택해 주세요.");
         }
     }
 

@@ -57,4 +57,9 @@ public interface AdminMngMapper {
 
     // 노쇼 취소 처리
     void cancelNoshow(int seq);
+
+    // 정원 초과 방지를 위한 특정 시간대 유효 예약 카운트 조회
+    int getValidReservationCount(@Param("regDate") java.util.Date regDate,
+                                 @Param("testDriveTime") String testDriveTime,
+                                 @Param("carModel") String carModel);
 }

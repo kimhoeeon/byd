@@ -177,4 +177,14 @@
         SET drive_check_yn = 'N'
         WHERE seq = #{seq}
     </update>
+
+    <select id="getValidReservationCount" resultType="int">
+        SELECT COUNT(*)
+        FROM event_participant
+        WHERE DATE(reg_date) = DATE(#{regDate})
+          AND test_drive_time = #{testDriveTime}
+          AND car_model = #{carModel}
+          AND drive_check_yn != 'X'
+    </select>
+
 </mapper>

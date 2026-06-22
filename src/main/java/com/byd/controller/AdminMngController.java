@@ -242,6 +242,26 @@ public class AdminMngController {
     public ResponseDTO cancelNoshow(@RequestParam("seq") int seq) {
         ResponseDTO response = new ResponseDTO();
         try {
+            // 1. 현재 참가자 정보 조회
+            ParticipantVO data = adminMngService.getParticipantBySeq(seq);
+            if (data == null) {
+                response.setSuccess(false);
+                response.setMessage("참가자 정보를 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 2. 해당 시간대 및 차종의 유효한 예약자 수(노쇼가 아닌 사람) 계산
+            int currentCount = adminMngService.getValidReservationCount(data.getRegDate(), data.getTestDriveTime(), data.getCarModel());
+            int maxCapacity = adminMngService.getCarCapacity(data.getCarModel());
+
+            // 3. 이미 C가 예약해서 자리가 꽉 찼다면 취소를 막고 경고창 전송
+            if (currentCount >= maxCapacity) {
+                response.setSuccess(false);
+                response.setMessage("해당 시간대에 이미 다른 고객이 시승을 예약하여 정원(" + maxCapacity + "명)이 마감되었습니다.\n노쇼 취소가 불가합니다.");
+                return response;
+            }
+
+            // 4. 자리가 남아있다면 정상적으로 노쇼 취소(미도착 상태로 복구) 진행
             adminMngService.cancelNoshow(seq);
             response.setSuccess(true);
             response.setMessage("노쇼 처리가 취소되었습니다. 다시 '미도착' 상태로 변경됩니다.");

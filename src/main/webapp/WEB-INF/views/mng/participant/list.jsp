@@ -114,7 +114,7 @@
                                 <thead>
                                 <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                                     <th class="text-center min-w-100px">등록일자</th>
-                                    <th class="text-center">챌린지 도착</th>
+                                    <%--<th class="text-center">챌린지 도착</th>--%>
                                     <th class="text-center">시승 도착</th>
                                     <th class="text-center">경품 수령</th>
                                     <th class="text-center">전자 서명</th>
@@ -191,12 +191,12 @@
                                     <tr class="text-center">
                                         <td><fmt:formatDate value="${item.regDate}" pattern="yyyy.MM.dd HH:mm"/></td>
 
-                                        <td>
+                                        <%--<td>
                                             <label class="toggle-switch">
                                                 <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="challenge" ${item.challengeCheckYn eq 'Y' ? 'checked' : ''}>
                                                 <span class="slider"></span>
                                             </label>
-                                        </td>
+                                        </td>--%>
                                         <td>
                                             <label class="toggle-switch">
                                                 <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="drive" ${item.driveCheckYn eq 'Y' ? 'checked' : ''}>

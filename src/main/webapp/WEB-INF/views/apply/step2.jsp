@@ -224,6 +224,7 @@
 
             const now = new Date();
             const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
 
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
@@ -256,6 +257,8 @@
 
                             let isPassed = false;
                             if (currentHour > targetHour) {
+                                isPassed = true;
+                            } else if (currentHour === targetHour && currentMinute >= 59) {
                                 isPassed = true;
                             }
 
@@ -380,6 +383,14 @@
             if($("#regionSelect").val() === "") { alert("지역을 선택해 주세요."); return false; }
             if($("#shopSelect").val() === "") { alert("방문 가능 전시장를 선택해 주세요."); return false; }
             if($("select[name='carModel']").val() === "") { alert("관심차량 정보를 선택해 주세요."); return false; }
+
+            // 400 에러 원천 차단: 제출 버튼을 누르는 시점에 선택된 옵션이 disabled 처리되어 있으면 val()은 null이 됩니다.
+            const tdt = $("#testDriveTime").val();
+            if(!tdt) {
+                alert("선택하신 시승 시간은 방금 마감되었습니다. 다른 시간을 선택해 주세요.");
+                $("#testDriveTime").focus();
+                return false;
+            }
 
             $("#hiddenThirdParty").val($("#thirdPartyAgree").is(":checked") ? "Y" : "N");
             $("#hiddenEntrust").val($("#entrustAgree").is(":checked") ? "Y" : "N");
