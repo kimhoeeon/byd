@@ -64,6 +64,7 @@
                         <!-- 저장된 시승 시간을 구간 텍스트로 변환 -->
                         <c:set var="displayTime" value="${data.testDriveTime}" />
                         <c:if test="${data.testDriveTime == '11:00'}"><c:set var="displayTime" value="11:00 ~ 12:00" /></c:if>
+                        <c:if test="${data.testDriveTime == '12:00'}"><c:set var="displayTime" value="12:00 ~ 13:00" /></c:if>
                         <c:if test="${data.testDriveTime == '13:00'}"><c:set var="displayTime" value="13:00 ~ 14:00" /></c:if>
                         <c:if test="${data.testDriveTime == '14:00'}"><c:set var="displayTime" value="14:00 ~ 15:00" /></c:if>
                         <c:if test="${data.testDriveTime == '15:00'}"><c:set var="displayTime" value="15:00 ~ 16:00" /></c:if>
@@ -159,11 +160,12 @@
                                     <select name="testDriveTime" id="testDriveTime" required <c:if test="${data.driveCheckYn eq 'Y'}">disabled</c:if>>
                                         <option value="시승 미신청" <c:if test="${data.testDriveTime == '시승 미신청'}">selected</c:if>>시승 미신청</option>
                                         <option value="11:00" <c:if test="${data.testDriveTime == '11:00'}">selected</c:if>>11:00 ~ 12:00 (1회차)</option>
-                                        <option value="13:00" <c:if test="${data.testDriveTime == '13:00'}">selected</c:if>>13:00 ~ 14:00 (2회차)</option>
-                                        <option value="14:00" <c:if test="${data.testDriveTime == '14:00'}">selected</c:if>>14:00 ~ 15:00 (3회차)</option>
-                                        <option value="15:00" <c:if test="${data.testDriveTime == '15:00'}">selected</c:if>>15:00 ~ 16:00 (4회차)</option>
-                                        <option value="16:00" <c:if test="${data.testDriveTime == '16:00'}">selected</c:if>>16:00 ~ 17:00 (5회차)</option>
-                                        <option value="17:00" class="weekend-only" <c:if test="${data.testDriveTime == '17:00'}">selected</c:if>>17:00 ~ 18:00 (6회차)</option>
+                                        <option value="12:00" <c:if test="${data.testDriveTime == '12:00'}">selected</c:if>>12:00 ~ 13:00 (2회차)</option>
+                                        <option value="13:00" <c:if test="${data.testDriveTime == '13:00'}">selected</c:if>>13:00 ~ 14:00 (3회차)</option>
+                                        <option value="14:00" <c:if test="${data.testDriveTime == '14:00'}">selected</c:if>>14:00 ~ 15:00 (4회차)</option>
+                                        <option value="15:00" <c:if test="${data.testDriveTime == '15:00'}">selected</c:if>>15:00 ~ 16:00 (5회차)</option>
+                                        <option value="16:00" <c:if test="${data.testDriveTime == '16:00'}">selected</c:if>>16:00 ~ 17:00 (6회차)</option>
+                                        <option value="17:00" class="weekend-only" <c:if test="${data.testDriveTime == '17:00'}">selected</c:if>>17:00 ~ 18:00 (7회차)</option>
                                     </select>
                                     <c:if test="${data.driveCheckYn eq 'Y'}">
                                         <p style="color: #ff9800; font-size: 12px; margin-top: 5px;">※ 시승 체험을 완료하여 시간을 변경할 수 없습니다.</p>
@@ -194,6 +196,17 @@
                                 <span class="terms-check_label">(필수) 개인정보 처리 위탁 안내 및 동의서</span>
                             </label>
                             <textarea readonly>BYD코리아는 원활한 이벤트 운영 및 시승 신청 페이지 운영을 위하여 아래와 같이 개인정보 처리 업무를 위탁합니다.&#10;&#10;수탁업체: ㈜엔피&#10;위탁 업무 내용: 이벤트 페이지 개발 및 운영, 시승 신청 정보 수집, 이벤트 운영 지원&#10;보유 및 이용 기간: 위탁업무 수행 기간 동안 보관하며, 위탁업무 종료시 지체 없이 파기</textarea>
+                        </div>
+                        <div class="terms-check">
+                            <label>
+                                <input type="checkbox" checked disabled>
+                                <span class="terms-check_box" aria-hidden="true"></span>
+                                <span class="terms-check_label">
+                                    (필수) 행사의 운영 및 참가자 통계 데이터 분석을 위하여<br>
+                                    참가자의 개인정보(이름, 연락처, 이메일, 관심 전시장, 관심 차종)를<br>
+                                    제공하는 데 동의합니다.
+                                </span>
+                            </label>
                         </div>
                         <div class="terms-check">
                             <label>
@@ -270,11 +283,12 @@
 
                     const timeLabels = {
                         "11:00": "11:00 ~ 12:00 (1회차)",
-                        "13:00": "13:00 ~ 14:00 (2회차)",
-                        "14:00": "14:00 ~ 15:00 (3회차)",
-                        "15:00": "15:00 ~ 16:00 (4회차)",
-                        "16:00": "16:00 ~ 17:00 (5회차)",
-                        "17:00": "17:00 ~ 18:00 (6회차)"
+                        "12:00": "12:00 ~ 13:00 (2회차)",
+                        "13:00": "13:00 ~ 14:00 (3회차)",
+                        "14:00": "14:00 ~ 15:00 (4회차)",
+                        "15:00": "15:00 ~ 16:00 (5회차)",
+                        "16:00": "16:00 ~ 17:00 (6회차)",
+                        "17:00": "17:00 ~ 18:00 (7회차)"
                     };
 
                     $('#testDriveTime option').each(function() {

@@ -113,6 +113,7 @@
                                         <c:set var="detailDisplayTime" value="${empty data.testDriveTime ? '-' : data.testDriveTime}" />
                                         <c:choose>
                                             <c:when test="${data.testDriveTime == '11:00'}"><c:set var="detailDisplayTime" value="11:00 ~ 12:00" /></c:when>
+                                            <c:when test="${data.testDriveTime == '12:00'}"><c:set var="detailDisplayTime" value="12:00 ~ 13:00" /></c:when>
                                             <c:when test="${data.testDriveTime == '13:00'}"><c:set var="detailDisplayTime" value="13:00 ~ 14:00" /></c:when>
                                             <c:when test="${data.testDriveTime == '14:00'}"><c:set var="detailDisplayTime" value="14:00 ~ 15:00" /></c:when>
                                             <c:when test="${data.testDriveTime == '15:00'}"><c:set var="detailDisplayTime" value="15:00 ~ 16:00" /></c:when>

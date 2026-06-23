@@ -134,11 +134,12 @@
                                     <select name="testDriveTime" id="testDriveTime" required>
                                         <option value="시승 미신청" selected>시승 미신청</option>
                                         <option value="11:00">11:00 ~ 12:00 (1회차)</option>
-                                        <option value="13:00">13:00 ~ 14:00 (2회차)</option>
-                                        <option value="14:00">14:00 ~ 15:00 (3회차)</option>
-                                        <option value="15:00">15:00 ~ 16:00 (4회차)</option>
-                                        <option value="16:00">16:00 ~ 17:00 (5회차)</option>
-                                        <option value="17:00" class="weekend-only">17:00 ~ 18:00 (6회차)</option>
+                                        <option value="12:00">12:00 ~ 13:00 (2회차)</option>
+                                        <option value="13:00">13:00 ~ 14:00 (3회차)</option>
+                                        <option value="14:00">14:00 ~ 15:00 (4회차)</option>
+                                        <option value="15:00">15:00 ~ 16:00 (5회차)</option>
+                                        <option value="16:00">16:00 ~ 17:00 (6회차)</option>
+                                        <option value="17:00" class="weekend-only">17:00 ~ 18:00 (7회차)</option>
                                     </select>
                                 </div>
                             </li>
@@ -236,11 +237,12 @@
 
                     const timeLabels = {
                         "11:00": "11:00 ~ 12:00 (1회차)",
-                        "13:00": "13:00 ~ 14:00 (2회차)",
-                        "14:00": "14:00 ~ 15:00 (3회차)",
-                        "15:00": "15:00 ~ 16:00 (4회차)",
-                        "16:00": "16:00 ~ 17:00 (5회차)",
-                        "17:00": "17:00 ~ 18:00 (6회차)"
+                        "12:00": "12:00 ~ 13:00 (2회차)",
+                        "13:00": "13:00 ~ 14:00 (3회차)",
+                        "14:00": "14:00 ~ 15:00 (4회차)",
+                        "15:00": "15:00 ~ 16:00 (5회차)",
+                        "16:00": "16:00 ~ 17:00 (6회차)",
+                        "17:00": "17:00 ~ 18:00 (7회차)"
                     };
 
                     $('#testDriveTime option').each(function() {

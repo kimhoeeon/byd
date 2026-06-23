@@ -234,6 +234,7 @@
                                                 <c:set var="listDisplayTime" value="${item.testDriveTime}" />
                                                 <c:choose>
                                                     <c:when test="${item.testDriveTime == '11:00'}"><c:set var="listDisplayTime" value="11:00 ~ 12:00" /></c:when>
+                                                    <c:when test="${item.testDriveTime == '12:00'}"><c:set var="listDisplayTime" value="12:00 ~ 13:00" /></c:when>
                                                     <c:when test="${item.testDriveTime == '13:00'}"><c:set var="listDisplayTime" value="13:00 ~ 14:00" /></c:when>
                                                     <c:when test="${item.testDriveTime == '14:00'}"><c:set var="listDisplayTime" value="14:00 ~ 15:00" /></c:when>
                                                     <c:when test="${item.testDriveTime == '15:00'}"><c:set var="listDisplayTime" value="15:00 ~ 16:00" /></c:when>

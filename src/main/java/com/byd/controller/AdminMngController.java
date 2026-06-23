@@ -393,7 +393,7 @@ public class AdminMngController {
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "이메일", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보수집동의", "제3자제공동의", "처리위탁동의", "마케팅동의", "챌린지참여", "시승참여", "경품수령"};
+        String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "이메일", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보수집동의", "제3자제공동의", "처리위탁동의", "마케팅동의", "통계제공동의", "챌린지참여", "시승참여", "경품수령"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -436,6 +436,7 @@ public class AdminMngController {
                     vo.getThirdPartyAgree() != null ? vo.getThirdPartyAgree() : "N",
                     vo.getEntrustAgree() != null ? vo.getEntrustAgree() : "N",
                     vo.getMktAgree() != null ? vo.getMktAgree() : "N",
+                    vo.getProvideAgree() != null ? vo.getProvideAgree() : "N",
                     vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N",
                     driveStatusText,
                     vo.getGiftCheckYn() != null ? vo.getGiftCheckYn() : "N"

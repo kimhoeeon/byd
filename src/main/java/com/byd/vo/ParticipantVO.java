@@ -18,6 +18,7 @@ public class ParticipantVO {
     private String thirdPartyAgree;     // 개인정보 제3자 제공 동의
     private String entrustAgree;        // 개인정보 처리 위탁 안내 및 동의
     private String mktAgree;            // 마케팅 활용 동의
+    private String provideAgree;
     private String qrCodeUrl;           // QR 코드 URL
     private String challengeCheckYn;    // 챌린지 도착 여부 (Y/N)
     private String driveCheckYn;        // 시승 도착 여부 (Y/N)

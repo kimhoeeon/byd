@@ -336,6 +336,7 @@ public class EventService {
                 String displayTime = p.getTestDriveTime();
                 switch (displayTime) {
                     case "11:00": displayTime = "11:00 ~ 12:00"; break;
+                    case "12:00": displayTime = "12:00 ~ 13:00"; break;
                     case "13:00": displayTime = "13:00 ~ 14:00"; break;
                     case "14:00": displayTime = "14:00 ~ 15:00"; break;
                     case "15:00": displayTime = "15:00 ~ 16:00"; break;
