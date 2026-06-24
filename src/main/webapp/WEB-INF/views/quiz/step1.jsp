@@ -71,7 +71,7 @@
                                     <label>
                                         <input type="checkbox" name="provideAgree" id="provideAgree" value="Y">
                                         <span class="terms-check_box" aria-hidden="true"></span>
-                                        <span class="terms-check_label">
+                                        <span class="terms-check_label" style="line-height: 20px;">
                                             (필수) 행사의 운영 및 참가자 통계 데이터 분석을 위하여 참가자의 개인정보(이름, 연락처, 이메일, 관심 전시장, 관심 차종)를 제공하는 데 동의합니다.
                                         </span>
                                     </label>
