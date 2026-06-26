@@ -18,7 +18,6 @@
         FROM event_participant
         WHERE DATE(reg_date) = CURDATE()
           AND test_drive_time != '시승 미신청'
-          /*AND car_model = #{carModel}*/
           AND drive_check_yn != 'X'
         GROUP BY test_drive_time
     </select>
@@ -44,7 +43,6 @@
         FROM event_participant
         WHERE DATE(reg_date) = CURDATE()
           AND test_drive_time = #{testDriveTime}
-          /*AND car_model = #{carModel}*/
           AND drive_check_yn != 'X'
     </select>
 
