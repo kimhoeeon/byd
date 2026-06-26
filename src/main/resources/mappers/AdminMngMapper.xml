@@ -183,7 +183,7 @@
         FROM event_participant
         WHERE DATE(reg_date) = DATE(#{regDate})
           AND test_drive_time = #{testDriveTime}
-          AND car_model = #{carModel}
+          /*AND car_model = #{carModel}*/
           AND drive_check_yn != 'X'
     </select>
 

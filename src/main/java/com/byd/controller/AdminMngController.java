@@ -252,7 +252,7 @@ public class AdminMngController {
 
             // 2. 해당 시간대 및 차종의 유효한 예약자 수(노쇼가 아닌 사람) 계산
             int currentCount = adminMngService.getValidReservationCount(data.getRegDate(), data.getTestDriveTime(), data.getCarModel());
-            int maxCapacity = adminMngService.getCarCapacity(data.getCarModel());
+            int maxCapacity = adminMngService.getMaxCapacity();
 
             // 3. 이미 C가 예약해서 자리가 꽉 찼다면 취소를 막고 경고창 전송
             if (currentCount >= maxCapacity) {

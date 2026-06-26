@@ -86,7 +86,8 @@ public class EventController {
         // 1. 해당 차종의 오늘자 예약 카운트 맵
         response.put("counts", eventService.getDriveTimeCountToday(carModel));
         // 2. 해당 차종의 1시간당 최대 예약 가능 수 (현재 2)
-        response.put("maxCapacity", eventService.getCarCapacity(carModel));
+        //response.put("maxCapacity", eventService.getCarCapacity(carModel));
+        response.put("maxCapacity", eventService.getMaxCapacity());
 
         return response;
     }

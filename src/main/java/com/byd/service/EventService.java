@@ -30,6 +30,13 @@ public class EventService {
         put("BYD SEALION 7", 2);
     }};
 
+    // 차종 구분 없이 시간대별 총 정원 8명으로 통합 적용
+    private static final int MAX_CAPACITY = 8;
+
+    public int getMaxCapacity() {
+        return MAX_CAPACITY;
+    }
+
     public int getCarCapacity(String carModel) {
         if(carModel == null || carModel.isEmpty()) return 2; // 기본값 2
         return carCapacityMap.getOrDefault(carModel.toUpperCase(), 2);
@@ -92,11 +99,9 @@ public class EventService {
 
         // DB에서 현재 예약 인원 조회 (해당 시간 + 해당 차종)
         int currentCount = eventMapper.getDriveTimeCount(testDriveTime, carModel);
-        int maxCapacity = getCarCapacity(carModel);
-
-        if (currentCount >= maxCapacity) {
+        if (currentCount >= MAX_CAPACITY) {
             // 🚨 정원 초과 시에도 IllegalStateException 사용
-            throw new IllegalStateException("선택하신 시승 시간은 [" + carModel + "] 예약이 마감되었습니다. 다른 시간을 선택해 주세요.");
+            throw new IllegalStateException("선택하신 시승 시간의 예약 인원(" + MAX_CAPACITY + "명)이 모두 마감되었습니다. 다른 시간을 선택해 주세요.");
         }
     }
 
@@ -112,12 +117,7 @@ public class EventService {
 
             validateDriveTime(participantVO.getTestDriveTime(), participantVO.getCarModel());
 
-            int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime(), participantVO.getCarModel());
-            if(currentCount >= 4) {
-                throw new IllegalStateException("해당 시간대는 이미 마감되었습니다.");
-            }
-
-            // 2. 3일간 시승 행사 1회 참여 제한 검증 (이전 날짜 포함)
+            // 3일간 시승 행사 1회 참여 제한 검증 (이전 날짜 포함)
             int historyCount = eventMapper.checkTestDriveHistory(participantVO.getPhone(), null);
             if(historyCount > 0) {
                 throw new IllegalArgumentException("행사 기간 중 시승 신청은 1회만 가능합니다.");
@@ -154,7 +154,6 @@ public class EventService {
 
         // 2. 시승 완료 고객 방어
         if ("Y".equals(existing.getDriveCheckYn())) {
-            // 기존 null 처리가 완벽해진 oldTime과 비교
             if (!oldTime.equals(participantVO.getTestDriveTime())) {
                 throw new IllegalArgumentException("이미 시승 체험을 완료하신 고객은 시간을 변경할 수 없습니다.");
             }
@@ -169,12 +168,6 @@ public class EventService {
             if (!"시승 미신청".equals(participantVO.getTestDriveTime())) {
                 // 과거 시간 및 형식 검증
                 validateDriveTime(participantVO.getTestDriveTime(), participantVO.getCarModel());
-
-                // 정원(4명) 초과 검증
-                int currentCount = eventMapper.getDriveTimeCount(participantVO.getTestDriveTime(), participantVO.getCarModel());
-                if(currentCount >= 4) {
-                    throw new IllegalStateException("해당 시간대는 이미 마감되었습니다.");
-                }
             }
         }
 

@@ -26,9 +26,15 @@ public class AdminMngService {
         put("BYD SEALION 7", 2);
     }};
 
+    private static final int MAX_CAPACITY = 8;
+
     public int getCarCapacity(String carModel) {
         if(carModel == null || carModel.isEmpty()) return 2;
         return carCapacityMap.getOrDefault(carModel.toUpperCase(), 2);
+    }
+
+    public int getMaxCapacity() {
+        return MAX_CAPACITY;
     }
 
     // 현재 유효한(노쇼가 아닌) 예약자 수 조회
