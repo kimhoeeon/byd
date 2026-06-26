@@ -72,7 +72,7 @@
                         <c:if test="${data.testDriveTime == '17:00'}"><c:set var="displayTime" value="17:00 ~ 18:00" /></c:if>
 
                         <p style="color: #333; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
-                            ▶ 시승 신청 내용 : <fmt:formatDate value="${data.regDate}" pattern="M/d" />(<fmt:formatDate value="${data.regDate}" pattern="E" />) / ${displayTime} / ${data.carModel}
+                            ▶ 시승 신청 내용 : <fmt:formatDate value="${data.regDate}" pattern="M/d" />(<fmt:formatDate value="${data.regDate}" pattern="E" />) / ${displayTime}
                         </p>
                         <p style="color: #e50000; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
                             ※ 신청 타임 시작 15분 전까지 BYD 시승부스로 방문해 주세요.
