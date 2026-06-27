@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -82,6 +83,18 @@
                             </div>
 
                             <div class="card shadow-sm">
+                                <div class="card-header border-0 pt-6">
+                                    <div class="card-title">
+                                        <h3 class="fw-bold m-0 d-flex align-items-center">
+                                            참여자 목록
+                                            <c:if test="${list != null}">
+                                                <span class="badge badge-light-primary fw-bolder fs-6 ms-3">
+                                                    총 <fmt:formatNumber value="${fn:length(list)}" pattern="#,###"/>건
+                                                </span>
+                                            </c:if>
+                                        </h3>
+                                    </div>
+                                </div>
                                 <div class="card-body py-4">
                                     <div class="table-responsive">
                                         <table class="table align-middle table-row-dashed fs-6 gy-5 table-hover">

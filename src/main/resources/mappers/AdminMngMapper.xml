@@ -112,7 +112,7 @@
     <select id="getDailyStats" resultType="com.byd.vo.DailyStatsVO">
         SELECT DATE_FORMAT(reg_date, '%m.%d') AS regDateStr, COUNT(*) AS cnt
         FROM event_participant
-        WHERE reg_date >= DATE(DATE_SUB(NOW(), INTERVAL 6 DAY))
+        WHERE reg_date >= DATE(DATE_SUB(NOW(), INTERVAL 14 DAY))
         GROUP BY DATE_FORMAT(reg_date, '%m.%d')
     </select>
 
@@ -124,11 +124,14 @@
     </select>
 
     <select id="getTimeStats" resultType="java.util.LinkedHashMap">
-        SELECT IFNULL(NULLIF(test_drive_time, ''), '미지정') AS label, COUNT(*) AS cnt
+        SELECT
+            DATE_FORMAT(reg_date, '%m.%d') AS dateLabel,
+            IFNULL(NULLIF(test_drive_time, ''), '미지정') AS timeLabel,
+            COUNT(*) AS cnt
         FROM event_participant
         WHERE test_drive_time != '시승 미신청' AND test_drive_time IS NOT NULL AND test_drive_time != ''
-        GROUP BY test_drive_time
-        ORDER BY test_drive_time ASC
+        GROUP BY DATE_FORMAT(reg_date, '%m.%d'), test_drive_time
+        ORDER BY dateLabel ASC, test_drive_time ASC
     </select>
 
     <select id="getShopStats" resultType="java.util.LinkedHashMap">
@@ -141,11 +144,10 @@
 
     <select id="getAttendanceStats" resultType="java.util.LinkedHashMap">
         SELECT
-        SUM(CASE WHEN challenge_check_yn = 'Y' THEN 1 ELSE 0 END) AS challengeCnt,
-        SUM(CASE WHEN drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS driveCnt,
-        <!-- 노쇼(X) 카운트 추가 -->
-        SUM(CASE WHEN drive_check_yn = 'X' THEN 1 ELSE 0 END) AS driveNoshowCnt,
-        SUM(CASE WHEN gift_check_yn = 'Y' THEN 1 ELSE 0 END) AS giftCnt
+            SUM(CASE WHEN challenge_check_yn = 'Y' THEN 1 ELSE 0 END) AS challengeCnt,
+            SUM(CASE WHEN drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS driveCnt,
+            SUM(CASE WHEN drive_check_yn = 'X' THEN 1 ELSE 0 END) AS driveNoshowCnt,
+            SUM(CASE WHEN gift_check_yn = 'Y' THEN 1 ELSE 0 END) AS giftCnt
         FROM event_participant
     </select>
 

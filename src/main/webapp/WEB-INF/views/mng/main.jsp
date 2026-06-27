@@ -173,7 +173,7 @@
                         <div class="col-xl-8">
                             <div class="card shadow-sm border-0 h-100">
                                 <div class="card-header align-items-center">
-                                    <h3 class="card-title fw-bold text-dark">일별 신청 추이 (최근 7일)</h3>
+                                    <h3 class="card-title fw-bold text-dark">일별 신청 추이 (최근 15일)</h3>
                                 </div>
                                 <div class="card-body"><canvas id="dailyChart" style="height: 300px;"></canvas></div>
                             </div>
@@ -270,6 +270,12 @@
     });
 
     // 4. 시간대별 시승 예약 현황 (바 차트)
+    const rawTimeStats = [
+        <c:forEach items="${chartData.timeStats}" var="item" varStatus="st">
+        { date: '${item.dateLabel}', time: '${item.timeLabel}', cnt: ${item.cnt} }${!st.last ? ',' : ''}
+        </c:forEach>
+    ];
+
     const timeLabelsMap = {
         "11:00": "11:00 ~ 12:00",
         "12:00": "12:00 ~ 13:00",
@@ -279,17 +285,54 @@
         "16:00": "16:00 ~ 17:00",
         "17:00": "17:00 ~ 18:00"
     };
-    const timeArr = [<c:forEach items="${chartData.timeStats}" var="item" varStatus="st">{label:'${item.label}', cnt:${item.cnt}}${!st.last?',' : ''}</c:forEach>];
-    const timeExt = extractValues(timeArr);
-    const mappedTimeLabels = timeExt.labels.map(l => timeLabelsMap[l] || l); // 시간 매핑
+
+    // 전체 고정 타임 테이블 (X축 라벨)
+    const uniqueTimes = ["11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+    const xLabels = uniqueTimes.map(t => timeLabelsMap[t] || t);
+
+    // 날짜 고유값 추출 및 오름차순 정렬 (범례로 생성됨)
+    const uniqueDates = [...new Set(rawTimeStats.map(d => d.date))].sort();
+
+    const timeDatasets = uniqueDates.map((date, index) => {
+        const dataForDate = uniqueTimes.map(time => {
+            const found = rawTimeStats.find(d => d.date === date && d.time === time);
+            return found ? found.cnt : 0;
+        });
+        return {
+            label: date + ' (예약인원)',
+            data: dataForDate,
+            backgroundColor: palette[index % palette.length],
+            borderRadius: 4
+        };
+    });
+
+    // 등록된 시승 예약이 하나도 없을 경우의 빈 데이터셋 처리
+    if (timeDatasets.length === 0) {
+        timeDatasets.push({
+            label: '예약 없음',
+            data: [0,0,0,0,0,0,0],
+            backgroundColor: '#e4e6ef',
+            borderRadius: 4
+        });
+    }
 
     new Chart(document.getElementById('timeChart'), {
         type: 'bar',
         data: {
-            labels: mappedTimeLabels,
-            datasets: [{ label: '예약 인원', data: timeExt.data, backgroundColor: '#50cd89', borderRadius: 4 }]
+            labels: xLabels,
+            datasets: timeDatasets
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                // 이제 상단에 각 날짜별 색상(06.27, 06.28 등) 범례가 표시됩니다!
+                legend: { display: true, position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
     });
 
     // 5. 전시장별 TOP 10 (가로 바 차트 - 디자인 개선)

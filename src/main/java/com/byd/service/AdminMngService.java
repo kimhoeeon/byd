@@ -86,7 +86,7 @@ public class AdminMngService {
         List<Integer> data = new ArrayList<>();
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
-        for (int i = 6; i >= 0; i--) {
+        for (int i = 14; i >= 0; i--) {
             labels.add(today.minusDays(i).format(formatter));
             data.add(0);
         }
