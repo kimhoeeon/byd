@@ -34,7 +34,7 @@
                                 <div class="card-header border-0 pt-5">
                                     <h3 class="card-title align-items-start flex-column">
                                         <span class="card-label fw-bold fs-3 mb-1">일자별 참가자 접속 현황</span>
-                                        <span class="text-muted mt-1 fw-semibold fs-7">퀴즈 이벤트 대기실 최근 7일 방문자 추이</span>
+                                        <span class="text-muted mt-1 fw-semibold fs-7">퀴즈 이벤트 대기실 최근 10일 방문자 추이</span>
                                     </h3>
                                 </div>
                                 <div class="card-body py-4">
@@ -54,7 +54,7 @@
 
                             <div class="card shadow-sm mb-5">
                                 <div class="card-body py-5">
-                                    <form action="/mng/quiz/list" method="get" class="d-flex align-items-center gap-3 w-100 flex-wrap">
+                                    <form action="/mng/quiz/list" method="get" id="searchForm" class="d-flex align-items-center gap-3 w-100 flex-wrap">
                                         <!-- 페이징용 히든 필드 -->
                                         <input type="hidden" name="pageNum" id="pageNum" value="${cri.pageNum}">
                                         <input type="hidden" name="amount" value="${cri.amount}">
@@ -95,9 +95,9 @@
                                     <div class="card-title">
                                         <h3 class="fw-bold m-0 d-flex align-items-center">
                                             참여자 목록
-                                            <c:if test="${list != null}">
+                                            <c:if test="${not empty pageMaker}">
                                                 <span class="badge badge-light-primary fw-bolder fs-6 ms-3">
-                                                    총 <fmt:formatNumber value="${fn:length(list)}" pattern="#,###"/>건
+                                                    총 <fmt:formatNumber value="${pageMaker.total}" pattern="#,###"/>건
                                                 </span>
                                             </c:if>
                                         </h3>

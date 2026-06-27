@@ -193,7 +193,7 @@
     <select id="getQuizDailyVisitStats" resultType="com.byd.vo.DailyStatsVO">
         SELECT DATE_FORMAT(visit_date, '%m.%d') AS regDateStr, visit_count AS cnt
         FROM quiz_visit_stats
-        WHERE visit_date >= DATE(DATE_SUB(NOW(), INTERVAL 6 DAY))
+        WHERE visit_date >= DATE(DATE_SUB(NOW(), INTERVAL 9 DAY))
         ORDER BY visit_date ASC
     </select>
 

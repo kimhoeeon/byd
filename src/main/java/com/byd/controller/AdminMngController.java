@@ -3,6 +3,7 @@ package com.byd.controller;
 import com.byd.dto.PageDTO;
 import com.byd.dto.ResponseDTO;
 import com.byd.service.AdminMngService;
+import com.byd.service.EventService;
 import com.byd.util.AES128;
 import com.byd.vo.AdminVO;
 import com.byd.vo.Criteria;
@@ -27,6 +28,7 @@ import java.util.*;
 public class AdminMngController {
 
     private final AdminMngService adminMngService;
+    private final EventService eventService;
 
     @GetMapping({"/", "/index", "/login"})
     public String loginPage(HttpSession session) {
@@ -96,6 +98,54 @@ public class AdminMngController {
 
         model.addAttribute("data", data);
         return "mng/participant/detail";
+    }
+
+    @PostMapping("/api/participant/sendNoshowSms")
+    @ResponseBody
+    public ResponseDTO sendNoshowSms(@RequestParam("seq") int seq) {
+        ResponseDTO response = new ResponseDTO();
+        try {
+            // 1. 고객 정보 조회
+            ParticipantVO participant = adminMngService.getParticipantBySeq(seq);
+            if (participant == null) {
+                response.setSuccess(false);
+                response.setMessage("해당 참가자 정보를 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 2. 모바일 티켓용 암호화 토큰 및 URL 생성
+            com.byd.util.AES128 aes128 = new com.byd.util.AES128("bydEventTokenKey");
+            String encryptedSeq = aes128.encrypt(String.valueOf(participant.getSeq()));
+            String encodedToken = java.net.URLEncoder.encode(encryptedSeq, "UTF-8");
+            String ticketUrl = "https://byd-bimos2026.kr/apply/ticket?token=" + encodedToken;
+
+            // 3. 발주사 요청 템플릿 작성
+            String message = "[BYD KOREA BIMOS 2026 시승 안내]\n\n" +
+                    participant.getName() + "님, 예약하신 시승을 위해 시승부스로 바로 방문 부탁드립니다.\n\n" +
+                    "접수 시 아래 모바일 티켓(QR)을 제시해 주세요.\n\n" +
+                    "▶ 모바일 티켓 확인\n" +
+                    ticketUrl + "\n\n" +
+                    "※ 예약 시간 이후 도착 시 시승이 취소되거나 대기 순서가 변경될 수 있습니다.\n" +
+                    "※ 현장 상황에 따라 대기가 발생할 수 있습니다.\n" +
+                    "※ 음주자는 시승에 참여하실 수 없습니다.\n" +
+                    "※ 실물 운전면허증을 반드시 지참해 주시기 바랍니다.";
+
+            // 4. 문자 발송 실행
+            boolean isSent = eventService.sendAligoCustomMessage(participant.getPhone(), message);
+
+            if(isSent) {
+                response.setSuccess(true);
+                response.setMessage("방문 요청 문자가 성공적으로 발송되었습니다.");
+            } else {
+                response.setSuccess(false);
+                response.setMessage("문자 발송 API 호출에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setSuccess(false);
+            response.setMessage("문자 발송 중 서버 오류가 발생했습니다.");
+        }
+        return response;
     }
 
     @GetMapping("/scanner")

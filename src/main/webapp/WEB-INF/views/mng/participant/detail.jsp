@@ -161,6 +161,7 @@
                                                     <span class="text-warning fw-bold">노쇼 (No-show)</span>
                                                     <!-- 노쇼 취소 버튼 추가 -->
                                                     <button type="button" class="btn btn-sm btn-light-primary ms-3 py-1 px-2" onclick="cancelNoshow(${data.seq})">노쇼 취소</button>
+                                                    <button type="button" class="btn btn-sm btn-light-info ms-2 py-1 px-2" onclick="sendNoshowSms(${data.seq})">방문요청 문자발송</button>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="text-danger fw-bold">미도착</span>
@@ -253,6 +254,27 @@
                         if(res.success) {
                             alert(res.message);
                             location.reload();
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function() {
+                        alert("서버 통신 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+        }
+
+        // 노쇼 방문요청 문자 발송
+        function sendNoshowSms(seq) {
+            if(confirm("해당 고객에게 '방문 요청 안내' 문자를 발송하시겠습니까?")) {
+                $.ajax({
+                    url: '/mng/api/participant/sendNoshowSms',
+                    type: 'POST',
+                    data: { seq: seq },
+                    success: function(res) {
+                        if(res.success) {
+                            alert(res.message);
                         } else {
                             alert(res.message);
                         }
