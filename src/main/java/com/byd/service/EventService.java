@@ -86,12 +86,22 @@ public class EventService {
         try {
             java.time.LocalTime now = java.time.LocalTime.now();
             java.time.LocalTime targetTime = java.time.LocalTime.parse(testDriveTime);
+            int targetHour = targetTime.getHour();
 
-            // 💡 59분 마감 규칙: 타겟 시간의 '시(Hour)'보다 현재 '시(Hour)'가 완전히 컸을 때만 마감.
-            // (예: target이 11:00 이고, 현재가 11:59 이면 통과. 12:00가 되는 순간 차단!)
-            if (now.getHour() > targetTime.getHour()) {
-                // 🚨 RuntimeException 대신 컨트롤러가 잡아낼 수 있는 IllegalStateException 사용
-                throw new IllegalStateException("이미 마감된 시승 시간입니다. 다른 시간을 선택해 주세요.");
+            // 1. 10시 / 14시 오픈 시간 통제 로직
+            if (targetHour >= 11 && targetHour <= 14) {
+                if (now.getHour() < 10) {
+                    throw new IllegalStateException("오전 회차(1~4회차)는 10:00부터 예약 가능합니다.");
+                }
+            } else if (targetHour >= 15 && targetHour <= 17) {
+                if (now.getHour() < 14) {
+                    throw new IllegalStateException("오후 회차(5~7회차)는 14:00부터 예약 가능합니다.");
+                }
+            }
+
+            // 2. 각 회차 시작 후 20분 마감 통제 로직
+            if (now.getHour() > targetHour || (now.getHour() == targetHour && now.getMinute() >= 20)) {
+                throw new IllegalStateException("해당 시승 시간은 예약이 마감되었습니다. (시작 후 20분까지만 신청 가능)");
             }
         } catch (java.time.format.DateTimeParseException e) {
             // 형식 오류 무시
@@ -114,7 +124,6 @@ public class EventService {
 
         // 백엔드 단위 4명 정원 검증 로직
         if(!"시승 미신청".equals(participantVO.getTestDriveTime())) {
-
             validateDriveTime(participantVO.getTestDriveTime(), participantVO.getCarModel());
 
             // 3일간 시승 행사 1회 참여 제한 검증 (이전 날짜 포함)
@@ -182,7 +191,7 @@ public class EventService {
     }
 
     // Aligo API SMS 발송 로직
-    public boolean sendAligoSms(String receiverPhone, String name, String ticketUrl) {
+    public boolean sendAligoSms(String receiverPhone, String name, String ticketUrl, String testDriveTime, boolean isUpdate) {
         try {
             String aligoKey = "ddefu9nx1etgljr1p1z1n9h7ri5u8mf0";          // 알리고 API KEY
             String aligoId = "meetingfan";           // 알리고 사용자 ID
@@ -191,11 +200,27 @@ public class EventService {
             // 알리고 SMS 전송 API 엔드포인트
             String apiUrl = "https://apis.aligo.in/send/";
 
-            String message = "[BYD 이벤트 참여 티켓]\n" +
-                    name + "님, 신청이 완료되었습니다.\n" +
-                    "현장 데스크에서 아래 링크의 모바일 티켓(QR)을 보여주세요.\n\n" +
-                    "▶ 모바일 티켓 보기:\n" + ticketUrl + "\n\n" +
-                    "※ 시승 체험 신청자의 경우, 신청 타임 시작 15분 전까지 BYD 시승부스로 방문해 주세요.";
+            String message = "";
+            if (testDriveTime == null || "시승 미신청".equals(testDriveTime)) {
+                // 일반 이벤트 참여자(시승 미신청) 전용 안내 문자
+                String title = isUpdate ? "[BYD KOREA BIMOS 2026 참여 티켓 수정 안내]\n\n" : "[BYD KOREA BIMOS 2026 참여 티켓]\n\n";
+                String greeting = isUpdate ? "예약 정보가 정상적으로 수정되었습니다." : "신청이 완료되었습니다.";
+
+                message = title +
+                        name + "님, " + greeting + "\n" +
+                        "현장 데스크에서 아래 링크의 모바일 티켓(QR)을 보여주세요.\n\n" +
+                        "▶ 모바일 티켓 보기:\n" + ticketUrl;
+            } else {
+                String title = isUpdate ? "[BYD KOREA BIMOS 2026 시승 수정 안내]\n\n" : "[BYD KOREA BIMOS 2026 시승 안내]\n\n";
+
+                message = title +
+                        name + "님, 예약하신 시승을 위해 시승부스로 바로 방문 부탁드립니다.\n\n" +
+                        "접수 시 아래 모바일 티켓(QR)을 제시해 주세요.\n\n" +
+                        "▶ 모바일 티켓 확인\n" + ticketUrl + "\n\n" +
+                        "※ 예약 시간 이후 도착 시 시승이 취소되거나 대기 순서가 변경될 수 있습니다.\n" +
+                        "※ 음주자는 시승에 참여하실 수 없습니다.\n" +
+                        "※ 실물 운전면허증을 반드시 지참해 주시기 바랍니다.";
+            }
 
             URL url = new URL(apiUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

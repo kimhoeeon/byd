@@ -225,7 +225,7 @@
 
             const now = new Date();
             const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
+            const currentMin = now.getMinutes();
 
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
@@ -248,19 +248,31 @@
                     $('#testDriveTime option').each(function() {
                         var timeVal = $(this).val();
 
-                        if(timeVal !== "시승 미신청") {
+                        if(timeVal && timeVal !== "" && timeVal !== "시승 미신청") {
                             var labelText = timeLabels[timeVal] || timeVal;
-
-                            $(this).prop('disabled', false);
-                            $(this).text(labelText);
 
                             const timeParts = timeVal.split(':');
                             const targetHour = parseInt(timeParts[0]);
 
                             let isPassed = false;
+                            let isNotOpen = false;
+                            let openMsg = "";
+
+                            if (targetHour >= 11 && targetHour <= 14) {
+                                if (currentHour < 10) {
+                                    isNotOpen = true;
+                                    openMsg = " (10:00 오픈)";
+                                }
+                            } else if (targetHour >= 15 && targetHour <= 17) {
+                                if (currentHour < 14) {
+                                    isNotOpen = true;
+                                    openMsg = " (14:00 오픈)";
+                                }
+                            }
+
                             if (currentHour > targetHour) {
                                 isPassed = true;
-                            } else if (currentHour === targetHour && currentMinute >= 59) {
+                            } else if (currentHour === targetHour && currentMin >= 20) {
                                 isPassed = true;
                             }
 
@@ -269,13 +281,23 @@
                                 isFull = true;
                             }
 
-                            if (isPassed) {
+                            if (isNotOpen) {
+                                $(this).prop('disabled', true);
+                                $(this).text(labelText + openMsg);
+                            } else if (isPassed) {
                                 $(this).prop('disabled', true);
                                 $(this).text(labelText + ' (마감)');
                             } else if (isFull) {
                                 $(this).prop('disabled', true);
                                 $(this).text(labelText + ' (예약완료)');
+                            } else {
+                                $(this).prop('disabled', false);
+                                $(this).text(labelText);
                             }
+                        } else if (timeVal === "시승 미신청") {
+                            // 시승 미신청은 언제나 선택 가능하도록 보장합니다.
+                            $(this).prop('disabled', false);
+                            $(this).text("시승 미신청");
                         }
                     });
                 },

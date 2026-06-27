@@ -31,11 +31,25 @@ public interface QuizMapper {
 
     QuizHistoryVO getHistoryBySeq(@Param("historySeq") int historySeq);
 
+    // 관리자 페이지 페이징을 위한 전체 카운트
+    int getQuizAdminTotalCount(@Param("keyword") String keyword,
+                               @Param("perfectScoreOnly") String perfectScoreOnly,
+                               @Param("searchDate") String searchDate,
+                               @Param("searchSession") Integer searchSession);
+
     // 관리자 페이지 조회용
     List<QuizUserVO> getQuizAdminList(@Param("keyword") String keyword,
                                       @Param("perfectScoreOnly") String perfectScoreOnly,
                                       @Param("searchDate") String searchDate,
-                                      @Param("searchSession") Integer searchSession);
+                                      @Param("searchSession") Integer searchSession,
+                                      @Param("pageStart") int pageStart,
+                                      @Param("amount") int amount);
+
+    // 엑셀 다운로드 전체 조회용
+    List<QuizUserVO> getQuizAdminListAll(@Param("keyword") String keyword,
+                                         @Param("perfectScoreOnly") String perfectScoreOnly,
+                                         @Param("searchDate") String searchDate,
+                                         @Param("searchSession") Integer searchSession);
 
     // --- 퀴즈 문제 관리용 ---
     List<QuizQuestionVO> getQuestionList();

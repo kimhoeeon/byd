@@ -90,7 +90,57 @@
         </collection>
     </resultMap>
 
+    <!-- 💡 공통 검색 조건 분리 -->
+    <sql id="quizSearchCondition">
+        <if test="keyword != null and keyword != ''">
+            AND (u2.name LIKE CONCAT('%', #{keyword}, '%') OR u2.phone LIKE CONCAT('%', #{keyword}, '%') OR u2.email LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test='perfectScoreOnly != null and perfectScoreOnly == "Y"'>
+            AND h2.score = 10
+        </if>
+        <if test="searchDate != null and searchDate != ''">
+            AND h2.play_date = #{searchDate}
+        </if>
+        <if test="searchSession != null">
+            AND h2.session_no = #{searchSession}
+        </if>
+    </sql>
+
+    <!-- 페이징 처리를 위한 총 인원수 카운트 쿼리 -->
+    <select id="getQuizAdminTotalCount" resultType="int">
+        SELECT COUNT(DISTINCT u2.user_seq)
+        FROM quiz_user u2
+        INNER JOIN quiz_history h2 ON u2.user_seq = h2.user_seq
+        <where>
+            <include refid="quizSearchCondition"/>
+        </where>
+    </select>
+
+    <!-- 50명 단위 페이징이 들어간 메인 쿼리 -->
     <select id="getQuizAdminList" resultMap="AdminListMap">
+        SELECT
+        u.user_seq, u.name, u.phone, u.email, u.region, u.shop_info, u.car_model_code, u.privacy_agree, u.reg_date AS u_reg_date,
+        h.history_seq, h.play_date, h.session_no, h.score, h.status, h.gift_received_yn
+        FROM quiz_user u
+        INNER JOIN quiz_history h ON u.user_seq = h.user_seq
+        WHERE u.user_seq IN (
+        SELECT sub.user_seq FROM (
+        SELECT u2.user_seq
+        FROM quiz_user u2
+        INNER JOIN quiz_history h2 ON u2.user_seq = h2.user_seq
+        <where>
+            <include refid="quizSearchCondition"/>
+        </where>
+        GROUP BY u2.user_seq
+        ORDER BY MAX(h2.play_date) DESC, MAX(h2.session_no) DESC, u2.user_seq DESC
+        LIMIT #{pageStart}, #{amount}
+        ) sub
+        )
+        ORDER BY h.play_date DESC, h.session_no DESC, u.user_seq DESC
+    </select>
+
+    <!-- 엑셀 다운로드를 위한 LIMIT 없는 전체 리스트 쿼리 -->
+    <select id="getQuizAdminListAll" resultMap="AdminListMap">
         SELECT
         u.user_seq, u.name, u.phone, u.email, u.region, u.shop_info, u.car_model_code, u.privacy_agree, u.reg_date AS u_reg_date,
         h.history_seq, h.play_date, h.session_no, h.score, h.status, h.gift_received_yn
@@ -100,20 +150,7 @@
         SELECT DISTINCT u2.user_seq FROM quiz_user u2
         INNER JOIN quiz_history h2 ON u2.user_seq = h2.user_seq
         <where>
-            <if test="keyword != null and keyword != ''">
-                AND (u2.name LIKE CONCAT('%', #{keyword}, '%') OR u2.phone LIKE CONCAT('%', #{keyword}, '%') OR u2.email LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-
-            <if test='perfectScoreOnly != null and perfectScoreOnly == "Y"'>
-                AND h2.score = 10
-            </if>
-
-            <if test="searchDate != null and searchDate != ''">
-                AND h2.play_date = #{searchDate}
-            </if>
-            <if test="searchSession != null">
-                AND h2.session_no = #{searchSession}
-            </if>
+            <include refid="quizSearchCondition"/>
         </where>
         )
         ORDER BY h.play_date DESC, h.session_no DESC, u.user_seq DESC

@@ -10,6 +10,11 @@
     <title>BYD ADMIN | 퀴즈 관리</title>
     <link rel="stylesheet" href="/assets/plugins/global/plugins.bundle.css">
     <link rel="stylesheet" href="/assets/css/style.bundle.css">
+    <style>
+        .pagination { justify-content: center; margin-top: 20px; gap: 5px;}
+        .page-item .page-link { border-radius: 4px !important; color: #333; border: 1px solid #dee2e6; }
+        .page-item.active .page-link { background-color: #202020; border-color: #202020; color: #fff; }
+    </style>
 </head>
 
 <body id="kt_app_body" data-kt-app-layout="dark-sidebar" data-kt-app-header-fixed="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" class="app-default">
@@ -50,6 +55,9 @@
                             <div class="card shadow-sm mb-5">
                                 <div class="card-body py-5">
                                     <form action="/mng/quiz/list" method="get" class="d-flex align-items-center gap-3 w-100 flex-wrap">
+                                        <!-- 페이징용 히든 필드 -->
+                                        <input type="hidden" name="pageNum" id="pageNum" value="${cri.pageNum}">
+                                        <input type="hidden" name="amount" value="${cri.amount}">
 
                                         <div class="position-relative mw-150px">
                                             <input type="date" name="searchDate" value="${searchDate}" class="form-control form-control-solid" title="참여 날짜">
@@ -75,7 +83,7 @@
                                             <input type="text" name="keyword" value="${keyword}" class="form-control form-control-solid" placeholder="이름 / 연락처 검색">
                                         </div>
 
-                                        <button type="submit" class="btn btn-dark">검색</button>
+                                        <button type="button" class="btn btn-dark" onclick="searchData()">검색</button>
                                         <a href="/mng/quiz/list" class="btn btn-light">초기화</a>
                                         <a href="/mng/quiz/question/list" class="btn btn-primary fw-bold ms-auto">문제 관리 바로가기</a>
                                     </form>
@@ -94,12 +102,22 @@
                                             </c:if>
                                         </h3>
                                     </div>
+                                    <!-- 엑셀 다운로드 버튼 추가 -->
+                                    <div class="card-toolbar">
+                                        <button type="button" class="btn btn-success fw-bold mb-5" onclick="downloadExcel()">
+                                            <i class="ki-duotone ki-file-down fs-2">
+                                                <span class="path1"></span><span class="path2"></span>
+                                            </i>
+                                            엑셀 다운로드
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="card-body py-4">
                                     <div class="table-responsive">
                                         <table class="table align-middle table-row-dashed fs-6 gy-5 table-hover">
                                             <thead>
                                             <tr class="text-center text-gray-500 fw-bold fs-7 text-uppercase gs-0 bg-light">
+                                                <th class="w-60px">No.</th>
                                                 <th class="w-100px">기념품 수령</th>
                                                 <th class="min-w-100px">이름</th>
                                                 <th class="min-w-150px">연락처</th>
@@ -113,11 +131,14 @@
                                             </thead>
                                             <tbody class="fw-semibold text-gray-600 text-center">
                                             <c:if test="${empty list}">
-                                                <tr><td colspan="9" class="py-10">참여자가 없습니다.</td></tr>
+                                                <tr><td colspan="10" class="py-10">참여자가 없습니다.</td></tr>
                                             </c:if>
 
-                                            <c:forEach items="${list}" var="user">
+                                            <c:forEach items="${list}" var="user" varStatus="st">
                                                 <tr>
+                                                    <td class="text-center fw-bold text-gray-700">
+                                                        ${pageMaker.total - ((cri.pageNum - 1) * cri.amount) - st.index}
+                                                    </td>
                                                     <td>
                                                         <c:forEach items="${user.historyList}" var="hist" varStatus="st">
                                                             <div class="form-check form-switch form-check-custom form-check-solid justify-content-center py-2">
@@ -167,6 +188,30 @@
                                             </c:forEach>
                                             </tbody>
                                         </table>
+
+                                        <!-- 페이징 영역 -->
+                                        <c:if test="${pageMaker.total > 0}">
+                                            <ul class="pagination">
+                                                <c:if test="${pageMaker.prev}">
+                                                    <li class="page-item">
+                                                        <a href="javascript:void(0);" onclick="goPage(${pageMaker.startPage - 1})" class="page-link">&laquo; 이전</a>
+                                                    </li>
+                                                </c:if>
+
+                                                <c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
+                                                    <li class="page-item ${pageMaker.cri.pageNum == num ? 'active' : ''}">
+                                                        <a href="javascript:void(0);" onclick="goPage(${num})" class="page-link">${num}</a>
+                                                    </li>
+                                                </c:forEach>
+
+                                                <c:if test="${pageMaker.next}">
+                                                    <li class="page-item">
+                                                        <a href="javascript:void(0);" onclick="goPage(${pageMaker.endPage + 1})" class="page-link">다음 &raquo;</a>
+                                                    </li>
+                                                </c:if>
+                                            </ul>
+                                        </c:if>
+
                                     </div>
                                 </div>
                             </div>
@@ -204,6 +249,24 @@
                 obj.checked = !obj.checked; // 실패 시 롤백
             }
         });
+    }
+
+    function searchData() {
+        document.getElementById('pageNum').value = 1;
+        document.getElementById('searchForm').submit();
+    }
+
+    function goPage(page) {
+        document.getElementById('pageNum').value = page;
+        document.getElementById('searchForm').submit();
+    }
+
+    function downloadExcel() {
+        var form = document.getElementById('searchForm');
+        var originalAction = form.action;
+        form.action = '/mng/quiz/api/excelDownload';
+        form.submit();
+        form.action = originalAction;
     }
 </script>
 </body>

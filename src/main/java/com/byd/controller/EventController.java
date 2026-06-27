@@ -164,7 +164,7 @@ public class EventController {
             String domain = "https://byd-bimos2026.kr";
             String ticketUrl = domain + "/apply/ticket?token=" + encodedToken;
 
-            eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl);
+            eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl, participantVO.getTestDriveTime(), false);
 
         } catch (Exception e) {
             log.error("알림 발송 실패 (신청은 완료됨): ", e);
@@ -182,8 +182,25 @@ public class EventController {
     public Map<String, Object> updateAjax(ParticipantVO participantVO) {
         Map<String, Object> response = new HashMap<>();
         try {
+            // 1. 기존 DB 정보 조회 (변경 전 상태 확인)
+            ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
+            String oldTime = (existing.getTestDriveTime() == null) ? "시승 미신청" : existing.getTestDriveTime();
+            String newTime = (participantVO.getTestDriveTime() == null) ? "시승 미신청" : participantVO.getTestDriveTime();
 
+            // 2. 정보 수정 진행
             eventService.updateParticipant(participantVO);
+
+            // 3. 시승 시간이 변경되었다면 알맞은 템플릿으로 문자 재발송
+            if (!oldTime.equals(newTime)) {
+                // 기존 방식대로 QR 티켓 URL 생성
+                com.byd.util.AES128 aes128 = new com.byd.util.AES128(SECRET_KEY);
+                String encryptedSeq = aes128.encrypt(String.valueOf(participantVO.getSeq()));
+                String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
+                String ticketUrl = "https://byd-bimos2026.kr/apply/ticket?token=" + encodedToken;
+
+                // 수정한 분기 처리 로직이 타도록 newTime 전달
+                eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl, newTime, true);
+            }
 
             response.put("success", true);
             response.put("message", "정보가 성공적으로 수정되었습니다.");
