@@ -34,12 +34,14 @@ public interface QuizMapper {
     // 관리자 페이지 페이징을 위한 전체 카운트
     int getQuizAdminTotalCount(@Param("keyword") String keyword,
                                @Param("perfectScoreOnly") String perfectScoreOnly,
+                               @Param("excludeInProgress") String excludeInProgress,
                                @Param("searchDate") String searchDate,
                                @Param("searchSession") Integer searchSession);
 
-    // 관리자 페이지 조회용
+    // 관리자 페이지 50건 페이징 조회용
     List<QuizUserVO> getQuizAdminList(@Param("keyword") String keyword,
                                       @Param("perfectScoreOnly") String perfectScoreOnly,
+                                      @Param("excludeInProgress") String excludeInProgress,
                                       @Param("searchDate") String searchDate,
                                       @Param("searchSession") Integer searchSession,
                                       @Param("pageStart") int pageStart,
@@ -48,6 +50,7 @@ public interface QuizMapper {
     // 엑셀 다운로드 전체 조회용
     List<QuizUserVO> getQuizAdminListAll(@Param("keyword") String keyword,
                                          @Param("perfectScoreOnly") String perfectScoreOnly,
+                                         @Param("excludeInProgress") String excludeInProgress,
                                          @Param("searchDate") String searchDate,
                                          @Param("searchSession") Integer searchSession);
 

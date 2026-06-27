@@ -74,6 +74,11 @@
                                             </select>
                                         </div>
 
+                                        <div class="form-check form-check-custom form-check-solid form-check-warning me-2">
+                                            <input class="form-check-input" type="checkbox" name="excludeInProgress" value="Y" id="chkExclude" ${excludeInProgress == 'Y' ? 'checked' : ''}/>
+                                            <label class="form-check-label fw-bold text-gray-700" for="chkExclude">진행중 제외</label>
+                                        </div>
+
                                         <div class="form-check form-check-custom form-check-solid form-check-danger me-2">
                                             <input class="form-check-input" type="checkbox" name="perfectScoreOnly" value="Y" id="chkPerfect" ${perfectScoreOnly == 'Y' ? 'checked' : ''}/>
                                             <label class="form-check-label fw-bold text-gray-700" for="chkPerfect">만점자(10점)만 조회</label>

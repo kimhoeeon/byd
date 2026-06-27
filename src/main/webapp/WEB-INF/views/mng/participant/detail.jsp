@@ -159,16 +159,13 @@
                                                 </c:when>
                                                 <c:when test="${data.driveCheckYn eq 'X'}">
                                                     <span class="text-warning fw-bold">노쇼 (No-show)</span>
-                                                    <!-- 노쇼 취소 버튼 추가 -->
                                                     <button type="button" class="btn btn-sm btn-light-primary ms-3 py-1 px-2" onclick="cancelNoshow(${data.seq})">노쇼 취소</button>
-                                                    <button type="button" class="btn btn-sm btn-light-info ms-2 py-1 px-2" onclick="sendNoshowSms(${data.seq})">방문요청 문자발송</button>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="text-danger fw-bold">미도착</span>
                                                 </c:otherwise>
                                             </c:choose>
 
-                                            <!-- 노쇼 처리 버튼 -->
                                             <c:if test="${data.testDriveTime ne '시승 미신청' and data.driveCheckYn ne 'Y' and data.driveCheckYn ne 'X'}">
                                                 <button type="button" class="btn btn-sm btn-light-danger ms-3 py-1 px-2" onclick="processNoshow(${data.seq})">노쇼 처리</button>
                                             </c:if>
@@ -186,6 +183,17 @@
                                             <c:otherwise><span class="text-danger fw-bold">미수령</span></c:otherwise>
                                         </c:choose>
                                     </td>
+
+                                    <c:if test="${data.testDriveTime ne '시승 미신청' and data.driveCheckYn ne 'Y'}">
+                                        <th class="bg-light fw-bold text-info">시승 방문요청 발송</th>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <button type="button" class="btn btn-sm btn-light-info py-1 px-2" onclick="sendNoshowSms(${data.seq})">
+                                                    <i class="ki-duotone ki-sms fs-5 me-1"><span class="path1"></span><span class="path2"></span></i>방문요청 문자발송
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </c:if>
                                 </tr>
 
                                 <tr>

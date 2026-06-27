@@ -170,16 +170,16 @@ public class QuizService {
     // -------------------------------------------------------------------------
     // 관리자용 퀴즈 목록 조회 (날짜 및 회차 필터 추가)
     // -------------------------------------------------------------------------
-    public int getQuizAdminTotalCount(String keyword, String perfectScoreOnly, String searchDate, Integer searchSession) {
-        return quizMapper.getQuizAdminTotalCount(keyword, perfectScoreOnly, searchDate, searchSession);
+    public int getQuizAdminTotalCount(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate, Integer searchSession) {
+        return quizMapper.getQuizAdminTotalCount(keyword, perfectScoreOnly, excludeInProgress, searchDate, searchSession);
     }
 
-    public List<QuizUserVO> getQuizAdminList(String keyword, String perfectScoreOnly, String searchDate, Integer searchSession, Criteria cri) {
-        return quizMapper.getQuizAdminList(keyword, perfectScoreOnly, searchDate, searchSession, cri.getPageStart(), cri.getAmount());
+    public List<QuizUserVO> getQuizAdminList(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate, Integer searchSession, Criteria cri) {
+        return quizMapper.getQuizAdminList(keyword, perfectScoreOnly, excludeInProgress, searchDate, searchSession, cri.getPageStart(), cri.getAmount());
     }
 
-    public List<QuizUserVO> getQuizAdminListAll(String keyword, String perfectScoreOnly, String searchDate, Integer searchSession) {
-        return quizMapper.getQuizAdminListAll(keyword, perfectScoreOnly, searchDate, searchSession);
+    public List<QuizUserVO> getQuizAdminListAll(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate, Integer searchSession) {
+        return quizMapper.getQuizAdminListAll(keyword, perfectScoreOnly, excludeInProgress, searchDate, searchSession);
     }
 
     public void toggleGiftStatus(int historySeq, String status) {

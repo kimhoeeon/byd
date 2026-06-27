@@ -90,13 +90,16 @@
         </collection>
     </resultMap>
 
-    <!-- 💡 공통 검색 조건 분리 -->
+    <!-- 공통 검색 조건 분리 -->
     <sql id="quizSearchCondition">
         <if test="keyword != null and keyword != ''">
             AND (u2.name LIKE CONCAT('%', #{keyword}, '%') OR u2.phone LIKE CONCAT('%', #{keyword}, '%') OR u2.email LIKE CONCAT('%', #{keyword}, '%'))
         </if>
         <if test='perfectScoreOnly != null and perfectScoreOnly == "Y"'>
             AND h2.score = 10
+        </if>
+        <if test='excludeInProgress != null and excludeInProgress == "Y"'>
+            AND h2.status != 'IN_PROGRESS'
         </if>
         <if test="searchDate != null and searchDate != ''">
             AND h2.play_date = #{searchDate}

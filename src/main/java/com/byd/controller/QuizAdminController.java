@@ -28,6 +28,7 @@ public class QuizAdminController {
     public String quizList(Criteria cri,
                            @RequestParam(required = false) String keyword,
                            @RequestParam(required = false) String perfectScoreOnly,
+                           @RequestParam(required = false) String excludeInProgress,
                            @RequestParam(required = false) String searchDate,
                            @RequestParam(required = false) String searchSession,
                            Model model) {
@@ -44,8 +45,8 @@ public class QuizAdminController {
             }
         }
 
-        List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly, searchDate, sessionNo, cri);
-        int total = quizService.getQuizAdminTotalCount(keyword, perfectScoreOnly, searchDate, sessionNo);
+        List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly, excludeInProgress, searchDate, sessionNo, cri);
+        int total = quizService.getQuizAdminTotalCount(keyword, perfectScoreOnly, excludeInProgress, searchDate, sessionNo);
 
         // 최근 7일 접속자 통계 데이터 조회
         List<DailyStatsVO> visitStats = quizService.getQuizDailyVisitStats();
@@ -56,6 +57,7 @@ public class QuizAdminController {
         model.addAttribute("visitStats", visitStats);
         model.addAttribute("keyword", keyword);
         model.addAttribute("perfectScoreOnly", perfectScoreOnly);
+        model.addAttribute("excludeInProgress", excludeInProgress);
         model.addAttribute("searchDate", searchDate);
         model.addAttribute("searchSession", sessionNo);
 
@@ -65,6 +67,7 @@ public class QuizAdminController {
     @GetMapping("/api/excelDownload")
     public void downloadExcel(@RequestParam(required = false) String keyword,
                               @RequestParam(required = false) String perfectScoreOnly,
+                              @RequestParam(required = false) String excludeInProgress,
                               @RequestParam(required = false) String searchDate,
                               @RequestParam(required = false) String searchSession,
                               HttpServletResponse response) throws Exception {
@@ -74,8 +77,7 @@ public class QuizAdminController {
             try { sessionNo = Integer.parseInt(searchSession); } catch (Exception e) {}
         }
 
-        // 페이징 없이 조건에 맞는 전체 데이터 조회
-        List<QuizUserVO> list = quizService.getQuizAdminListAll(keyword, perfectScoreOnly, searchDate, sessionNo);
+        List<QuizUserVO> list = quizService.getQuizAdminListAll(keyword, perfectScoreOnly, excludeInProgress, searchDate, sessionNo);
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("퀴즈 참여자 목록");
@@ -112,7 +114,6 @@ public class QuizAdminController {
 
         int rowNum = 1;
 
-        // 고객 1명당 여러 회차 이력이 있을 수 있으므로 회차를 기준으로 행(Row) 생성
         for (QuizUserVO user : list) {
             if (user.getHistoryList() != null && !user.getHistoryList().isEmpty()) {
                 for (QuizHistoryVO hist : user.getHistoryList()) {

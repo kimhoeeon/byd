@@ -71,6 +71,7 @@
                         <input type="hidden" name="privacyAgree" id="hiddenPrivacy" value="N">
                         <input type="hidden" name="thirdPartyAgree" id="hiddenThirdParty" value="N">
                         <input type="hidden" name="entrustAgree" id="hiddenEntrust" value="N">
+                        <input type="hidden" name="provideAgree" id="hiddenProvide" value="Y">
                         <input type="hidden" name="mktAgree" id="hiddenMkt" value="N">
 
                         <ul class="form_box">
