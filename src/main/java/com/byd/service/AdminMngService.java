@@ -81,15 +81,17 @@ public class AdminMngService {
     public Map<String, Object> getChartData() {
         Map<String, Object> chartMap = new HashMap<>();
 
-        // 1. 기존 7일 추이
+        // 1. 일별 통계
         List<String> labels = new ArrayList<>();
         List<Integer> data = new ArrayList<>();
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
+
         for (int i = 14; i >= 0; i--) {
             labels.add(today.minusDays(i).format(formatter));
             data.add(0);
         }
+
         List<DailyStatsVO> dbStats = adminMngMapper.getDailyStats();
         for (DailyStatsVO stat : dbStats) {
             int index = labels.indexOf(stat.getRegDateStr());
@@ -100,10 +102,10 @@ public class AdminMngService {
         chartMap.put("dailyLabels", labels);
         chartMap.put("dailyData", data);
 
-        // 2. 신규 대시보드 통계 추가
-        chartMap.put("carStats", adminMngMapper.getCarModelStats());
-        chartMap.put("timeStats", adminMngMapper.getTimeStats());
-        chartMap.put("shopStats", adminMngMapper.getShopStats());
+        // 2. 신규 대시보드 통계 추가 (💡 바이트 배열 파싱 헬퍼 함수 통과)
+        chartMap.put("carStats", parseByteArrays(adminMngMapper.getCarModelStats()));
+        chartMap.put("timeStats", parseByteArrays(adminMngMapper.getTimeStats()));
+        chartMap.put("shopStats", parseByteArrays(adminMngMapper.getShopStats()));
 
         // Null 방어 처리
         Map<String, Object> att = adminMngMapper.getAttendanceStats();
@@ -111,15 +113,35 @@ public class AdminMngService {
             att = new HashMap<>();
             att.put("challengeCnt", 0);
             att.put("driveCnt", 0);
+            att.put("driveNoshowCnt", 0);
             att.put("giftCnt", 0);
         } else {
             att.put("challengeCnt", att.get("challengeCnt") != null ? att.get("challengeCnt") : 0);
             att.put("driveCnt", att.get("driveCnt") != null ? att.get("driveCnt") : 0);
+            att.put("driveNoshowCnt", att.get("driveNoshowCnt") != null ? att.get("driveNoshowCnt") : 0);
             att.put("giftCnt", att.get("giftCnt") != null ? att.get("giftCnt") : 0);
         }
         chartMap.put("attStats", att);
 
         return chartMap;
+    }
+
+    // DB에서 문자열을 byte[]로 반환할 경우를 대비한 헬퍼 메서드 (초강력 방어)
+    private List<Map<String, Object>> parseByteArrays(List<Map<String, Object>> list) {
+        if (list != null) {
+            for (Map<String, Object> map : list) {
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    if (entry.getValue() instanceof byte[]) {
+                        try {
+                            entry.setValue(new String((byte[]) entry.getValue(), "UTF-8"));
+                        } catch (Exception e) {
+                            entry.setValue(new String((byte[]) entry.getValue()));
+                        }
+                    }
+                }
+            }
+        }
+        return list;
     }
 
     public void deleteParticipant(int seq) {

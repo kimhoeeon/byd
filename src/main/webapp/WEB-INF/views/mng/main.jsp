@@ -270,11 +270,29 @@
     });
 
     // 4. 시간대별 시승 예약 현황 (바 차트)
-    const rawTimeStats = [
+    const rawTimeStatsDump = [
         <c:forEach items="${chartData.timeStats}" var="item" varStatus="st">
-        { date: '${item.dateLabel}', time: '${item.timeLabel}', cnt: ${item.cnt} }${!st.last ? ',' : ''}
+        {
+            <c:forEach items="${item}" var="entry">
+            "${entry.key}": "${entry.value}",
+            </c:forEach>
+        }${!st.last ? ',' : ''}
         </c:forEach>
     ];
+
+    // 어떤 이름으로 키가 들어왔든 유연하게 파싱
+    const normalizedStats = rawTimeStatsDump.map(d => {
+        const keys = Object.keys(d);
+        const dateKey = keys.find(k => k.toLowerCase().includes('date')); // datelabel, dateLabel 등 자동 탐색
+        const timeKey = keys.find(k => k.toLowerCase().includes('time') || k.toLowerCase() === 'label');
+        const cntKey = keys.find(k => k.toLowerCase().includes('cnt'));
+
+        return {
+            date: dateKey ? String(d[dateKey]).trim() : '',
+            time: timeKey ? String(d[timeKey]).trim() : '',
+            cnt: cntKey ? parseInt(d[cntKey]) || 0 : 0
+        };
+    }).filter(d => d.date !== '' && d.time !== ''); // 날짜 데이터가 없는 과거 쿼리 결괏값은 필터링
 
     const timeLabelsMap = {
         "11:00": "11:00 ~ 12:00",
@@ -286,16 +304,13 @@
         "17:00": "17:00 ~ 18:00"
     };
 
-    // 전체 고정 타임 테이블 (X축 라벨)
     const uniqueTimes = ["11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
     const xLabels = uniqueTimes.map(t => timeLabelsMap[t] || t);
-
-    // 날짜 고유값 추출 및 오름차순 정렬 (범례로 생성됨)
-    const uniqueDates = [...new Set(rawTimeStats.map(d => d.date))].sort();
+    const uniqueDates = [...new Set(normalizedStats.map(d => d.date))].sort();
 
     const timeDatasets = uniqueDates.map((date, index) => {
         const dataForDate = uniqueTimes.map(time => {
-            const found = rawTimeStats.find(d => d.date === date && d.time === time);
+            const found = normalizedStats.find(d => d.date === date && d.time.indexOf(time) !== -1);
             return found ? found.cnt : 0;
         });
         return {
@@ -306,10 +321,10 @@
         };
     });
 
-    // 등록된 시승 예약이 하나도 없을 경우의 빈 데이터셋 처리
+    // 서버를 재시작하지 않아 옛날 쿼리가 돌아가거나 데이터가 아예 없을 경우의 빈 차트 처리
     if (timeDatasets.length === 0) {
         timeDatasets.push({
-            label: '예약 없음',
+            label: '데이터 없음 (서버 재시작 필요)',
             data: [0,0,0,0,0,0,0],
             backgroundColor: '#e4e6ef',
             borderRadius: 4
@@ -326,7 +341,6 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                // 이제 상단에 각 날짜별 색상(06.27, 06.28 등) 범례가 표시됩니다!
                 legend: { display: true, position: 'top' }
             },
             scales: {
