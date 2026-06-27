@@ -73,8 +73,9 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                <div class="row mb-4">
                                     <div class="col-12 d-flex align-items-center gap-3">
+
                                         <div class="w-150px fw-bold text-gray-700 ps-2">
                                             <i class="ki-duotone ki-calendar-8 fs-4 me-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span></i>
                                             등록일자 조회
@@ -84,9 +85,39 @@
                                             <span class="text-gray-500 fw-bold">~</span>
                                             <input type="date" name="endDate" id="endDate" value="${cri.endDate}" class="form-control form-control-solid w-175px">
                                         </div>
+
                                         <div class="text-muted fs-7 ms-2">
                                             * 시작일과 종료일이 모두 지정되면 자동 조회됩니다.
                                         </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-12 d-flex align-items-center gap-3">
+
+                                        <div class="w-150px fw-bold text-gray-700 ps-2">
+                                            <i class="ki-duotone ki-time fs-4 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                            시승 시간
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <select name="testDriveTime" class="form-select form-select-solid w-200px" onchange="searchData()">
+                                                <option value="">전체</option>
+                                                <option value="시승 미신청" ${cri.testDriveTime == '시승 미신청' ? 'selected' : ''}>시승 미신청</option>
+                                                <option value="11:00" ${cri.testDriveTime == '11:00' ? 'selected' : ''}>11:00 ~ 12:00 (1회차)</option>
+                                                <option value="12:00" ${cri.testDriveTime == '12:00' ? 'selected' : ''}>12:00 ~ 13:00 (2회차)</option>
+                                                <option value="13:00" ${cri.testDriveTime == '13:00' ? 'selected' : ''}>13:00 ~ 14:00 (3회차)</option>
+                                                <option value="14:00" ${cri.testDriveTime == '14:00' ? 'selected' : ''}>14:00 ~ 15:00 (4회차)</option>
+                                                <option value="15:00" ${cri.testDriveTime == '15:00' ? 'selected' : ''}>15:00 ~ 16:00 (5회차)</option>
+                                                <option value="16:00" ${cri.testDriveTime == '16:00' ? 'selected' : ''}>16:00 ~ 17:00 (6회차)</option>
+                                                <option value="17:00" ${cri.testDriveTime == '17:00' ? 'selected' : ''}>17:00 ~ 18:00 (7회차)</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="text-muted fs-7 ms-2">
+                                            * 조건 변경 시 자동 조회됩니다.
+                                        </div>
+
                                     </div>
                                 </div>
 
@@ -97,7 +128,16 @@
                     <!-- 데이터 목록 카드 -->
                     <div class="card shadow-sm border-0">
                         <div class="card-header border-0 pt-6">
-                            <div class="card-title"><h3 class="fw-bold m-0">시승 관리</h3></div>
+                            <div class="card-title">
+                                <h3 class="fw-bold m-0 d-flex align-items-center">
+                                    시승 관리
+                                    <c:if test="${not empty pageMaker}">
+                                        <span class="badge badge-light-primary fw-bolder fs-6 ms-3">
+                                            총 <fmt:formatNumber value="${pageMaker.total}" pattern="#,###"/>건
+                                        </span>
+                                    </c:if>
+                                </h3>
+                            </div>
 
                             <!-- 엑셀 다운로드 버튼을 우측 상단으로 이동 -->
                             <div class="card-toolbar">

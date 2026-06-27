@@ -22,6 +22,9 @@
         <if test="endDate != null and endDate != ''">
             AND reg_date <![CDATA[<=]]> CONCAT(#{endDate}, ' 23:59:59')
         </if>
+        <if test="testDriveTime != null and testDriveTime != ''">
+            AND test_drive_time = #{testDriveTime}
+        </if>
     </sql>
 
     <select id="getAdminById" parameterType="string" resultType="com.byd.vo.AdminVO">
@@ -138,9 +141,11 @@
 
     <select id="getAttendanceStats" resultType="java.util.LinkedHashMap">
         SELECT
-            SUM(CASE WHEN challenge_check_yn = 'Y' THEN 1 ELSE 0 END) AS challengeCnt,
-            SUM(CASE WHEN drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS driveCnt,
-            SUM(CASE WHEN gift_check_yn = 'Y' THEN 1 ELSE 0 END) AS giftCnt
+        SUM(CASE WHEN challenge_check_yn = 'Y' THEN 1 ELSE 0 END) AS challengeCnt,
+        SUM(CASE WHEN drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS driveCnt,
+        <!-- 노쇼(X) 카운트 추가 -->
+        SUM(CASE WHEN drive_check_yn = 'X' THEN 1 ELSE 0 END) AS driveNoshowCnt,
+        SUM(CASE WHEN gift_check_yn = 'Y' THEN 1 ELSE 0 END) AS giftCnt
         FROM event_participant
     </select>
 

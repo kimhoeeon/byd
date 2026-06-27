@@ -44,10 +44,11 @@
 <c:set var="todayCnt" value="${stats.todayCnt != null ? stats.todayCnt : 0}" />
 <c:set var="challengeCnt" value="${chartData.attStats.challengeCnt != null ? chartData.attStats.challengeCnt : 0}" />
 <c:set var="driveCnt" value="${chartData.attStats.driveCnt != null ? chartData.attStats.driveCnt : 0}" />
+<c:set var="driveNoshowCnt" value="${chartData.attStats.driveNoshowCnt != null ? chartData.attStats.driveNoshowCnt : 0}" />
 <c:set var="giftCnt" value="${chartData.attStats.giftCnt != null ? chartData.attStats.giftCnt : 0}" />
 
 <c:set var="driveWaitCnt" value="${stats.driveWaitCnt != null ? stats.driveWaitCnt : 0}" />
-<c:set var="totalDriveCnt" value="${driveWaitCnt + driveCnt}" />
+<c:set var="totalDriveCnt" value="${driveWaitCnt + driveCnt + driveNoshowCnt}" />
 
 <c:set var="challPct" value="${totalCnt > 0 ? (challengeCnt * 100.0 / totalCnt) : 0}" />
 <c:set var="drivePct" value="${totalDriveCnt > 0 ? (driveCnt * 100.0 / totalDriveCnt) : 0}" />
@@ -246,11 +247,12 @@
     // 2. 시승 참석 비율 (도넛 차트)
     const checked = parseInt("${chartData.attStats.driveCnt}") || 0;
     const waiting = parseInt("${stats.driveWaitCnt}") || 0;
+    const noshow = parseInt("${chartData.attStats.driveNoshowCnt}") || 0;
     new Chart(document.getElementById('attChart'), {
         type: 'doughnut',
         data: {
-            labels: ['도착 완료', '미도착 대기'],
-            datasets: [{ data: [checked, waiting], backgroundColor: ['#009ef7', '#f1416c'], borderWidth: 0 }]
+            labels: ['도착 완료', '미도착 대기', '노쇼'],
+            datasets: [{ data: [checked, waiting, noshow], backgroundColor: ['#009ef7', '#f1416c', '#7e8299'], borderWidth: 0 }]
         },
         options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom' } } }
     });
@@ -268,12 +270,23 @@
     });
 
     // 4. 시간대별 시승 예약 현황 (바 차트)
+    const timeLabelsMap = {
+        "11:00": "11:00 ~ 12:00",
+        "12:00": "12:00 ~ 13:00",
+        "13:00": "13:00 ~ 14:00",
+        "14:00": "14:00 ~ 15:00",
+        "15:00": "15:00 ~ 16:00",
+        "16:00": "16:00 ~ 17:00",
+        "17:00": "17:00 ~ 18:00"
+    };
     const timeArr = [<c:forEach items="${chartData.timeStats}" var="item" varStatus="st">{label:'${item.label}', cnt:${item.cnt}}${!st.last?',' : ''}</c:forEach>];
     const timeExt = extractValues(timeArr);
+    const mappedTimeLabels = timeExt.labels.map(l => timeLabelsMap[l] || l); // 시간 매핑
+
     new Chart(document.getElementById('timeChart'), {
         type: 'bar',
         data: {
-            labels: timeExt.labels,
+            labels: mappedTimeLabels,
             datasets: [{ label: '예약 인원', data: timeExt.data, backgroundColor: '#50cd89', borderRadius: 4 }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
