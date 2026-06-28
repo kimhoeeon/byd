@@ -22,7 +22,7 @@ public class QuizService {
     private QuizLiveSessionVO cachedSession = null;
     private long lastCacheUpdate = 0;
 
-    private QuizLiveSessionVO getLatestLiveSessionCached(String today) {
+    private synchronized QuizLiveSessionVO getLatestLiveSessionCached(String today) {
         long now = System.currentTimeMillis();
         // 1초(1000ms) 이내의 요청은 DB 조회 없이 메모리 값 반환!
         if (cachedSession != null && (now - lastCacheUpdate) < 1000) {
