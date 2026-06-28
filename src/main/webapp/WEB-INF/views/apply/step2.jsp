@@ -252,49 +252,49 @@
                         if(timeVal && timeVal !== "" && timeVal !== "시승 미신청") {
                             var labelText = timeLabels[timeVal] || timeVal;
 
+                            // 1. 기존 꼬리말 제거 후 순수 시간 텍스트 추출 (중복 추가 방지)
+                            const originalText = labelText.split(' (')[0];
                             const timeParts = timeVal.split(':');
-                            const targetHour = parseInt(timeParts[0]);
+                            const targetHour = parseInt(timeParts[0], 10);
 
-                            let isPassed = false;
-                            let isNotOpen = false;
-                            let openMsg = "";
-
-                            if (targetHour >= 11 && targetHour <= 14) {
-                                if (currentHour < 10) {
-                                    isNotOpen = true;
-                                    openMsg = " (10:00 오픈)";
-                                }
-                            } else if (targetHour >= 15 && targetHour <= 17) {
-                                if (currentHour < 14) {
-                                    isNotOpen = true;
-                                    openMsg = " (14:00 오픈)";
-                                }
-                            }
-
-                            if (currentHour > targetHour) {
-                                isPassed = true;
-                            } else if (currentHour === targetHour && currentMin >= 20) {
-                                isPassed = true;
-                            }
+                            let isNotAvailable = false;
+                            let statusSuffix = "";
 
                             let isFull = false;
                             if(counts[timeVal] && counts[timeVal] >= maxCapacity) {
                                 isFull = true;
                             }
 
-                            if (isNotOpen) {
+                            // 2. 우선순위에 따른 상태 판별
+                            // [1순위] 시간 경과 마감
+                            if (currentHour > targetHour || (currentHour === targetHour && currentMin >= 20)) {
+                                isNotAvailable = true;
+                                statusSuffix = " (마감)";
+                            }
+                            // [2순위] 예약 오픈 전 대기
+                            else if (targetHour >= 11 && targetHour <= 14 && currentHour < 10) {
+                                isNotAvailable = true;
+                                statusSuffix = " (10:00 오픈)";
+                            }
+                            else if (targetHour >= 15 && targetHour <= 17 && currentHour < 14) {
+                                isNotAvailable = true;
+                                statusSuffix = " (14:00 오픈)";
+                            }
+                            // [3순위] 정원 초과
+                            else if (isFull) {
+                                isNotAvailable = true;
+                                statusSuffix = " (정원 마감)";
+                            }
+
+                            // 3. UI 적용
+                            if (isNotAvailable) {
                                 $(this).prop('disabled', true);
-                                $(this).text(labelText + openMsg);
-                            } else if (isPassed) {
-                                $(this).prop('disabled', true);
-                                $(this).text(labelText + ' (마감)');
-                            } else if (isFull) {
-                                $(this).prop('disabled', true);
-                                $(this).text(labelText + ' (예약완료)');
+                                $(this).text(originalText + statusSuffix);
                             } else {
                                 $(this).prop('disabled', false);
-                                $(this).text(labelText);
+                                $(this).text(originalText);
                             }
+
                         } else if (timeVal === "시승 미신청") {
                             // 시승 미신청은 언제나 선택 가능하도록 보장합니다.
                             $(this).prop('disabled', false);
