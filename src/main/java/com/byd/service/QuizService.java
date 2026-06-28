@@ -18,6 +18,22 @@ public class QuizService {
     private final QuizMapper quizMapper;
     private final QuizLiveMapper quizLiveMapper;
 
+    // [수정 1] 클래스 상단에 1초 캐싱용 변수 및 메서드 추가
+    private QuizLiveSessionVO cachedSession = null;
+    private long lastCacheUpdate = 0;
+
+    private QuizLiveSessionVO getLatestLiveSessionCached(String today) {
+        long now = System.currentTimeMillis();
+        // 1초(1000ms) 이내의 요청은 DB 조회 없이 메모리 값 반환!
+        if (cachedSession != null && (now - lastCacheUpdate) < 1000) {
+            return cachedSession;
+        }
+        // 1초가 지났을 때만 DB를 1번 조회하고 캐시 갱신
+        cachedSession = quizLiveMapper.getLatestLiveSession(today);
+        lastCacheUpdate = now;
+        return cachedSession;
+    }
+
     private String getTodayString() {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
@@ -27,7 +43,7 @@ public class QuizService {
         String today = getTodayString();
 
         // 1. 가장 최근에 활성화된 오늘자 라이브 세션 조회
-        QuizLiveSessionVO liveSession = quizLiveMapper.getLatestLiveSession(today);
+        QuizLiveSessionVO liveSession = getLatestLiveSessionCached(today);
         if (liveSession == null) {
             result.put("eligible", false);
             result.put("message", "현재 진행 예정인 퀴즈 세션이 없습니다.");
@@ -65,7 +81,7 @@ public class QuizService {
         String today = getTodayString();
 
         // 1. 가장 최근 활성화된 세션 조회
-        QuizLiveSessionVO liveSession = quizLiveMapper.getLatestLiveSession(today);
+        QuizLiveSessionVO liveSession = getLatestLiveSessionCached(today);
         if (liveSession == null) {
             result.put("success", false);
             result.put("message", "진행 중인 세션이 없습니다.");

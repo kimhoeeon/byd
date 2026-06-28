@@ -293,10 +293,9 @@
                         var timeVal = $(this).val();
 
                         if(timeVal !== "시승 미신청" && timeVal !== "") {
-                            var labelText = timeLabels[timeVal] || timeVal;
 
-                            // 1. 기존 꼬리말 제거 후 순수 시간 텍스트 추출
-                            const originalText = labelText.split(' (')[0];
+                            // 1. 시간 텍스트 추출 (중복 추가 방지)
+                            const originalText = timeLabels[timeVal] || timeVal;
                             const timeParts = timeVal.split(':');
                             const targetHour = parseInt(timeParts[0], 10);
 

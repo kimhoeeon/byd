@@ -251,6 +251,16 @@ public class EventController {
         }
 
         try {
+
+            // [오류 방어 로직 추가 시작]
+            // 1. 토큰에 '%' 기호가 남아있다면 (이중 인코딩된 경우) 한 번 더 디코딩
+            if (token.contains("%")) {
+                token = java.net.URLDecoder.decode(token, "UTF-8");
+            }
+            // 2. Base64의 '+' 기호가 HTTP 전송 중 공백(' ')으로 치환된 경우 다시 '+'로 복구
+            token = token.replace(" ", "+");
+            // [오류 방어 로직 추가 끝]
+
             // 1. 토큰 복호화
             AES128 aes128 = new AES128(SECRET_KEY);
             String decryptedSeqStr = aes128.decrypt(token);

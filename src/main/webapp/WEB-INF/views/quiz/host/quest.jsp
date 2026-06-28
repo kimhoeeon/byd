@@ -285,11 +285,8 @@
             const btn = $('#btnClicker');
             if(btn.css('pointer-events') === 'none') return; // 타이머 진행 중 비활성화 방어
 
-            // 2. 입력 접수됨 -> 0.8초 동안 잠금(Lock)
+            // 2. 입력 접수됨
             isProcessing = true;
-            setTimeout(function() {
-                isProcessing = false;
-            }, 800);
 
             if (currentState === STATE.READY) {
                 currentState = STATE.PLAYING;
@@ -355,10 +352,29 @@
         }
 
         function updateServerState(status) {
+            // 1. AJAX 통신 시작 전에 완벽하게 락 걸기
+            isProcessing = true;
+            $('#btnClicker').css({'pointer-events': 'none', 'opacity': '0.5'});
+
             $.ajax({
                 url: '/api/quiz/live/host/control',
                 type: 'POST',
-                data: { playDate: playDate, sessionNo: sessionNo, targetQuestionNo: currentQIndex + 1, targetStatus: status }
+                data: { playDate: playDate, sessionNo: sessionNo, targetQuestionNo: currentQIndex + 1, targetStatus: status },
+                success: function() {
+                    // 2. 통신 성공 시에만 락 해제
+                    isProcessing = false;
+
+                    // PLAYING(카운트다운 중) 상태가 아닐 때만 다시 클릭할 수 있도록 복구
+                    if (currentState !== STATE.PLAYING) {
+                        $('#btnClicker').css({'pointer-events': 'auto', 'opacity': '1'});
+                    }
+                },
+                error: function() {
+                    alert("서버와의 통신이 지연되고 있습니다. 다시 클릭해주세요.");
+                    // 에러 발생 시 락 해제 (재시도 허용)
+                    isProcessing = false;
+                    $('#btnClicker').css({'pointer-events': 'auto', 'opacity': '1'});
+                }
             });
         }
 
