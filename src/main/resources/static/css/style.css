@@ -419,7 +419,7 @@ label:last-child {margin-right: 0;}
 .host .ck-in .info_box{border: none;margin-top: 0;}
 .host .ck-in .info_box::before{display: none;}
 .host .ck-in .info_box .tit span{font-size: 48px; font-weight: 400; color: #4390FF;}
-.host .ck-in .info_box .tit div{font-size: 80px;margin-top: 15px;margin-bottom: 70px;}
+.host .ck-in .info_box .tit div{font-size: 80px;margin-top: 15px;margin-bottom: 30px;}
 .host .btn_box_pc{min-width: 600px; margin: 0 auto;}
 .host .btn_box_pc .btn_st05{padding: 35px 0;font-size: 28px; gap: 10px;}
 .host .btn_box_pc .btn_st05::after {content: '';background: url(/img/right_arrow.svg) no-repeat;background-size: contain;width: 12px;height: 21px;display: block;}
@@ -439,7 +439,7 @@ label:last-child {margin-right: 0;}
 .host .quiz_q .btn_multi input:checked + label{background: #242424;font-weight: 500; border: 3px solid #2A466C; color: #fff;}
 
 .host .ck-in .info_box.mt-100{margin-top: 100px;}
-.host .end_success{text-align: center;border: 1px solid #1B222C;border-radius: 20px; backdrop-filter: blur(10px);background: rgba(255, 255, 255, 0.06);max-width: 1600px;margin: 0 auto;padding: 20px;}
+.host .end_success{text-align: center;border: 1px solid #1B222C;border-radius: 20px; backdrop-filter: blur(10px);background: rgba(255, 255, 255, 0.06);max-width: 1600px;margin: 0 auto;padding: 20px;margin-bottom: 70px;}
 .host .end_success .txt_box .txt{font-size: 40px; color: #4390FF;margin-top: 20px;margin-bottom: 30px;}
 .host .end_success .txt_box .desc{font-size: 32px; line-height: 42px; max-width: 1200px; margin: 0 auto;}
 .end_wrap .end_success .txt_box{margin-bottom: 0;}
@@ -590,3 +590,5 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
     .footer .logo{flex-direction: column;gap: 20px;font-size: 16px;}
     .footer .copy{font-size: 14px;}
 }
+
+.ck-in.mobile{height: 100%; margin-top: 70px;}

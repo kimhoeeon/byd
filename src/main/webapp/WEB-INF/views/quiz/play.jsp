@@ -35,7 +35,7 @@
 <body class="quiz">
 
     <div id="container">
-        <div class="ck-in center">
+        <div class="ck-in mobile center">
             <div class="top_tit">
                 <div class="inner">
                     <div class="tit">

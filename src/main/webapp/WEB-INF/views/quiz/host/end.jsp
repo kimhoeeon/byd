@@ -54,7 +54,7 @@
             <!-- //title -->
 
             <!-- info -->
-            <div class="info_box padding_b mt-100">
+            <div class="info_box padding_b">
                 <div class="inner">
                     <div class="tit">
                         <span>QUIZ EVENT</span>
@@ -68,7 +68,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="btn_box">
+                <div class="btn_box" style="display: none;">
                     <a href="/quiz/host/main" class="btn_st05" style="background:#555;">다음 회차 준비하기 (메인으로)</a>
                 </div>
             </div>
