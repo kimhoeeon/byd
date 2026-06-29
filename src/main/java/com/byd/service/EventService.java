@@ -88,14 +88,32 @@ public class EventService {
             java.time.LocalTime targetTime = java.time.LocalTime.parse(testDriveTime);
             int targetHour = targetTime.getHour();
 
-            // 1. 10시 / 14시 오픈 시간 통제 로직
-            if (targetHour >= 11 && targetHour <= 14) {
+            // 요일 확인 로직 추가 (토, 일요일 판별)
+            java.time.DayOfWeek dayOfWeek = java.time.LocalDate.now().getDayOfWeek();
+            boolean isWeekend = (dayOfWeek == java.time.DayOfWeek.SATURDAY || dayOfWeek == java.time.DayOfWeek.SUNDAY);
+
+            // 1. 오전 회차 (1~3회차: 11:00 ~ 13:00 타임)
+            if (targetHour >= 11 && targetHour <= 13) {
                 if (now.getHour() < 10) {
-                    throw new IllegalStateException("오전 회차(1~4회차)는 10:00부터 예약 가능합니다.");
+                    throw new IllegalStateException("오전 회차(1~3회차)는 10:00부터 예약 가능합니다.");
                 }
-            } else if (targetHour >= 15 && targetHour <= 17) {
-                if (now.getHour() < 14) {
-                    throw new IllegalStateException("오후 회차(5~7회차)는 14:00부터 예약 가능합니다.");
+            }
+            // 2. 오후 회차 (4~7회차: 14:00 ~ 17:00 타임)
+            else if (targetHour >= 14 && targetHour <= 17) {
+
+                // 평일 17시(7회차) 강제 접근 차단 방어
+                if (!isWeekend && targetHour == 17) {
+                    throw new IllegalStateException("17:00(7회차)는 주말에만 예약 가능합니다.");
+                }
+
+                if (isWeekend) {
+                    if (now.getHour() < 14) {
+                        throw new IllegalStateException("주말 오후 회차(4~7회차)는 14:00부터 예약 가능합니다.");
+                    }
+                } else {
+                    if (now.getHour() < 13) {
+                        throw new IllegalStateException("평일 오후 회차(4~6회차)는 13:00부터 예약 가능합니다.");
+                    }
                 }
             }
 
@@ -154,6 +172,12 @@ public class EventService {
         // 1. DB에서 기존 정보를 미리 조회합니다.
         ParticipantVO existing = eventMapper.getParticipantBySeq(participantVO.getSeq());
         if (existing == null) throw new IllegalArgumentException("존재하지 않는 회원 정보입니다.");
+
+        // 시승 완료 고객(Y)은 화면에서 disabled 처리되어 testDriveTime이 null로 넘어옵니다.
+        // 이를 '시승 미신청'으로 오해하여 에러를 뱉지 않도록 기존 시간을 강제로 유지시켜 줍니다.
+        if ("Y".equals(existing.getDriveCheckYn())) {
+            participantVO.setTestDriveTime(existing.getTestDriveTime());
+        }
 
         // [핵심 방어] 넘겨받은 파라미터가 Null인지, 기존 DB 데이터가 Null인지 모두 점검
         if (participantVO.getTestDriveTime() == null || participantVO.getTestDriveTime().trim().isEmpty()) {

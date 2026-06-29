@@ -307,35 +307,53 @@
                                 isFull = true;
                             }
 
-                            // 마이페이지의 본인 예약 시간은 인원이 차더라도 선택할 수 있도록 예외처리
-                            if (typeof originalTestDriveTime !== 'undefined' && timeVal === originalTestDriveTime) {
-                                isFull = false;
-                            }
+                            // 마이페이지 본인 예약 시간은 오픈/마감/정원 상태에 상관없이 '무조건' 활성화 유지
+                            const isMyTime = (typeof originalTestDriveTime !== 'undefined' && timeVal === originalTestDriveTime);
 
-                            // 2. 우선순위에 따른 상태 판별
-                            if (currentHour > targetHour || (currentHour === targetHour && currentMin >= 20)) {
-                                isNotAvailable = true;
-                                statusSuffix = " (마감)";
-                            } else if (targetHour >= 11 && targetHour <= 14 && currentHour < 10) {
-                                isNotAvailable = true;
-                                statusSuffix = " (10:00 오픈)";
-                            } else if (targetHour >= 15 && targetHour <= 17 && currentHour < 14) {
-                                isNotAvailable = true;
-                                statusSuffix = " (14:00 오픈)";
-                            } else if (isFull) {
-                                isNotAvailable = true;
-                                statusSuffix = " (정원 마감)";
-                            }
-
-                            // 3. UI 적용
-                            if (isNotAvailable) {
-                                $(this).prop('disabled', true);
-                                $(this).text(originalText + statusSuffix);
-                            } else {
+                            if (isMyTime) {
                                 $(this).prop('disabled', false);
                                 $(this).text(originalText);
+                            } else {
+                                // 본인 시간이 아닌 다른 시간들에 대해서만 상태(마감/오픈전/정원초과)를 판별합니다.
+                                const isWeekendDay = (now.getDay() === 0 || now.getDay() === 6); // 0:일, 6:토
+
+                                // [1순위] 시간 경과 마감
+                                if (currentHour > targetHour || (currentHour === targetHour && currentMin >= 20)) {
+                                    isNotAvailable = true;
+                                    statusSuffix = " (마감)";
+                                }
+                                // [2순위] 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
+                                else if (targetHour >= 11 && targetHour <= 13 && currentHour < 10) {
+                                    isNotAvailable = true;
+                                    statusSuffix = " (10:00 오픈)";
+                                }
+                                // [3순위] 오후 타임 (4~7회차: 14:00 ~ 17:00) -> 평일 13:00 / 주말 14:00 오픈
+                                else if (targetHour >= 14 && targetHour <= 17) {
+                                    if (isWeekendDay && currentHour < 14) {
+                                        isNotAvailable = true;
+                                        statusSuffix = " (14:00 오픈)";
+                                    } else if (!isWeekendDay && currentHour < 13) {
+                                        isNotAvailable = true;
+                                        statusSuffix = " (13:00 오픈)";
+                                    }
+                                }
+                                // [4순위] 정원 초과
+                                else if (isFull) {
+                                    isNotAvailable = true;
+                                    statusSuffix = " (정원 마감)";
+                                }
+
+                                // 3. UI 적용
+                                if (isNotAvailable) {
+                                    $(this).prop('disabled', true);
+                                    $(this).text(originalText + statusSuffix);
+                                } else {
+                                    $(this).prop('disabled', false);
+                                    $(this).text(originalText);
+                                }
                             }
                         } else if (timeVal === "시승 미신청") {
+                            // 시승 미신청은 언제나 선택 가능하도록 보장합니다.
                             $(this).prop('disabled', false);
                             $(this).text("시승 미신청");
                         }
