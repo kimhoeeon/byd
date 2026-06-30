@@ -71,6 +71,7 @@
                                                 <option value="3" ${searchSession == 3 ? 'selected' : ''}>3회차</option>
                                                 <option value="4" ${searchSession == 4 ? 'selected' : ''}>4회차</option>
                                                 <option value="5" ${searchSession == 5 ? 'selected' : ''}>5회차</option>
+                                                <option value="5" ${searchSession == 6 ? 'selected' : ''}>6회차</option>
                                             </select>
                                         </div>
 
