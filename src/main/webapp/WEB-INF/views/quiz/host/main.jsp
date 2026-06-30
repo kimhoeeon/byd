@@ -85,11 +85,11 @@
         let isStarting = false; // 중복 실행 방지용
 
         $(document).ready(function() {
-            // 평일 4회차, 주말 5회차 자동 세팅
+            // 평일 5회차, 주말 6회차 자동 세팅
             const today = new Date();
             const dayOfWeek = today.getDay();
             const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-            const maxSession = isWeekend ? 5 : 4;
+            const maxSession = isWeekend ? 6 : 5;
 
             let selectHtml = "";
             for(let i = 1; i <= maxSession; i++) {

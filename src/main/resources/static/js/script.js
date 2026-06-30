@@ -48,6 +48,13 @@ $(document).ready(function () {
         $(this).val($(this).val().replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));
     });
 
+    //$('#testdrivePopup').addClass('open');
+
+    // 닫기
+    $(document).on('click', '.popup_close, .popup_btn, .testdrive_dim', function () {
+        $('#testdrivePopup').removeClass('open');
+    });
+
 
     //코스 슬라이드
     var swiper = new Swiper('.swiper_gallery', {

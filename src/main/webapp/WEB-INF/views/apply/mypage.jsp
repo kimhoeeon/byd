@@ -228,6 +228,22 @@
     </div>
     <!-- //container -->
 
+    <div class="testdrive_popup" id="testdrivePopup">
+        <div class="testdrive_dim"></div>
+
+        <div class="testdrive_box">
+            <h3>시승 유의사항</h3>
+
+            <ul class="popup_notice">
+                <li>만 24세 이상만 시승 가능</li>
+                <li>운전면허증 필수 지참</li>
+                <li>시승 전 음주 측정 진행</li>
+            </ul>
+
+            <button type="button" class="popup_btn">확인</button>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <script src="/js/jquery-1.9.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
@@ -401,6 +417,15 @@
             // 6. 시승 시간 클릭 시 현황 갱신 (차종 미선택 시 경고창)
             $('#testDriveTime').on('focus click touchstart', function() {
                 updateDriveTimeStatus(true);
+            });
+
+            // 시승 시간을 선택했을 때 유의사항 팝업 노출
+            $('#testDriveTime').on('change', function() {
+                var selectedVal = $(this).val();
+                // '시승 미신청'이나 빈 값이 아닌 유효한 회차를 선택했을 때만 팝업 띄우기
+                if (selectedVal !== "" && selectedVal !== "시승 미신청") {
+                    $('#testdrivePopup').addClass('open');
+                }
             });
 
             // 이메일 아이디 입력 (공백 방지)

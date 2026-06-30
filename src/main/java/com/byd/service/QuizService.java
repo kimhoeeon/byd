@@ -78,6 +78,15 @@ public class QuizService {
     @Transactional
     public Map<String, Object> startQuiz(QuizUserVO userVO) {
         Map<String, Object> result = new HashMap<>();
+
+        // [핵심 방어 로직 추가] 필수 파라미터(이름, 연락처) 누락 시 즉시 차단 (NPE 원천 방어)
+        if (userVO == null || userVO.getName() == null || userVO.getName().trim().isEmpty()
+                || userVO.getPhone() == null || userVO.getPhone().trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "이름 또는 연락처 정보가 누락되었습니다. 정상적인 경로로 참여해 주세요.");
+            return result; // 더 이상 아래 코드를 실행하지 않고 안전하게 리턴
+        }
+
         String today = getTodayString();
 
         // 1. 가장 최근 활성화된 세션 조회
