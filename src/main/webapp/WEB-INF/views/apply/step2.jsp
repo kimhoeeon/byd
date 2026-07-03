@@ -145,14 +145,6 @@
                                 </div>
                             </li>
                         </ul>
-                        <%--<div class="terms-check">
-                            <label>
-                                <input type="checkbox" id="privacyAgree" required>
-                                <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">(필수) 개인정보 수집·이용 동의</span>
-                            </label>
-                            <textarea readonly>BYD코리아는 시승 신청 및 고객 상담 서비스 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다. &#10; &#10;수집 항목: 이름, 휴대폰 번호, 이메일 주소&#10;수집 및 이용 목적: 시승 신청 접수, 시승 안내, 본인 확인, 문의 응대 및 상담 진행&#10;보유 및 이용 기간: 본 이벤트 종료 후 6개월까지 또는 귀하의 동의 철회 시까지.&#10;&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부할 경우 시승 신청 및 상담 서비스 이용이 제한될 수 있습니다.</textarea>
-                        </div>--%>
                         <div class="terms-check">
                             <label>
                                 <input type="checkbox" id="thirdPartyAgree" required>
@@ -288,12 +280,17 @@
                                 isNotAvailable = true;
                                 statusSuffix = " (마감)";
                             }
-                            // [2순위] 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
+                            // [2순위] 정원 초과 (우선순위 상향 조정)
+                            else if (isFull) {
+                                isNotAvailable = true;
+                                statusSuffix = " (정원 마감)";
+                            }
+                            // [3순위] 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
                             else if (targetHour >= 11 && targetHour <= 13 && currentHour < 10) {
                                 isNotAvailable = true;
                                 statusSuffix = " (10:00 오픈)";
                             }
-                            // [3순위] 오후 타임 (4~7회차: 14:00 ~ 17:00) -> 평일 13:00 / 주말 14:00 오픈
+                            // [4순위] 오후 타임 (4~7회차: 14:00 ~ 17:00) -> 평일 13:00 / 주말 14:00 오픈
                             else if (targetHour >= 14 && targetHour <= 17) {
                                 if (isWeekendDay && currentHour < 14) {
                                     isNotAvailable = true;
@@ -302,11 +299,6 @@
                                     isNotAvailable = true;
                                     statusSuffix = " (13:00 오픈)";
                                 }
-                            }
-                            // [4순위] 정원 초과
-                            else if (isFull) {
-                                isNotAvailable = true;
-                                statusSuffix = " (정원 마감)";
                             }
 
                             // 3. UI 적용
@@ -363,7 +355,7 @@
 
             // 백엔드 유효성 검사 실패 시 에러 메시지 출력
             <c:if test="${not empty errorMsg}">
-                alert("${errorMsg}");
+            alert("${errorMsg}");
             </c:if>
 
             // 이메일 아이디 전체 입력 방지

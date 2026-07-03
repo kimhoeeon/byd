@@ -338,12 +338,17 @@
                                     isNotAvailable = true;
                                     statusSuffix = " (마감)";
                                 }
-                                // [2순위] 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
+                                // [2순위] 정원 초과 (우선순위 상향 조정)
+                                else if (isFull) {
+                                    isNotAvailable = true;
+                                    statusSuffix = " (정원 마감)";
+                                }
+                                // [3순위] 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
                                 else if (targetHour >= 11 && targetHour <= 13 && currentHour < 10) {
                                     isNotAvailable = true;
                                     statusSuffix = " (10:00 오픈)";
                                 }
-                                // [3순위] 오후 타임 (4~7회차: 14:00 ~ 17:00) -> 평일 13:00 / 주말 14:00 오픈
+                                // [4순위] 오후 타임 (4~7회차: 14:00 ~ 17:00) -> 평일 13:00 / 주말 14:00 오픈
                                 else if (targetHour >= 14 && targetHour <= 17) {
                                     if (isWeekendDay && currentHour < 14) {
                                         isNotAvailable = true;
@@ -352,11 +357,6 @@
                                         isNotAvailable = true;
                                         statusSuffix = " (13:00 오픈)";
                                     }
-                                }
-                                // [4순위] 정원 초과
-                                else if (isFull) {
-                                    isNotAvailable = true;
-                                    statusSuffix = " (정원 마감)";
                                 }
 
                                 // 3. UI 적용
