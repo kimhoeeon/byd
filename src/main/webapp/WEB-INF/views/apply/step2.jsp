@@ -64,6 +64,18 @@
                         ※ 기념품 수령 및 시승 체험은 행사 기간 중<br>각각 1회에 한하여 참여 가능합니다.
                     </div>
 
+                    <%-- 서버 튕김 방지용 데이터 복구 세팅 --%>
+                    <c:set var="savedEmailId" value="" />
+                    <c:set var="savedEmailDomain" value="" />
+                    <c:set var="isCustomDomain" value="false" />
+
+                    <c:if test="${not empty retainedData.email}">
+                        <c:set var="emailParts" value="${fn:split(retainedData.email, '@')}" />
+                        <c:set var="savedEmailId" value="${emailParts[0]}" />
+                        <c:set var="savedEmailDomain" value="${fn:length(emailParts) > 1 ? emailParts[1] : ''}" />
+                        <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'gmail.com' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
+                    </c:if>
+
                     <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="return validateForm();">
 
                         <!-- 서버 전송용 히든 필드 -->
@@ -78,17 +90,17 @@
                             <li>
                                 <div class="gubun">이메일</div>
                                 <div class="row email">
-                                    <input type="text" id="emailId" placeholder="이메일 주소">
+                                    <input type="text" id="emailId" value="${savedEmailId}" placeholder="이메일 주소">
                                     <span>@</span>
-                                    <input type="text" id="customDomain" placeholder="도메인 입력" readonly>
+                                    <input type="text" id="customDomain" value="${savedEmailDomain}" placeholder="도메인 입력" ${isCustomDomain ? '' : 'readonly'}>
                                     <div class="input">
                                         <select id="emailDomain">
-                                            <option>이메일 선택</option>
-                                            <option value="naver.com">naver.com</option>
-                                            <option value="gmail.com">gmail.com</option>
-                                            <option value="hanmail.net">hanmail.net</option>
-                                            <option value="nate.com">nate.com</option>
-                                            <option value="direct">직접 입력</option>
+                                            <option value="">이메일 선택</option>
+                                            <option value="naver.com" <c:if test="${savedEmailDomain == 'naver.com'}">selected</c:if>>naver.com</option>
+                                            <option value="gmail.com" <c:if test="${savedEmailDomain == 'gmail.com'}">selected</c:if>>gmail.com</option>
+                                            <option value="hanmail.net" <c:if test="${savedEmailDomain == 'hanmail.net'}">selected</c:if>>hanmail.net</option>
+                                            <option value="nate.com" <c:if test="${savedEmailDomain == 'nate.com'}">selected</c:if>>nate.com</option>
+                                            <option value="direct" <c:if test="${isCustomDomain}">selected</c:if>>직접 입력</option>
                                         </select>
                                     </div>
                                 </div>
@@ -122,10 +134,10 @@
                                 <div class="input">
                                     <select name="carModel" required>
                                         <option value="">선택해 주세요.</option>
-                                        <option value="BYD DOLPHIN">BYD DOLPHIN</option>
-                                        <option value="BYD ATTO 3">BYD ATTO 3</option>
-                                        <option value="BYD SEAL">BYD SEAL</option>
-                                        <option value="BYD SEALION 7">BYD SEALION 7</option>
+                                        <option value="BYD DOLPHIN" <c:if test="${retainedData.carModel == 'BYD DOLPHIN'}">selected</c:if>>BYD DOLPHIN</option>
+                                        <option value="BYD ATTO 3" <c:if test="${retainedData.carModel == 'BYD ATTO 3'}">selected</c:if>>BYD ATTO 3</option>
+                                        <option value="BYD SEAL" <c:if test="${retainedData.carModel == 'BYD SEAL'}">selected</c:if>>BYD SEAL</option>
+                                        <option value="BYD SEALION 7" <c:if test="${retainedData.carModel == 'BYD SEALION 7'}">selected</c:if>>BYD SEALION 7</option>
                                     </select>
                                 </div>
                             </li>
@@ -163,7 +175,7 @@
                         </div>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" id="mktAgree">
+                                <input type="checkbox" id="mktAgree" <c:if test="${retainedData.mktAgree == 'Y'}">checked</c:if>>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(선택) 마케팅 정보 수신 동의</span>
                             </label>
@@ -219,16 +231,15 @@
             "제주": [ "BYD 제주" ]
         };
 
+        const retainedShopInfo = "${retainedData.shopInfo}";
+
         // [최적화] 시간 마감 현황을 체크하는 단일 함수
-        function updateDriveTimeStatus(showAlert = false) {
-            // step1.jsp의 select 박스 값 우선 찾기, 없으면 hidden input 찾기
+        function updateDriveTimeStatus() {
             var selectedCar = $("select[name='carModel']").val() || $("input[name='carModel']").val();
 
             if(!selectedCar) {
-                if(showAlert) {
-                    alert("관심 차량 정보를 먼저 선택해 주세요.");
-                    $('#testDriveTime').blur(); // 포커스 해제
-                }
+                // 경고창 제거, 강제로 비활성화 유지
+                $('#testDriveTime').prop('disabled', true);
                 return false;
             }
 
@@ -239,7 +250,7 @@
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
                 type: "GET",
-                data: { carModel: selectedCar }, // 선택된 차종 전달
+                data: { carModel: selectedCar },
                 success: function(response) {
                     const counts = response.counts;
                     const maxCapacity = response.maxCapacity;
@@ -259,7 +270,6 @@
 
                         if(timeVal && timeVal !== "" && timeVal !== "시승 미신청") {
 
-                            // 1. 시간 텍스트 추출 (중복 추가 방지)
                             const originalText = timeLabels[timeVal] || timeVal;
                             const timeParts = timeVal.split(':');
                             const targetHour = parseInt(timeParts[0], 10);
@@ -272,7 +282,6 @@
                                 isFull = true;
                             }
 
-                            // 2. 우선순위에 따른 상태 판별
                             const isWeekendDay = now.getDay() === 0 || now.getDay() === 6;
 
                             // [1순위] 시간 경과 마감
@@ -280,7 +289,7 @@
                                 isNotAvailable = true;
                                 statusSuffix = " (마감)";
                             }
-                            // [2순위] 정원 초과 (우선순위 상향 조정)
+                            // [2순위] 정원 초과
                             else if (isFull) {
                                 isNotAvailable = true;
                                 statusSuffix = " (정원 마감)";
@@ -301,7 +310,7 @@
                                 }
                             }
 
-                            // 3. UI 적용
+                            // UI 적용
                             if (isNotAvailable) {
                                 $(this).prop('disabled', true);
                                 $(this).text(originalText + statusSuffix);
@@ -310,7 +319,6 @@
                                 $(this).text(originalText);
                             }
                         } else if (timeVal === "시승 미신청") {
-                            // 시승 미신청은 언제나 선택 가능하도록 보장합니다.
                             $(this).prop('disabled', false);
                             $(this).text("시승 미신청");
                         }
@@ -325,29 +333,51 @@
         $(document).ready(function() {
             // 1. 평일일 경우 주말 전용(17:00) 옵션 숨김
             const today = new Date();
-            const isWeekend = today.getDay() === 0 || today.getDay() === 6; // 0:일요일, 6:토요일
+            const isWeekend = today.getDay() === 0 || today.getDay() === 6;
             if (!isWeekend) {
                 $(".weekend-only").remove();
             }
 
-            // 2. 페이지 로드 시 실시간 현황 최초 체크
-            updateDriveTimeStatus(false);
+            // [서버 튕김 방지] 기존에 선택했던 지점 정보가 있다면 복구
+            if (retainedShopInfo) {
+                for (const region in shopData) {
+                    if (shopData[region].includes(retainedShopInfo)) {
+                        $("#regionSelect").val(region);
+                        updateShops();
+                        $("#shopSelect").val(retainedShopInfo);
+                        break;
+                    }
+                }
+            }
 
-            // 3. 차종을 변경할 때마다 시간대를 미신청으로 돌리고 즉각 다시 체크
+            // [모바일 UI 방어] 차종이 선택되어 있지 않다면 시승 시간 박스를 원천 비활성화
+            var initialCar = $("select[name='carModel']").val();
+            if(!initialCar) {
+                $('#testDriveTime').prop('disabled', true);
+            }
+
+            // 2. 페이지 로드 시 실시간 현황 최초 체크
+            updateDriveTimeStatus();
+
+            // 3. 차종을 변경할 때마다 시승 시간을 비활성/활성화 하고 현황 다시 체크
             $("select[name='carModel']").on('change', function() {
+                if($(this).val() !== "") {
+                    $('#testDriveTime').prop('disabled', false);
+                } else {
+                    $('#testDriveTime').prop('disabled', true);
+                }
                 $('#testDriveTime').val('시승 미신청');
-                updateDriveTimeStatus(false);
+                updateDriveTimeStatus();
             });
 
-            // 4. 시승 시간 박스를 터치할 때 실시간 체크 (차종 미선택 시 경고창 띄움)
+            // 4. 시승 시간 박스를 터치할 때 실시간 체크 (alert 제거됨)
             $('#testDriveTime').on('focus click touchstart', function() {
-                updateDriveTimeStatus(true);
+                updateDriveTimeStatus();
             });
 
             // 시승 시간을 선택했을 때 유의사항 팝업 노출
             $('#testDriveTime').on('change', function() {
                 var selectedVal = $(this).val();
-                // '시승 미신청'이나 빈 값이 아닌 유효한 회차를 선택했을 때만 팝업 띄우기
                 if (selectedVal !== "" && selectedVal !== "시승 미신청") {
                     $('#testdrivePopup').addClass('open');
                 }
@@ -432,7 +462,7 @@
             if($("#shopSelect").val() === "") { alert("방문 가능 전시장를 선택해 주세요."); return false; }
             if($("select[name='carModel']").val() === "") { alert("관심차량 정보를 선택해 주세요."); return false; }
 
-            // 400 에러 원천 차단: 제출 버튼을 누르는 시점에 선택된 옵션이 disabled 처리되어 있으면 val()은 null이 됩니다.
+            // 400 에러 원천 차단
             const tdt = $("#testDriveTime").val();
             if(!tdt) {
                 alert("선택하신 시승 시간은 방금 마감되었습니다. 다른 시간을 선택해 주세요.");

@@ -270,16 +270,15 @@
         // 서버에서 받아온 기존 지점 데이터 및 본인 예약 시간
         const currentShopInfo = "${data.shopInfo}";
         const originalTestDriveTime = "${data.testDriveTime}";
+        const isDriveCheckYn = "${data.driveCheckYn}"; // 시승 완료 여부
 
         // [최적화] 시간 마감 현황을 체크하는 단일 함수 (통합)
-        function updateDriveTimeStatus(showAlert = false) {
+        function updateDriveTimeStatus() {
             var selectedCar = $("select[name='carModel']").val() || $("input[name='carModel']").val();
 
             if(!selectedCar) {
-                if(showAlert) {
-                    alert("관심 차량 정보를 먼저 선택해 주세요.");
-                    $('#testDriveTime').blur();
-                }
+                // 경고창 제거, 강제로 비활성화 유지
+                $('#testDriveTime').prop('disabled', true);
                 return false;
             }
 
@@ -290,7 +289,7 @@
             $.ajax({
                 url: "/apply/getDriveTimeStatus",
                 type: "GET",
-                data: { carModel: selectedCar }, // 선택된 차종 전달
+                data: { carModel: selectedCar },
                 success: function(response) {
                     const counts = response.counts;
                     const maxCapacity = response.maxCapacity;
@@ -310,7 +309,6 @@
 
                         if(timeVal !== "시승 미신청" && timeVal !== "") {
 
-                            // 1. 시간 텍스트 추출 (중복 추가 방지)
                             const originalText = timeLabels[timeVal] || timeVal;
                             const timeParts = timeVal.split(':');
                             const targetHour = parseInt(timeParts[0], 10);
@@ -330,15 +328,14 @@
                                 $(this).prop('disabled', false);
                                 $(this).text(originalText);
                             } else {
-                                // 본인 시간이 아닌 다른 시간들에 대해서만 상태(마감/오픈전/정원초과)를 판별합니다.
-                                const isWeekendDay = (now.getDay() === 0 || now.getDay() === 6); // 0:일, 6:토
+                                const isWeekendDay = (now.getDay() === 0 || now.getDay() === 6);
 
                                 // [1순위] 시간 경과 마감
                                 if (currentHour > targetHour || (currentHour === targetHour && currentMin >= 20)) {
                                     isNotAvailable = true;
                                     statusSuffix = " (마감)";
                                 }
-                                // [2순위] 정원 초과 (우선순위 상향 조정)
+                                // [2순위] 정원 초과
                                 else if (isFull) {
                                     isNotAvailable = true;
                                     statusSuffix = " (정원 마감)";
@@ -359,7 +356,7 @@
                                     }
                                 }
 
-                                // 3. UI 적용
+                                // UI 적용
                                 if (isNotAvailable) {
                                     $(this).prop('disabled', true);
                                     $(this).text(originalText + statusSuffix);
@@ -369,7 +366,6 @@
                                 }
                             }
                         } else if (timeVal === "시승 미신청") {
-                            // 시승 미신청은 언제나 선택 가능하도록 보장합니다.
                             $(this).prop('disabled', false);
                             $(this).text("시승 미신청");
                         }
@@ -402,27 +398,38 @@
                 $(".weekend-only:not(:selected)").remove();
             }
 
+            // [모바일 UI 방어] 차종이 선택되어 있지 않다면 원천 비활성화
+            var initialCar = $("select[name='carModel']").val();
+            if(!initialCar) {
+                $('#testDriveTime').prop('disabled', true);
+            }
+
             // 3. 기존 데이터에 맞춰 지역 및 전시장 초기화
             initRegionAndShop();
 
             // 4. 페이지 로드 시 실시간 현황 최초 체크
-            updateDriveTimeStatus(false);
+            updateDriveTimeStatus();
 
-            // 5. 차종 변경 시 시승 시간 미신청 처리 & 현황 갱신
+            // 5. 차종 변경 시 시승 시간 활성/비활성 제어 및 현황 갱신
             $("select[name='carModel']").on('change', function() {
+                // 시승 완료 고객이 아니라면 선택 여부에 따라 풀림
+                if($(this).val() !== "" && isDriveCheckYn !== "Y") {
+                    $('#testDriveTime').prop('disabled', false);
+                } else {
+                    $('#testDriveTime').prop('disabled', true);
+                }
                 $('#testDriveTime').val('시승 미신청');
-                updateDriveTimeStatus(false);
+                updateDriveTimeStatus();
             });
 
-            // 6. 시승 시간 클릭 시 현황 갱신 (차종 미선택 시 경고창)
+            // 6. 시승 시간 클릭 시 현황 갱신 (alert 제거됨)
             $('#testDriveTime').on('focus click touchstart', function() {
-                updateDriveTimeStatus(true);
+                updateDriveTimeStatus();
             });
 
             // 시승 시간을 선택했을 때 유의사항 팝업 노출
             $('#testDriveTime').on('change', function() {
                 var selectedVal = $(this).val();
-                // '시승 미신청'이나 빈 값이 아닌 유효한 회차를 선택했을 때만 팝업 띄우기
                 if (selectedVal !== "" && selectedVal !== "시승 미신청") {
                     $('#testdrivePopup').addClass('open');
                 }

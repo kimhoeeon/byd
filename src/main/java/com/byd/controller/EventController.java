@@ -125,13 +125,16 @@ public class EventController {
         try {
             eventService.insertParticipant(participantVO);
         } catch (IllegalArgumentException e) {
-            // 3일간 1회 참여 제한에 걸렸을 경우 사용자에게 알림
+            // 3일간 1회 참여 제한에 걸렸을 경우 사용자에게 알림 및 입력 데이터 유지
             log.warn("행사 기간 중 시승 신청 1회 초과: {}", participantVO.getPhone());
             rttr.addFlashAttribute("errorMsg", e.getMessage());
+            rttr.addFlashAttribute("retainedData", participantVO);
             return "redirect:/apply/step2";
         } catch (IllegalStateException e) {
+            // 정원 초과 등 시승 시간 차단 시 사용자에게 알림 및 입력 데이터 유지
             log.warn("시승 시간 차단: {}", e.getMessage());
             rttr.addFlashAttribute("errorMsg", e.getMessage());
+            rttr.addFlashAttribute("retainedData", participantVO);
             return "redirect:/apply/step2";
         } catch (DuplicateKeyException e) {
             log.warn("중복 시승 신청 감지 (DB Unique Key 방어): {}", participantVO.getPhone());
