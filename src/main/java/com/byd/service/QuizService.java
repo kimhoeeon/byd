@@ -4,6 +4,7 @@ import com.byd.mapper.QuizLiveMapper;
 import com.byd.mapper.QuizMapper;
 import com.byd.vo.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QuizService {
@@ -18,7 +20,7 @@ public class QuizService {
     private final QuizMapper quizMapper;
     private final QuizLiveMapper quizLiveMapper;
 
-    // [수정 1] 클래스 상단에 1초 캐싱용 변수 및 메서드 추가
+    // 클래스 상단에 1초 캐싱용 변수 및 메서드 추가
     private QuizLiveSessionVO cachedSession = null;
     private long lastCacheUpdate = 0;
 
@@ -82,6 +84,7 @@ public class QuizService {
         // [핵심 방어 로직 추가] 필수 파라미터(이름, 연락처) 누락 시 즉시 차단 (NPE 원천 방어)
         if (userVO == null || userVO.getName() == null || userVO.getName().trim().isEmpty()
                 || userVO.getPhone() == null || userVO.getPhone().trim().isEmpty()) {
+            log.warn("▶ [입장 거부] 필수 정보(이름, 연락처) 누락 접근 시도");
             result.put("success", false);
             result.put("message", "이름 또는 연락처 정보가 누락되었습니다. 정상적인 경로로 참여해 주세요.");
             return result; // 더 이상 아래 코드를 실행하지 않고 안전하게 리턴
@@ -109,11 +112,13 @@ public class QuizService {
         QuizHistoryVO todayHistory = quizMapper.getTodayHistory(savedUser.getUserSeq());
         if (todayHistory != null) {
             if ("COMPLETED".equals(todayHistory.getStatus())) {
+                log.info("▷ [참가자 입장 차단] {}회차 - {}님은 이미 퀴즈를 완료(COMPLETED)한 사용자입니다.", sessionNo, savedUser.getName());
                 result.put("success", false);
                 result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다.");
                 return result;
             } else {
                 // 재접속자 복귀 처리
+                log.info("▷ [참가자 재입장 허용] {}회차 - 이름: {}, 연락처: {} (기존 진행 이력 복구)", sessionNo, savedUser.getName(), savedUser.getPhone());
                 result.put("success", true);
                 result.put("questions", sanitizeAnswers(questions));
                 result.put("historySeq", todayHistory.getHistorySeq());
@@ -126,6 +131,7 @@ public class QuizService {
 
         // 신규 참여자일 경우 방 상태 검증
         if (!"READY".equals(liveSession.getStatus())) {
+            log.info("▷ [참가자 입장 차단] {}회차 - 퀴즈가 이미 시작된 상태({})에 신규 유저 {}님 난입 시도", sessionNo, liveSession.getStatus(), savedUser.getName());
             result.put("success", false);
             result.put("message", "퀴즈가 이미 진행 중이므로 참여할 수 없습니다.");
             return result;
@@ -137,6 +143,9 @@ public class QuizService {
         newHistory.setSessionNo(sessionNo);
         newHistory.setUserAnswers("0,0,0,0,0,0,0,0,0,0");
         quizMapper.insertHistory(newHistory);
+
+        // [로그 추가] 정상적인 신규 참가자 입장 기록
+        log.info("▷ [참가자 신규 입장] {}회차 - 이름: {}, 연락처: {}, 부여받은 이력번호(HistorySeq): {}", sessionNo, savedUser.getName(), savedUser.getPhone(), newHistory.getHistorySeq());
 
         result.put("success", true);
         result.put("questions", sanitizeAnswers(questions));
@@ -186,6 +195,9 @@ public class QuizService {
         history.setScore(calculatedScore);
         history.setStatus("COMPLETED");
         quizMapper.updateHistoryScoreAndStatus(history);
+
+        // [로그 추가] 참가자의 최종 채점 결과 기록
+        log.info("★ [최종 채점 완료] 이력번호(HistorySeq): {} - 최종 획득 점수: {}점", historySeq, calculatedScore);
 
         result.put("success", true);
         result.put("score", calculatedScore);

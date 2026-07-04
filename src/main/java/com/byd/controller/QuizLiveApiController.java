@@ -5,6 +5,7 @@ import com.byd.service.QuizLiveService;
 import com.byd.vo.QuizLiveSessionVO;
 import com.byd.vo.QuizQuestionVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/quiz/live")
 @RequiredArgsConstructor
@@ -71,8 +73,12 @@ public class QuizLiveApiController {
 
         try {
             quizLiveService.saveUserAnswer(userSeq, playDate, sessionNo, questionIndex, answerId);
+            // [로그 추가] 어떤 참가자가 몇 번 문제에 무슨 답을 골랐는지 기록
+            log.info("▷ [참가자 답안] {}회차 - 참가자(Seq:{}) {}번 문제에 '{}'번 보기 선택 저장 완료", sessionNo, userSeq, questionIndex, answerId);
+
             result.put("success", true);
         } catch (Exception e) {
+            log.error("▶ [에러] 참가자(Seq:{}) 답안 저장 실패: {}", userSeq, e.getMessage());
             result.put("success", false);
             result.put("message", "답안 임시 저장에 실패했습니다.");
         }
@@ -93,8 +99,12 @@ public class QuizLiveApiController {
 
         try {
             quizLiveService.controlLiveSession(playDate, sessionNo, targetQuestionNo, targetStatus);
+            // [로그 추가] MC가 퀴즈 상태를 어떻게 변경했는지 기록
+            log.info("▶ [MC 컨트롤] {}회차 - {}번 문제 상태 변경: [{}]", sessionNo, targetQuestionNo, targetStatus);
+
             result.put("success", true);
         } catch (Exception e) {
+            log.error("▶ [에러] MC 제어 실패 - {}회차 상태 변경 중 오류: {}", sessionNo, e.getMessage());
             result.put("success", false);
             result.put("message", "세션 상태 변경 오류가 발생했습니다.");
         }
@@ -115,7 +125,10 @@ public class QuizLiveApiController {
         boolean isStarted = quizLiveService.startNewLiveSession(playDate, sessionNo);
         result.put("success", isStarted);
         if(!isStarted) {
+            log.warn("▶ [MC 컨트롤 경고] {}회차 퀴즈쇼 시작 실패 (이미 생성됨)", sessionNo);
             result.put("message", "이미 생성된 회차입니다. 문제가 있다면 초기화 후 다시 시도해 주세요.");
+        } else {
+            log.info("▶ [MC 컨트롤] {}회차 퀴즈쇼 신규 개설 및 시작 성공", sessionNo);
         }
         return result;
     }
@@ -132,8 +145,12 @@ public class QuizLiveApiController {
 
         try {
             quizLiveService.resetLiveSession(playDate, sessionNo);
+            // [로그 추가] 초기화 기능 정상 작동 확인
+            log.info("▶ [MC 컨트롤] {}회차 퀴즈쇼 강제 초기화 완료 (세션 및 이력 삭제)", sessionNo);
+
             result.put("success", true);
         } catch (Exception e) {
+            log.error("▶ [에러] {}회차 퀴즈쇼 강제 초기화 실패: {}", sessionNo, e.getMessage());
             result.put("success", false);
         }
         return result;

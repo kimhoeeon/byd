@@ -3,6 +3,7 @@ package com.byd.service;
 import com.byd.mapper.QuizLiveMapper;
 import com.byd.vo.QuizLiveSessionVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QuizLiveService {
@@ -33,6 +35,9 @@ public class QuizLiveService {
         String assignedQuestions = questionIds.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
+
+        // [로그 추가] 해당 회차에 배정된 랜덤 문제 번호 10개 기록 (추후 문제 확인용)
+        log.info("▶ [세션 생성] {}일자 {}회차 신규 생성 - 배정된 문제 ID 목록: [{}]", playDate, sessionNo, assignedQuestions);
 
         QuizLiveSessionVO newSession = new QuizLiveSessionVO();
         newSession.setPlayDate(playDate);
@@ -62,6 +67,9 @@ public class QuizLiveService {
     public void resetLiveSession(String playDate, int sessionNo) {
         quizLiveMapper.deleteHistoryBySession(playDate, sessionNo);
         quizLiveMapper.deleteLiveSession(playDate, sessionNo);
+
+        // [로그 추가] 서비스 단에서도 확실하게 초기화 로그를 기록
+        log.warn("▶ [비상 조치] {}일자 {}회차 세션 및 이력 데이터베이스 강제 삭제 완료", playDate, sessionNo);
     }
 
     // 유저 답안 실시간 저장 (Auto-save)
