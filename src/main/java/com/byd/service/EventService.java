@@ -92,32 +92,41 @@ public class EventService {
             java.time.DayOfWeek dayOfWeek = java.time.LocalDate.now().getDayOfWeek();
             boolean isWeekend = (dayOfWeek == java.time.DayOfWeek.SATURDAY || dayOfWeek == java.time.DayOfWeek.SUNDAY);
 
-            // 1. 오전 회차 (1~3회차: 11:00 ~ 13:00 타임)
-            if (targetHour >= 11 && targetHour <= 13) {
-                if (now.getHour() < 10) {
-                    throw new IllegalStateException("오전 회차(1~3회차)는 10:00부터 예약 가능합니다.");
+            // [수정] 평일과 주말의 오픈 로직 완벽 분리
+            if (isWeekend) {
+                // 주말 오전 회차 (1~4회차: 11:00 ~ 14:00 타임) -> 10:00 오픈
+                if (targetHour >= 11 && targetHour <= 14) {
+                    if (now.getHour() < 10) {
+                        throw new IllegalStateException("주말 오전 회차(1~4회차)는 10:00부터 예약 가능합니다.");
+                    }
                 }
-            }
-            // 2. 오후 회차 (4~7회차: 14:00 ~ 17:00 타임)
-            else if (targetHour >= 14 && targetHour <= 17) {
-
+                // 주말 오후 회차 (5~7회차: 15:00 ~ 17:00 타임) -> 14:00 오픈
+                else if (targetHour >= 15 && targetHour <= 17) {
+                    if (now.getHour() < 14) {
+                        throw new IllegalStateException("주말 오후 회차(5~7회차)는 14:00부터 예약 가능합니다.");
+                    }
+                }
+            } else {
                 // 평일 17시(7회차) 강제 접근 차단 방어
-                if (!isWeekend && targetHour == 17) {
+                if (targetHour == 17) {
                     throw new IllegalStateException("17:00(7회차)는 주말에만 예약 가능합니다.");
                 }
 
-                if (isWeekend) {
-                    if (now.getHour() < 14) {
-                        throw new IllegalStateException("주말 오후 회차(4~7회차)는 14:00부터 예약 가능합니다.");
+                // 평일 오전 회차 (1~3회차: 11:00 ~ 13:00 타임) -> 10:00 오픈
+                if (targetHour >= 11 && targetHour <= 13) {
+                    if (now.getHour() < 10) {
+                        throw new IllegalStateException("평일 오전 회차(1~3회차)는 10:00부터 예약 가능합니다.");
                     }
-                } else {
+                }
+                // 평일 오후 회차 (4~6회차: 14:00 ~ 16:00 타임) -> 13:00 오픈
+                else if (targetHour >= 14 && targetHour <= 16) {
                     if (now.getHour() < 13) {
                         throw new IllegalStateException("평일 오후 회차(4~6회차)는 13:00부터 예약 가능합니다.");
                     }
                 }
             }
 
-            // 2. 각 회차 시작 후 20분 마감 통제 로직
+            // 각 회차 시작 후 20분 마감 통제 로직
             if (now.getHour() > targetHour || (now.getHour() == targetHour && now.getMinute() >= 20)) {
                 throw new IllegalStateException("해당 시승 시간은 예약이 마감되었습니다. (시작 후 20분까지만 신청 가능)");
             }

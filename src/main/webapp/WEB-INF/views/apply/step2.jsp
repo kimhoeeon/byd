@@ -294,17 +294,26 @@
                                 isNotAvailable = true;
                                 statusSuffix = " (정원 마감)";
                             }
-                            // [3순위] 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
-                            else if (targetHour >= 11 && targetHour <= 13 && currentHour < 10) {
-                                isNotAvailable = true;
-                                statusSuffix = " (10:00 오픈)";
-                            }
-                            // [4순위] 오후 타임 (4~7회차: 14:00 ~ 17:00) -> 평일 13:00 / 주말 14:00 오픈
-                            else if (targetHour >= 14 && targetHour <= 17) {
-                                if (isWeekendDay && currentHour < 14) {
+                            // [3순위] 요일별 오픈 시간 세부 체크
+                            else if (isWeekendDay) {
+                                // 주말 오전 타임 (1~4회차: 11:00 ~ 14:00) -> 10:00 오픈
+                                if (targetHour >= 11 && targetHour <= 14 && currentHour < 10) {
+                                    isNotAvailable = true;
+                                    statusSuffix = " (10:00 오픈)";
+                                }
+                                // 주말 오후 타임 (5~7회차: 15:00 ~ 17:00) -> 14:00 오픈
+                                else if (targetHour >= 15 && targetHour <= 17 && currentHour < 14) {
                                     isNotAvailable = true;
                                     statusSuffix = " (14:00 오픈)";
-                                } else if (!isWeekendDay && currentHour < 13) {
+                                }
+                            } else {
+                                // 평일 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
+                                if (targetHour >= 11 && targetHour <= 13 && currentHour < 10) {
+                                    isNotAvailable = true;
+                                    statusSuffix = " (10:00 오픈)";
+                                }
+                                // 평일 오후 타임 (4~6회차: 14:00 ~ 16:00) -> 13:00 오픈
+                                else if (targetHour >= 14 && targetHour <= 16 && currentHour < 13) {
                                     isNotAvailable = true;
                                     statusSuffix = " (13:00 오픈)";
                                 }
