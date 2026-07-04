@@ -189,7 +189,7 @@
 
         function resetLiveQuiz() {
             const sessionNo = $('#sessionNo').val();
-            if(confirm("정말 " + sessionNo + "회차를 강제 초기화하시겠습니까?\n(현재 방에 있는 참가자들의 퀴즈 진행이 모두 중단됩니다)")) {
+            if(confirm("정말 " + getTodayStr() + " 일자 " + sessionNo + "회차 퀴즈를 강제 초기화하시겠습니까?\n(현재 방에 있는 참가자들의 퀴즈 진행이 모두 중단됩니다)")) {
                 $.ajax({
                     url: '/api/quiz/live/host/reset',
                     type: 'POST',
