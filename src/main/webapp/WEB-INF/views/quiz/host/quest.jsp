@@ -234,32 +234,22 @@
                                         });
 
                                         if (currentState === 'PLAYING') {
-                                            startTimer(); // 타이머 재가동
-                                            $('#btnClicker').text('10초 카운트다운 진행중...').css({
-                                                'opacity': '0.5',
-                                                'pointer-events': 'none'
-                                            });
+                                            startTimer();
+                                            $('#btnClicker').text('10초 카운트다운 진행중...').css({'opacity': '0.5', 'pointer-events': 'none'});
                                         } else if (currentState === 'TIME_UP') {
                                             $('#timer_label').text('0');
-                                            $('#btnClicker').text('정답 공개 (클릭)').css({
-                                                'opacity': '1',
-                                                'pointer-events': 'auto'
-                                            });
+                                            $('#btnClicker').text('정답 공개 (클릭)').css({'opacity': '1', 'pointer-events': 'auto'});
                                         } else {
                                             showCorrectAnswer();
                                             const isLast = (currentQIndex === questions.length - 1);
-                                            $('#btnClicker').text(isLast ? '결과 보기 페이지로 이동' : '다음 문제 준비하기').css({
-                                                'opacity': '1',
-                                                'pointer-events': 'auto'
-                                            });
+                                            $('#btnClicker').text(isLast ? '결과 보기 페이지로 이동' : '다음 문제 준비하기').css({'opacity': '1', 'pointer-events': 'auto'});
                                         }
                                     } else {
-                                        // 대기(READY) 상태면 블라인드 UI 로드
                                         loadQuestionUI();
                                         updateServerState(STATE.READY);
                                     }
                                 } else {
-                                    alert("문제를 불러올 수 없습니다.");
+                                    alert("DB에서 현재 회차에 할당된 유효한 문제를 찾을 수 없습니다.\n[현재 회차 강제 초기화] 후 다시 시작해 주세요.");
                                     location.href = '/quiz/host/main';
                                 }
                             }
@@ -304,6 +294,9 @@
                 btn.text('10초 카운트다운 진행중...').css({'opacity': '0.5', 'pointer-events': 'none'});
 
             } else if (currentState === STATE.PLAYING || currentState === STATE.TIME_UP) {
+                // 스킵 시 강제로 타이머 정지하여 백그라운드 오작동 차단
+                if (countdownInterval) clearInterval(countdownInterval);
+
                 currentState = STATE.SHOW_ANSWER;
                 updateServerState(STATE.SHOW_ANSWER);
                 showCorrectAnswer();
@@ -318,8 +311,9 @@
             } else if (currentState === STATE.SHOW_ANSWER) {
                 const isLast = (currentQIndex === questions.length - 1);
                 if (isLast) {
-                    updateServerState('ENDED');
-                    location.href = '/quiz/host/perfect?sessionNo=' + sessionNo;
+                    updateServerState('ENDED', function() {
+                        location.href = '/quiz/host/perfect?sessionNo=' + sessionNo;
+                    });
                 } else {
                     currentQIndex++;
                     loadQuestionUI();
@@ -351,8 +345,7 @@
             });
         }
 
-        function updateServerState(status) {
-            // 1. AJAX 통신 시작 전에 완벽하게 락 걸기
+        function updateServerState(status, callback) {
             isProcessing = true;
             $('#btnClicker').css({'pointer-events': 'none', 'opacity': '0.5'});
 
@@ -360,13 +353,26 @@
                 url: '/api/quiz/live/host/control',
                 type: 'POST',
                 data: { playDate: playDate, sessionNo: sessionNo, targetQuestionNo: currentQIndex + 1, targetStatus: status },
-                success: function() {
+                success: function(res) {
+
+                    // 서버 처리 실패 시 무시하지 않고 즉시 경고창을 띄운 뒤 화면 진행을 멈춤
+                    if (res && res.success === false) {
+                        alert(res.message || "서버 상태 변경 중 오류가 발생했습니다.");
+                        isProcessing = false;
+                        $('#btnClicker').css({'pointer-events': 'auto', 'opacity': '1'});
+                        return;
+                    }
+
                     // 2. 통신 성공 시에만 락 해제
                     isProcessing = false;
 
                     // PLAYING(카운트다운 중) 상태가 아닐 때만 다시 클릭할 수 있도록 복구
                     if (currentState !== STATE.PLAYING) {
                         $('#btnClicker').css({'pointer-events': 'auto', 'opacity': '1'});
+                    }
+
+                    if (typeof callback === 'function') {
+                        callback();
                     }
                 },
                 error: function() {
@@ -379,10 +385,12 @@
         }
 
         function startTimer() {
+            // 타이머 시작 전 혹시 모를 기존 타이머 확실히 제거
+            if (countdownInterval) clearInterval(countdownInterval);
+
             timer = 10;
             $('#timer_label').text(timer);
 
-            // 카운트다운 시작 시 진행음(timer_ing) 재생
             soundTimerIng.currentTime = 0;
             soundTimerIng.play().catch(function(e) { console.log('사운드 재생 에러:', e); });
 

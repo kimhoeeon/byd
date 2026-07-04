@@ -118,49 +118,70 @@
             isStarting = true;
             const sessionNo = $('#sessionNo').val();
 
-            // 무작정 시작하지 않고, 방의 현재 상태를 먼저 체크합니다.
+            // 방 상태 먼저 체크
             $.ajax({
                 url: '/api/quiz/live/status',
                 type: 'GET',
                 data: { playDate: getTodayStr(), sessionNo: sessionNo },
                 success: function(statusRes) {
                     if (statusRes.success) {
-                        // 이미 만들어진 방이 있을 경우
                         if (statusRes.status === 'ENDED') {
-                            // 🚨 방이 이미 끝난(ENDED) 상태라면 재진입을 완벽히 차단!
-                            alert("이미 정상적으로 퀴즈가 모두 종료된 회차입니다.\n동일한 회차로 다시 연습/진행하시려면 하단의 [강제 초기화]를 먼저 진행해주세요.");
-                            isStarting = false;
+                            // [수정됨] 차단하지 않고, 삭제 후 재시작할지 물어봅니다.
+                            if(confirm("이미 정상적으로 퀴즈가 모두 종료된 회차입니다.\n기존 참가자들의 기록을 모두 초기화하고 완전히 새로 시작하시겠습니까?")) {
+                                executeResetAndStart(sessionNo);
+                            } else {
+                                isStarting = false;
+                            }
                         } else {
-                            // 진행 중(PLAYING)이거나 대기 중(READY)인 경우만 이어서 진행할지 묻기
-                            if(confirm("이미 개설되어 진행 중이거나 중단된 회차입니다.\n기존 화면으로 [이어서 진행] 하시겠습니까?\n\n※ 처음부터 다시 하려면 '취소'를 누른 뒤 하단의 [강제 초기화]를 진행해주세요.")) {
+                            if(confirm("이미 개설되어 진행 중이거나 중단된 회차입니다.\n기존 화면으로 [이어서 진행] 하시겠습니까?\n\n※ 처음부터 다시 하려면 '취소'를 누른 뒤 초기화를 진행해주세요.")) {
                                 location.href = '/quiz/host/quest?sessionNo=' + sessionNo;
                             } else {
                                 isStarting = false;
                             }
                         }
                     } else {
-                        // 방이 아예 없는 상태라면, 정상적으로 새 회차 생성 시작
-                        $.ajax({
-                            url: '/api/quiz/live/host/start',
-                            type: 'POST',
-                            data: { playDate: getTodayStr(), sessionNo: sessionNo },
-                            success: function(res) {
-                                if(res.success) {
-                                    location.href = '/quiz/host/quest?sessionNo=' + sessionNo;
-                                } else {
-                                    alert(res.message);
-                                    isStarting = false;
-                                }
-                            },
-                            error: function() {
-                                alert('서버 통신 중 오류가 발생했습니다.');
-                                isStarting = false;
-                            }
-                        });
+                        executeStartNewSession(sessionNo);
                     }
                 },
                 error: function() {
                     alert('상태 조회 중 오류가 발생했습니다.');
+                    isStarting = false;
+                }
+            });
+        }
+
+        // 초기화 후 즉시 시작하는 편의 함수 추가
+        function executeResetAndStart(sessionNo) {
+            $.ajax({
+                url: '/api/quiz/live/host/reset',
+                type: 'POST',
+                data: { playDate: getTodayStr(), sessionNo: sessionNo },
+                success: function(res) {
+                    if(res.success) {
+                        executeStartNewSession(sessionNo);
+                    } else {
+                        alert(res.message);
+                        isStarting = false;
+                    }
+                }
+            });
+        }
+
+        function executeStartNewSession(sessionNo) {
+            $.ajax({
+                url: '/api/quiz/live/host/start',
+                type: 'POST',
+                data: { playDate: getTodayStr(), sessionNo: sessionNo },
+                success: function(res) {
+                    if(res.success) {
+                        location.href = '/quiz/host/quest?sessionNo=' + sessionNo;
+                    } else {
+                        alert(res.message);
+                        isStarting = false;
+                    }
+                },
+                error: function() {
+                    alert('서버 통신 중 오류가 발생했습니다.');
                     isStarting = false;
                 }
             });

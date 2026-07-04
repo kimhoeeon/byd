@@ -60,8 +60,8 @@ public class QuizLiveService {
     // 비상시 세션 완전 초기화 (참가자 이력까지 싹 지워서 카운트를 0으로 만듦)
     @Transactional
     public void resetLiveSession(String playDate, int sessionNo) {
-        quizLiveMapper.deleteLiveSession(playDate, sessionNo);
         quizLiveMapper.deleteHistoryBySession(playDate, sessionNo);
+        quizLiveMapper.deleteLiveSession(playDate, sessionNo);
     }
 
     // 유저 답안 실시간 저장 (Auto-save)
