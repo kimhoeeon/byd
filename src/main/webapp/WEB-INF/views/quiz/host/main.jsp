@@ -126,12 +126,9 @@
                 success: function(statusRes) {
                     if (statusRes.success) {
                         if (statusRes.status === 'ENDED') {
-                            // [수정됨] 차단하지 않고, 삭제 후 재시작할지 물어봅니다.
-                            if(confirm("이미 정상적으로 퀴즈가 모두 종료된 회차입니다.\n기존 참가자들의 기록을 모두 초기화하고 완전히 새로 시작하시겠습니까?")) {
-                                executeResetAndStart(sessionNo);
-                            } else {
-                                isStarting = false;
-                            }
+                            // 차단하지 않고, 삭제 후 재시작할지 물어봅니다.
+                            alert("경고: " + sessionNo + "회차는 이미 완전히 종료되어 참가자들의 채점 데이터가 저장된 회차입니다.\n데이터 보호를 위해 이 회차는 다시 시작하거나 덮어쓸 수 없습니다.\n다음 회차를 선택하여 진행해 주세요.");
+                            isStarting = false;
                         } else {
                             if(confirm("이미 개설되어 진행 중이거나 중단된 회차입니다.\n기존 화면으로 [이어서 진행] 하시겠습니까?\n\n※ 처음부터 다시 하려면 '취소'를 누른 뒤 초기화를 진행해주세요.")) {
                                 location.href = '/quiz/host/quest?sessionNo=' + sessionNo;
@@ -189,20 +186,35 @@
 
         function resetLiveQuiz() {
             const sessionNo = $('#sessionNo').val();
-            if(confirm("정말 [ " + getTodayStr() + " / " + sessionNo + "회차 ] 퀴즈를 강제 초기화하시겠습니까?\n(현재 방에 있는 참가자들의 퀴즈 진행이 모두 중단됩니다)")) {
-                $.ajax({
-                    url: '/api/quiz/live/host/reset',
-                    type: 'POST',
-                    data: { playDate: getTodayStr(), sessionNo: sessionNo },
-                    success: function(res) {
-                        if(res.success) {
-                            alert("초기화가 완료되었습니다. [시작하기]를 눌러 새로 개설해주세요.");
-                        } else {
-                            alert(res.message);
-                        }
+
+            // 강제 초기화 전 서버 상태를 확인하여 이미 ENDED 상태인 경우 삭제를 엄격하게 차단
+            $.ajax({
+                url: '/api/quiz/live/status',
+                type: 'GET',
+                data: { playDate: getTodayStr(), sessionNo: sessionNo },
+                success: function(statusRes) {
+                    if (statusRes.success && statusRes.status === 'ENDED') {
+                        alert("경고: " + sessionNo + "회차는 이미 완전히 종료되어 참가자들의 채점 데이터가 저장된 회차입니다.\n참가자 기록 보호를 위해 강제 초기화를 실행할 수 없습니다.\n테스트나 재시작이 필요하다면 관리자에게 문의하세요.");
+                        return;
                     }
-                });
-            }
+
+                    // ENDED가 아닐 때(진행 중이거나 대기 중일 때)만 기존처럼 confirm 후 초기화 진행
+                    if(confirm("정말 [ " + getTodayStr() + " / " + sessionNo + "회차 ] 퀴즈를 강제 초기화하시겠습니까?\n(현재 방에 있는 참가자들의 퀴즈 진행이 모두 중단됩니다)")) {
+                        $.ajax({
+                            url: '/api/quiz/live/host/reset',
+                            type: 'POST',
+                            data: { playDate: getTodayStr(), sessionNo: sessionNo },
+                            success: function(res) {
+                                if(res.success) {
+                                    alert("초기화가 완료되었습니다. [시작하기]를 눌러 새로 개설해주세요.");
+                                } else {
+                                    alert(res.message);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
         }
     </script>
 </body>
