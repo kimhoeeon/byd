@@ -193,7 +193,14 @@
                 type: 'GET',
                 data: { playDate: getTodayStr(), sessionNo: sessionNo },
                 success: function(statusRes) {
-                    if (statusRes.success && statusRes.status === 'ENDED') {
+                    // 1. 아예 방이 없는 경우 (허공에 칼질 방지)
+                    if (!statusRes.success) {
+                        alert("현재 " + sessionNo + "회차는 개설되지 않았거나 이미 삭제되어 초기화할 데이터가 없습니다.");
+                        return;
+                    }
+
+                    // 2. 방이 완전히 끝난(ENDED) 경우 (데이터 보호)
+                    if (statusRes.status === 'ENDED') {
                         alert("경고: " + sessionNo + "회차는 이미 완전히 종료되어 참가자들의 채점 데이터가 저장된 회차입니다.\n참가자 기록 보호를 위해 강제 초기화를 실행할 수 없습니다.\n테스트나 재시작이 필요하다면 관리자에게 문의하세요.");
                         return;
                     }
