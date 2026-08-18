@@ -21,6 +21,8 @@
     <script src="/js/jquery.cookie.min.js"></script>
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="quiz">
 
@@ -46,7 +48,7 @@
                         <div class="desc">대단해요! 퀴즈를 모두 맞히셨습니다.</div>
 
                         <div class="qr_wrap" style="background: #ffffff; padding: 15px; border-radius: 15px; display: inline-block; margin: 20px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                            <img id="qrCodeImg" src="" alt="경품 교환용 QR Code" width="160" height="160">
+                            <div id="qrcode" style="display: flex; justify-content: center; align-items: center; width: 160px; height: 160px;"></div>
                         </div>
 
                         <div class="info_box">
@@ -92,8 +94,16 @@
             if (score === 10) {
                 // 만점자 QR 코드 발급
                 const qrData = "BYD_HISTORY_" + historySeq;
-                const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=" + encodeURIComponent(qrData);
-                $('#qrCodeImg').attr('src', qrUrl);
+
+                // qrcode.js를 이용한 클라이언트 자체 렌더링
+                new QRCode(document.getElementById("qrcode"), {
+                    text: qrData,
+                    width: 160,
+                    height: 160,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
 
                 $('#successView').show();
                 $('#failView').hide();
