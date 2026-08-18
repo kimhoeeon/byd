@@ -62,39 +62,65 @@ public class AdminMngController {
     @GetMapping("/main")
     public String mainDashboard(Model model) {
         try {
+            // 1. 전체 요약 통계
             Map<String, Object> stats = adminMngService.getDashboardSummaryStats();
+
+            // 2. DB에서 실제 통계 데이터 조회
             List<Map<String, Object>> shopRaw = adminMngService.getShopDistributionStats();
             List<Map<String, Object>> timeRaw = adminMngService.getHourlyCheckinStats();
+            List<Map<String, Object>> carRaw = adminMngService.getCarModelDistributionStats(); // 추가된 실제 차종별 데이터 호출
+            List<Map<String, Object>> dailyRaw = adminMngService.getDailyCheckinStats(); // 추가된 실제 일별 데이터 호출
 
             Map<String, Object> chartData = new HashMap<>();
 
-            // 차종별 기본 목업 구성
+            // 차종별 통계
             List<Map<String, Object>> carStats = new ArrayList<>();
-            Map<String, Object> c1 = new HashMap<>(); c1.put("label", "BYD SEAL"); c1.put("cnt", 15); carStats.add(c1);
-            Map<String, Object> c2 = new HashMap<>(); c2.put("label", "BYD ATTO 3"); c2.put("cnt", 25); carStats.add(c2);
+            if (carRaw != null) {
+                for(Map<String, Object> m : carRaw) {
+                    Map<String, Object> cObj = new HashMap<>();
+                    cObj.put("label", m.get("CAR_MODEL"));
+                    cObj.put("cnt", m.get("CNT"));
+                    carStats.add(cObj);
+                }
+            }
             chartData.put("carStats", carStats);
 
+            // 전시장별 통계
             List<Map<String, Object>> shopStats = new ArrayList<>();
-            for(Map<String, Object> m : shopRaw) {
-                Map<String, Object> sObj = new HashMap<>();
-                sObj.put("label", m.get("SHOP_INFO"));
-                sObj.put("cnt", m.get("CNT"));
-                shopStats.add(sObj);
+            if (shopRaw != null) {
+                for(Map<String, Object> m : shopRaw) {
+                    Map<String, Object> sObj = new HashMap<>();
+                    sObj.put("label", m.get("SHOP_INFO"));
+                    sObj.put("cnt", m.get("CNT"));
+                    shopStats.add(sObj);
+                }
             }
             chartData.put("shopStats", shopStats);
 
+            // 시간대별 통계
             List<Map<String, Object>> timeStats = new ArrayList<>();
-            for(Map<String, Object> t : timeRaw) {
-                Map<String, Object> tObj = new HashMap<>();
-                tObj.put("dateLabel", "오늘");
-                tObj.put("timeLabel", t.get("TIME_STR"));
-                tObj.put("cnt", t.get("CNT"));
-                timeStats.add(tObj);
+            if (timeRaw != null) {
+                for(Map<String, Object> t : timeRaw) {
+                    Map<String, Object> tObj = new HashMap<>();
+                    tObj.put("dateLabel", "오늘");
+                    tObj.put("timeLabel", t.get("TIME_STR"));
+                    tObj.put("cnt", t.get("CNT"));
+                    timeStats.add(tObj);
+                }
             }
             chartData.put("timeStats", timeStats);
 
-            chartData.put("dailyLabels", Arrays.asList("08.15", "08.16", "08.17", "08.18"));
-            chartData.put("dailyData", Arrays.asList(5, 10, 8, stats.get("todayCnt")));
+            // 일별 통계
+            List<String> dailyLabels = new ArrayList<>();
+            List<Integer> dailyData = new ArrayList<>();
+            if (dailyRaw != null) {
+                for(Map<String, Object> d : dailyRaw) {
+                    dailyLabels.add(String.valueOf(d.get("DATE_STR")));
+                    dailyData.add(Integer.parseInt(String.valueOf(d.get("CNT"))));
+                }
+            }
+            chartData.put("dailyLabels", dailyLabels);
+            chartData.put("dailyData", dailyData);
 
             model.addAttribute("stats", stats);
             model.addAttribute("chartData", chartData);
@@ -116,7 +142,7 @@ public class AdminMngController {
         model.addAttribute("pageMaker", new PageDTO(cri, total));
         model.addAttribute("cri", cri);
 
-        return "mng/list";
+        return "mng/participant/list";
     }
 
     @GetMapping("/participant/detail")
@@ -124,7 +150,7 @@ public class AdminMngController {
         ParticipantVO data = adminMngService.getParticipantBySeq(seq);
         model.addAttribute("data", data);
         model.addAttribute("cri", cri);
-        return "mng/detail";
+        return "mng/participant//detail";
     }
 
     @PostMapping("/api/manualArrival")
@@ -207,7 +233,6 @@ public class AdminMngController {
         for (ParticipantVO vo : list) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(vo.getRegDate() != null ? sdf.format(vo.getRegDate()) : "");
-            // XML에서 Alias 처리되었으므로 getGiftCheckYn() 호출 가능
             row.createCell(1).setCellValue("Y".equals(vo.getGiftCheckYn()) ? "수령 완료" : "미수령");
             row.createCell(2).setCellValue(vo.getName());
             row.createCell(3).setCellValue(vo.getPhone());

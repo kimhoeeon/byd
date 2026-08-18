@@ -34,7 +34,11 @@ public interface AdminMngMapper {
     List<Map<String, Object>> getShopDistributionStats();
     List<Map<String, Object>> getHourlyCheckinStats();
 
-    // 7. 참가자 개별 관리 (삭제 및 경품 수령 상태 토글 - qr_check_yn 컬럼 사용)
+    List<Map<String, Object>> getCarModelDistributionStats();
+
+    List<Map<String, Object>> getDailyCheckinStats();
+
+    // 7. 참가자 개별 관리
     void deleteParticipant(int seq);
 
     void updateGiftStatus(@Param("seq") int seq, @Param("status") String status);

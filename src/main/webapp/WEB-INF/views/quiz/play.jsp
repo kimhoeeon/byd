@@ -128,7 +128,7 @@
         const soundTimerEnd = new Audio('/audio/timer_end.mp3');
 
         $(document).ready(function () {
-            // [버그 수정] step2에서 넘어온 데이터를 스토리지에서 직접 꺼내 즉시 시작
+            // step2에서 넘어온 데이터를 스토리지에서 직접 꺼내 즉시 시작
             const questionsStr = sessionStorage.getItem('quizQuestions');
             const hSeq = sessionStorage.getItem('quizHistorySeq');
 

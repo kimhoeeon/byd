@@ -81,4 +81,13 @@ public class AdminMngService {
     public List<Map<String, Object>> getHourlyCheckinStats() {
         return adminMngMapper.getHourlyCheckinStats();
     }
+
+    public List<Map<String, Object>> getCarModelDistributionStats() {
+        return adminMngMapper.getCarModelDistributionStats();
+    }
+
+    public List<Map<String, Object>> getDailyCheckinStats() {
+        return adminMngMapper.getDailyCheckinStats();
+    }
+
 }

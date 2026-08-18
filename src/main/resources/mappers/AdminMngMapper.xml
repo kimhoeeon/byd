@@ -137,4 +137,18 @@
         ORDER BY MIN(HOUR(reg_date)) ASC
     </select>
 
+    <select id="getCarModelDistributionStats" resultType="map">
+        SELECT IFNULL(NULLIF(car_model, ''), '미지정') AS CAR_MODEL, COUNT(*) AS CNT
+        FROM event_participant
+        GROUP BY car_model
+        ORDER BY CNT DESC
+    </select>
+
+    <select id="getDailyCheckinStats" resultType="map">
+        SELECT DATE_FORMAT(reg_date, '%m.%d') AS DATE_STR, COUNT(*) AS CNT
+        FROM event_participant
+        GROUP BY DATE_FORMAT(reg_date, '%m.%d')
+        ORDER BY DATE_STR ASC
+    </select>
+
 </mapper>

@@ -77,7 +77,7 @@
 
     <script>
         $(document).ready(function () {
-            // [버그 수정] 저장 시 사용한 키(quizHistorySeq)와 정확하게 매핑
+            // 저장 시 사용한 키(quizHistorySeq)와 정확하게 매핑
             const scoreStr = sessionStorage.getItem("finalScore");
             const historySeq = sessionStorage.getItem("quizHistorySeq");
 
