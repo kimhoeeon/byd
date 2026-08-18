@@ -62,7 +62,6 @@
                 <div class="nt_box" style="text-align: left; background-color: #202020; padding: 25px 20px; border-radius: 10px;">
                     <div class="txt">
                         <p>문자를 받지 못하셨다면 스팸 메일함을 확인해 주세요.</p>
-                        <p>행사 당일 원활한 진행을 위해 예약 시간을 준수해 주시기 바랍니다.</p>
                     </div>
                 </div>
 

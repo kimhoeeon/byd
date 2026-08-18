@@ -90,7 +90,6 @@
         </div>
     </div>
     <script>
-
         // 이름 입력 시 공백(스페이스바) 완전 차단
         $('#name').on('input', function () {
             $(this).val($(this).val().replace(/\s/g, ''));
@@ -135,10 +134,8 @@
                 data: { name: name, phone: phone },
                 success: function(res) {
                     if (res.eligible) {
-                        // 통과되면 폼 제출 (step2로 데이터 전송)
                         $("#step1Form").submit();
                     } else {
-                        // 이미 참여한 경우 경고창을 띄우고 다음 단계 진입 차단
                         alert(res.message);
                     }
                 },

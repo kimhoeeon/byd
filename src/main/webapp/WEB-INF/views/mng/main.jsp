@@ -43,15 +43,9 @@
 <c:set var="totalCnt" value="${stats.totalCnt != null ? stats.totalCnt : 0}" />
 <c:set var="todayCnt" value="${stats.todayCnt != null ? stats.todayCnt : 0}" />
 <c:set var="challengeCnt" value="${chartData.attStats.challengeCnt != null ? chartData.attStats.challengeCnt : 0}" />
-<c:set var="driveCnt" value="${chartData.attStats.driveCnt != null ? chartData.attStats.driveCnt : 0}" />
-<c:set var="driveNoshowCnt" value="${chartData.attStats.driveNoshowCnt != null ? chartData.attStats.driveNoshowCnt : 0}" />
 <c:set var="giftCnt" value="${chartData.attStats.giftCnt != null ? chartData.attStats.giftCnt : 0}" />
 
-<c:set var="driveWaitCnt" value="${stats.driveWaitCnt != null ? stats.driveWaitCnt : 0}" />
-<c:set var="totalDriveCnt" value="${driveWaitCnt + driveCnt + driveNoshowCnt}" />
-
 <c:set var="challPct" value="${totalCnt > 0 ? (challengeCnt * 100.0 / totalCnt) : 0}" />
-<c:set var="drivePct" value="${totalDriveCnt > 0 ? (driveCnt * 100.0 / totalDriveCnt) : 0}" />
 <c:set var="giftPct" value="${totalCnt > 0 ? (giftCnt * 100.0 / totalCnt) : 0}" />
 
 <!-- 레이아웃 붕괴 방지를 위해 id 필수 적용 (kt_app_root) -->
@@ -74,7 +68,7 @@
                 <div class="d-flex flex-column flex-column-fluid p-10">
 
                     <!-- 최상단 요약 카드 -->
-                    <div class="row g-5 mb-7 row-cols-1 row-cols-md-2 row-cols-xl-5">
+                    <div class="row g-5 mb-7 row-cols-1 row-cols-md-2 row-cols-xl-4">
 
                         <div class="col">
                             <div class="card summary-card bg-card-1 p-6 h-100 d-flex flex-column justify-content-between">
@@ -131,24 +125,6 @@
                         </div>
 
                         <div class="col">
-                            <div class="card summary-card bg-card-4 p-6 h-100 d-flex flex-column justify-content-between">
-                                <div>
-                                    <div class="fw-bold fs-6 opacity-75">시승 확인 완료</div>
-                                    <div class="fw-bolder fs-2x mt-2"><fmt:formatNumber value="${driveCnt}" pattern="#,###"/> <span class="fs-5 opacity-75">명</span></div>
-                                </div>
-                                <div class="mt-4">
-                                    <div class="d-flex justify-content-between fs-8 opacity-75 mb-1">
-                                        <span>시승 예약(${totalDriveCnt}명) 대비</span>
-                                        <span class="fw-bold"><fmt:formatNumber value="${drivePct}" pattern="##0.0"/>%</span>
-                                    </div>
-                                    <div class="progress w-100">
-                                        <div class="progress-bar" style="width: ${drivePct}%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col">
                             <div class="card summary-card bg-card-5 p-6 h-100 d-flex flex-column justify-content-between">
                                 <div>
                                     <div class="fw-bold fs-6 opacity-75">경품 수령 현황</div>
@@ -180,7 +156,7 @@
                         </div>
                         <div class="col-xl-4">
                             <div class="card shadow-sm border-0 h-100">
-                                <div class="card-header"><h3 class="card-title fw-bold text-dark">시승 예약자 현장 참석 비율</h3></div>
+                                <div class="card-header"><h3 class="card-title fw-bold text-dark">현장 기념품 수령 비율</h3></div>
                                 <div class="card-body d-flex flex-center"><canvas id="attChart"></canvas></div>
                             </div>
                         </div>
@@ -196,7 +172,7 @@
                         </div>
                         <div class="col-xl-8">
                             <div class="card shadow-sm border-0 h-100">
-                                <div class="card-header"><h3 class="card-title fw-bold text-dark">시간대별 시승 예약 현황</h3></div>
+                                <div class="card-header"><h3 class="card-title fw-bold text-dark">시간대별 이벤트 신청 현황</h3></div>
                                 <div class="card-body"><canvas id="timeChart" style="height: 300px;"></canvas></div>
                             </div>
                         </div>
@@ -233,6 +209,7 @@
     // 1. 일별 신청 추이 (라인 차트)
     const dailyLabels = [<c:forEach items="${chartData.dailyLabels}" var="label" varStatus="st">'${label}'${!st.last ? ',' : ''}</c:forEach>];
     const dailyData = [<c:forEach items="${chartData.dailyData}" var="d" varStatus="st">${d}${!st.last ? ',' : ''}</c:forEach>];
+
     new Chart(document.getElementById('dailyChart'), {
         type: 'line',
         data: {
@@ -244,15 +221,15 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
-    // 2. 시승 참석 비율 (도넛 차트)
-    const checked = parseInt("${chartData.attStats.driveCnt}") || 0;
-    const waiting = parseInt("${stats.driveWaitCnt}") || 0;
-    const noshow = parseInt("${chartData.attStats.driveNoshowCnt}") || 0;
+    // 2. 기념품 수령 비율 (도넛 차트 - 시승 비율 대신 경품 비율로 데이터 변경)
+    const giftGiven = parseInt("${giftCnt}") || 0;
+    const giftWaiting = (parseInt("${totalCnt}") || 0) - giftGiven;
+
     new Chart(document.getElementById('attChart'), {
         type: 'doughnut',
         data: {
-            labels: ['도착 완료', '미도착 대기', '노쇼'],
-            datasets: [{ data: [checked, waiting, noshow], backgroundColor: ['#009ef7', '#f1416c', '#7e8299'], borderWidth: 0 }]
+            labels: ['수령 완료', '미수령 대기'],
+            datasets: [{ data: [giftGiven, giftWaiting], backgroundColor: ['#f6c23e', '#e4e6ef'], borderWidth: 0 }]
         },
         options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom' } } }
     });
@@ -269,7 +246,7 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
 
-    // 4. 시간대별 시승 예약 현황 (바 차트)
+    // 4. 시간대별 신청 현황 (바 차트)
     const rawTimeStatsDump = [
         <c:forEach items="${chartData.timeStats}" var="item" varStatus="st">
         {
@@ -280,10 +257,9 @@
         </c:forEach>
     ];
 
-    // 어떤 이름으로 키가 들어왔든 유연하게 파싱
     const normalizedStats = rawTimeStatsDump.map(d => {
         const keys = Object.keys(d);
-        const dateKey = keys.find(k => k.toLowerCase().includes('date')); // datelabel, dateLabel 등 자동 탐색
+        const dateKey = keys.find(k => k.toLowerCase().includes('date'));
         const timeKey = keys.find(k => k.toLowerCase().includes('time') || k.toLowerCase() === 'label');
         const cntKey = keys.find(k => k.toLowerCase().includes('cnt'));
 
@@ -292,40 +268,29 @@
             time: timeKey ? String(d[timeKey]).trim() : '',
             cnt: cntKey ? parseInt(d[cntKey]) || 0 : 0
         };
-    }).filter(d => d.date !== '' && d.time !== ''); // 날짜 데이터가 없는 과거 쿼리 결괏값은 필터링
+    }).filter(d => d.date !== '' && d.time !== '');
 
-    const timeLabelsMap = {
-        "11:00": "11:00 ~ 12:00",
-        "12:00": "12:00 ~ 13:00",
-        "13:00": "13:00 ~ 14:00",
-        "14:00": "14:00 ~ 15:00",
-        "15:00": "15:00 ~ 16:00",
-        "16:00": "16:00 ~ 17:00",
-        "17:00": "17:00 ~ 18:00"
-    };
-
-    const uniqueTimes = ["11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
-    const xLabels = uniqueTimes.map(t => timeLabelsMap[t] || t);
+    // 백엔드에서 내려주는 시간 포맷이 유동적일 수 있으므로 동적으로 x축 라벨 추출
+    const uniqueTimes = [...new Set(normalizedStats.map(d => d.time))].sort();
     const uniqueDates = [...new Set(normalizedStats.map(d => d.date))].sort();
 
     const timeDatasets = uniqueDates.map((date, index) => {
         const dataForDate = uniqueTimes.map(time => {
-            const found = normalizedStats.find(d => d.date === date && d.time.indexOf(time) !== -1);
+            const found = normalizedStats.find(d => d.date === date && d.time === time);
             return found ? found.cnt : 0;
         });
         return {
-            label: date + ' (예약인원)',
+            label: date + ' (신청인원)',
             data: dataForDate,
             backgroundColor: palette[index % palette.length],
             borderRadius: 4
         };
     });
 
-    // 서버를 재시작하지 않아 옛날 쿼리가 돌아가거나 데이터가 아예 없을 경우의 빈 차트 처리
     if (timeDatasets.length === 0) {
         timeDatasets.push({
-            label: '데이터 없음 (서버 재시작 필요)',
-            data: [0,0,0,0,0,0,0],
+            label: '데이터 없음',
+            data: [0],
             backgroundColor: '#e4e6ef',
             borderRadius: 4
         });
@@ -334,7 +299,7 @@
     new Chart(document.getElementById('timeChart'), {
         type: 'bar',
         data: {
-            labels: xLabels,
+            labels: uniqueTimes.length > 0 ? uniqueTimes : ['-'],
             datasets: timeDatasets
         },
         options: {
@@ -349,7 +314,7 @@
         }
     });
 
-    // 5. 전시장별 TOP 10 (가로 바 차트 - 디자인 개선)
+    // 5. 전시장별 TOP 10 (가로 바 차트)
     const shopArr = [<c:forEach items="${chartData.shopStats}" var="item" varStatus="st">{label:'${item.label}', cnt:${item.cnt}}${!st.last?',' : ''}</c:forEach>];
     const shopExt = extractValues(shopArr);
     new Chart(document.getElementById('shopChart'), {
@@ -361,7 +326,6 @@
                 data: shopExt.data,
                 backgroundColor: '#7239ea',
                 borderRadius: 4,
-                // 막대 두께 강제 지정 (너무 두꺼워지는 것 방지)
                 maxBarThickness: 30
             }]
         },
@@ -372,15 +336,11 @@
             plugins: {
                 legend: { display: false }
             },
-            // x축 설정: 데이터가 1건일 때도 여백이 보이도록 최소 최대값 세팅
             scales: {
                 x: {
                     beginAtZero: true,
-                    ticks: {
-                        stepSize: 1 // 소수점 방지 (1단위로 표시)
-                    },
-                    // 가장 큰 값이 5 미만일 경우 x축을 최소 5까지 그려서 여백 확보
-                    suggestedMax: Math.max(...shopExt.data) < 5 ? 5 : null
+                    ticks: { stepSize: 1 },
+                    suggestedMax: Math.max(...(shopExt.data.length ? shopExt.data : [0])) < 5 ? 5 : null
                 }
             }
         }

@@ -1,6 +1,5 @@
 package com.byd.service;
 
-import com.byd.mapper.QuizLiveMapper;
 import com.byd.mapper.QuizMapper;
 import com.byd.vo.*;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -18,166 +18,153 @@ import java.util.*;
 public class QuizService {
 
     private final QuizMapper quizMapper;
-    private final QuizLiveMapper quizLiveMapper;
-
-    // 클래스 상단에 1초 캐싱용 변수 및 메서드 추가
-    private QuizLiveSessionVO cachedSession = null;
-    private long lastCacheUpdate = 0;
-
-    private synchronized QuizLiveSessionVO getLatestLiveSessionCached(String today) {
-        long now = System.currentTimeMillis();
-        // 1초(1000ms) 이내의 요청은 DB 조회 없이 메모리 값 반환!
-        if (cachedSession != null && (now - lastCacheUpdate) < 1000) {
-            return cachedSession;
-        }
-        // 1초가 지났을 때만 DB를 1번 조회하고 캐시 갱신
-        cachedSession = quizLiveMapper.getLatestLiveSession(today);
-        lastCacheUpdate = now;
-        return cachedSession;
-    }
 
     private String getTodayString() {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
+    // 1. 참가 가능 여부 검사 (중복 참여 방어)
     public Map<String, Object> checkEligibility(String name, String phone) {
         Map<String, Object> result = new HashMap<>();
-        String today = getTodayString();
 
-        // 1. 가장 최근에 활성화된 오늘자 라이브 세션 조회
-        QuizLiveSessionVO liveSession = getLatestLiveSessionCached(today);
-        if (liveSession == null) {
-            result.put("eligible", false);
-            result.put("message", "현재 진행 예정인 퀴즈 세션이 없습니다.");
-            return result;
-        }
-
-        // 기존 참여자인지 "먼저" 확인합니다!
         QuizUserVO user = quizMapper.getUserByNameAndPhone(name, phone);
         if (user != null) {
             QuizHistoryVO todayHistory = quizMapper.getTodayHistory(user.getUserSeq());
             if (todayHistory != null) {
                 if ("COMPLETED".equals(todayHistory.getStatus())) {
-                    result.put("eligible", false); result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다."); return result;
+                    result.put("eligible", false);
+                    result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다.");
+                    return result;
                 } else {
-                    // 튕겼다가 다시 들어온 사람 (IN_PROGRESS) -> 방 상태(READY) 무관하게 무사 통과!
-                    result.put("eligible", true); return result;
+                    // 중간에 튕겼거나 진행 중인 유저는 이어서 진행 가능
+                    result.put("eligible", true);
+                    return result;
                 }
             }
         }
 
-        // 기존 참여자가 아닌 신규 참여자라면? -> 방이 READY 상태일 때만 입장 허용 (지각생 난입 방지)
-        if (!"READY".equals(liveSession.getStatus())) {
-            result.put("eligible", false);
-            result.put("message", "현재 퀴즈가 이미 진행 중이므로 참여할 수 없습니다.");
-            return result;
-        }
-
+        // 누구나 언제든 참여 가능
         result.put("eligible", true);
         return result;
     }
 
+    // 2. 퀴즈 시작 및 개인별 랜덤 문제 배정
     @Transactional
     public Map<String, Object> startQuiz(QuizUserVO userVO) {
         Map<String, Object> result = new HashMap<>();
 
-        // [핵심 방어 로직 추가] 필수 파라미터(이름, 연락처) 누락 시 즉시 차단 (NPE 원천 방어)
         if (userVO == null || userVO.getName() == null || userVO.getName().trim().isEmpty()
                 || userVO.getPhone() == null || userVO.getPhone().trim().isEmpty()) {
             log.warn("▶ [입장 거부] 필수 정보(이름, 연락처) 누락 접근 시도");
             result.put("success", false);
             result.put("message", "이름 또는 연락처 정보가 누락되었습니다. 정상적인 경로로 참여해 주세요.");
-            return result; // 더 이상 아래 코드를 실행하지 않고 안전하게 리턴
+            return result;
         }
 
         String today = getTodayString();
 
-        // 1. 가장 최근 활성화된 세션 조회
-        QuizLiveSessionVO liveSession = getLatestLiveSessionCached(today);
-        if (liveSession == null) {
-            result.put("success", false);
-            result.put("message", "진행 중인 세션이 없습니다.");
-            return result;
-        }
-
-        int sessionNo = liveSession.getSessionNo();
-        List<String> qIds = Arrays.asList(liveSession.getAssignedQuestions().split(","));
-        List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
-
-        // 2. 유저 정보 저장
+        // 유저 정보 등록 또는 업데이트
         quizMapper.insertUser(userVO);
         QuizUserVO savedUser = quizMapper.getUserByNameAndPhone(userVO.getName(), userVO.getPhone());
 
-        // 3. 오늘 이력 검증
+        // 오늘 이미 생성된 이력이 있는지 확인 (재접속 방어)
         QuizHistoryVO todayHistory = quizMapper.getTodayHistory(savedUser.getUserSeq());
         if (todayHistory != null) {
             if ("COMPLETED".equals(todayHistory.getStatus())) {
-                log.info("▷ [참가자 입장 차단] {}회차 - {}님은 이미 퀴즈를 완료(COMPLETED)한 사용자입니다.", sessionNo, savedUser.getName());
+                log.info("▷ [참가자 진입 차단] 유저(Seq:{})님은 이미 오늘 퀴즈를 완료했습니다.", savedUser.getUserSeq());
                 result.put("success", false);
                 result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다.");
                 return result;
             } else {
-                // 재접속자 복귀 처리
-                log.info("▷ [참가자 재입장 허용] {}회차 - 이름: {}, 연락처: {} (기존 진행 이력 복구)", sessionNo, savedUser.getName(), savedUser.getPhone());
+                // 이전에 튕긴 유저: 본인에게 배정되어 있던 기존 문제 목록 그대로 로드
+                log.info("▷ [참가자 재입장 복구] 이름: {}, 연락처: {} (기존 배정 문제 복원)", savedUser.getName(), savedUser.getPhone());
+                List<String> qIds = Arrays.asList(todayHistory.getAssignedQuestions().split(","));
+                List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
+
                 result.put("success", true);
-                result.put("questions", sanitizeAnswers(questions));
+                result.put("questions", sanitizeAnswers(questions)); // 클라이언트에 정답 유출 방지
                 result.put("historySeq", todayHistory.getHistorySeq());
                 result.put("userSeq", savedUser.getUserSeq());
-                result.put("sessionNo", sessionNo);
                 result.put("playDate", today);
                 return result;
             }
         }
 
-        // 신규 참여자일 경우 방 상태 검증
-        if (!"READY".equals(liveSession.getStatus())) {
-            log.info("▷ [참가자 입장 차단] {}회차 - 퀴즈가 이미 시작된 상태({})에 신규 유저 {}님 난입 시도", sessionNo, liveSession.getStatus(), savedUser.getName());
+        // 완전히 처음 참여하는 신규 유저: 문제은행에서 무작위 10문제 추출
+        List<Integer> randomIds = quizMapper.getRandomQuestionIds(10);
+        if (randomIds == null || randomIds.size() < 10) {
             result.put("success", false);
-            result.put("message", "퀴즈가 이미 진행 중이므로 참여할 수 없습니다.");
+            result.put("message", "등록된 퀴즈 문제가 부족합니다. 관리자에게 문의해 주세요.");
             return result;
         }
 
-        // 4. 신규 참여자 이력 생성 (userAnswers 초기화)
+        String assignedQuestionsStr = randomIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
+        // 신규 이력 생성
         QuizHistoryVO newHistory = new QuizHistoryVO();
         newHistory.setUserSeq(savedUser.getUserSeq());
-        newHistory.setSessionNo(sessionNo);
+        newHistory.setAssignedQuestions(assignedQuestionsStr);
         newHistory.setUserAnswers("0,0,0,0,0,0,0,0,0,0");
         quizMapper.insertHistory(newHistory);
 
-        // [로그 추가] 정상적인 신규 참가자 입장 기록
-        log.info("▷ [참가자 신규 입장] {}회차 - 이름: {}, 연락처: {}, 부여받은 이력번호(HistorySeq): {}", sessionNo, savedUser.getName(), savedUser.getPhone(), newHistory.getHistorySeq());
+        log.info("▷ [참가자 신규 시작] 이름: {}, 연락처: {}, 배정된 문제 목록: [{}]", savedUser.getName(), savedUser.getPhone(), assignedQuestionsStr);
+
+        List<String> qIds = randomIds.stream().map(String::valueOf).collect(Collectors.toList());
+        List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
 
         result.put("success", true);
         result.put("questions", sanitizeAnswers(questions));
         result.put("historySeq", newHistory.getHistorySeq());
         result.put("userSeq", savedUser.getUserSeq());
-        result.put("sessionNo", sessionNo);
         result.put("playDate", today);
         return result;
     }
 
-    // 채점 및 최종 제출 로직 (자동 저장된 답안을 바탕으로 채점)
+    // 3. 실시간 개별 답안 임시 저장 (Auto-Save)
     @Transactional
-    public Map<String, Object> submitQuiz(int historySeq, Map<Integer, Integer> ignoredAnswers) {
+    public void saveUserAnswer(int historySeq, int questionIndex, int answerId) {
+        QuizHistoryVO history = quizMapper.getHistoryBySeq(historySeq);
+        if (history == null || "COMPLETED".equals(history.getStatus())) {
+            return;
+        }
+
+        String currentAnswersStr = history.getUserAnswers();
+        if (currentAnswersStr == null || currentAnswersStr.isEmpty()) {
+            currentAnswersStr = "0,0,0,0,0,0,0,0,0,0";
+        }
+
+        String[] answersArr = currentAnswersStr.split(",");
+        if (questionIndex >= 1 && questionIndex <= 10) {
+            answersArr[questionIndex - 1] = String.valueOf(answerId);
+        }
+
+        String updatedAnswers = String.join(",", answersArr);
+        quizMapper.updateUserAnswers(historySeq, updatedAnswers);
+        log.info("▷ [임시 저장] 이력번호(Seq:{}) - {}번 문제에 '{}'번 선택 완료", historySeq, questionIndex, answerId);
+    }
+
+    // 4. 최종 개별 채점 및 제출 처리
+    @Transactional
+    public Map<String, Object> submitQuiz(int historySeq) {
         Map<String, Object> result = new HashMap<>();
 
         QuizHistoryVO history = quizMapper.getHistoryBySeq(historySeq);
         if (history == null) {
-            result.put("success", false); result.put("message", "존재하지 않는 이력입니다."); return result;
+            result.put("success", false);
+            result.put("message", "존재하지 않는 참여 이력입니다.");
+            return result;
         }
         if ("COMPLETED".equals(history.getStatus())) {
-            result.put("success", false); result.put("message", "이미 채점된 퀴즈입니다."); return result;
+            result.put("success", false);
+            result.put("message", "이미 제출 처리가 완료된 퀴즈입니다.");
+            return result;
         }
 
-        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        QuizLiveSessionVO liveSession = quizLiveMapper.getLiveSession(today, history.getSessionNo());
-        if (liveSession == null) {
-            result.put("success", false); result.put("message", "라이브 세션 오류."); return result;
-        }
-
-        List<String> qIds = Arrays.asList(liveSession.getAssignedQuestions().split(","));
+        // 본인에게 배정되었던 10문제를 정확히 매핑하여 로드
+        List<String> qIds = Arrays.asList(history.getAssignedQuestions().split(","));
         List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
-
         String[] userAnswersArr = history.getUserAnswers().split(",");
 
         int calculatedScore = 0;
@@ -185,7 +172,9 @@ public class QuizService {
             QuizQuestionVO q = questions.get(i);
             int userAnswer = 0;
             if (i < userAnswersArr.length) {
-                try { userAnswer = Integer.parseInt(userAnswersArr[i]); } catch(Exception e) {}
+                try {
+                    userAnswer = Integer.parseInt(userAnswersArr[i]);
+                } catch (Exception e) {}
             }
             if (userAnswer != 0 && userAnswer == q.getCorrectAnswer()) {
                 calculatedScore++;
@@ -196,8 +185,7 @@ public class QuizService {
         history.setStatus("COMPLETED");
         quizMapper.updateHistoryScoreAndStatus(history);
 
-        // [로그 추가] 참가자의 최종 채점 결과 기록
-        log.info("★ [최종 채점 완료] 이력번호(HistorySeq): {} - 최종 획득 점수: {}점", historySeq, calculatedScore);
+        log.info("★ [최종 채점 완료] 이력번호(Seq:{}) - 획득 점수: {}점", historySeq, calculatedScore);
 
         result.put("success", true);
         result.put("score", calculatedScore);
@@ -207,16 +195,16 @@ public class QuizService {
     // -------------------------------------------------------------------------
     // 관리자용 퀴즈 목록 조회 (날짜 및 회차 필터 추가)
     // -------------------------------------------------------------------------
-    public int getQuizAdminTotalCount(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate, Integer searchSession) {
-        return quizMapper.getQuizAdminTotalCount(keyword, perfectScoreOnly, excludeInProgress, searchDate, searchSession);
+    public int getQuizAdminTotalCount(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate) {
+        return quizMapper.getQuizAdminTotalCount(keyword, perfectScoreOnly, excludeInProgress, searchDate);
     }
 
-    public List<QuizUserVO> getQuizAdminList(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate, Integer searchSession, Criteria cri) {
-        return quizMapper.getQuizAdminList(keyword, perfectScoreOnly, excludeInProgress, searchDate, searchSession, cri.getPageStart(), cri.getAmount());
+    public List<QuizUserVO> getQuizAdminList(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate, Criteria cri) {
+        return quizMapper.getQuizAdminList(keyword, perfectScoreOnly, excludeInProgress, searchDate, cri.getPageStart(), cri.getAmount());
     }
 
-    public List<QuizUserVO> getQuizAdminListAll(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate, Integer searchSession) {
-        return quizMapper.getQuizAdminListAll(keyword, perfectScoreOnly, excludeInProgress, searchDate, searchSession);
+    public List<QuizUserVO> getQuizAdminListAll(String keyword, String perfectScoreOnly, String excludeInProgress, String searchDate) {
+        return quizMapper.getQuizAdminListAll(keyword, perfectScoreOnly, excludeInProgress, searchDate);
     }
 
     public void toggleGiftStatus(int historySeq, String status) {
@@ -225,7 +213,7 @@ public class QuizService {
 
     private List<QuizQuestionVO> sanitizeAnswers(List<QuizQuestionVO> list) {
         for (QuizQuestionVO q : list) {
-            q.setCorrectAnswer(0);
+            q.setCorrectAnswer(0); // 프론트엔드 단 전송 전 정답 필드 마스킹 (보안)
         }
         return list;
     }

@@ -18,24 +18,19 @@ public class QuizController {
 
     private final QuizService quizService;
 
-    // 2. 정보 입력 1단계
+    // 1. 정보 입력 1단계 진입
     @GetMapping("/step1")
     public String step1(HttpSession session) {
-        // 기존 퀴즈 세션 정보가 있다면 초기화
         session.removeAttribute("quizUserInfo");
-
-        // step1 화면 진입 시 카운트 증가
         try {
             quizService.recordVisit();
         } catch(Exception e) {
-            // DB 에러가 나더라도 유저의 퀴즈 진입은 막지 않도록 예외 처리
             e.printStackTrace();
         }
-
         return "quiz/step1";
     }
 
-    // 3. 정보 입력 2단계
+    // 2. 정보 입력 2단계 진입
     @PostMapping("/step2")
     public String step2(
             @RequestParam("name") String name,
@@ -43,7 +38,6 @@ public class QuizController {
             @RequestParam("privacyAgree") String privacyAgree,
             Model model) {
 
-        // step2.jsp에서 사용할 수 있도록 Model에 담아 전달
         model.addAttribute("name", name);
         model.addAttribute("phone", phone);
         model.addAttribute("privacyAgree", privacyAgree);
@@ -51,25 +45,24 @@ public class QuizController {
         return "quiz/step2";
     }
 
-    // (방어 로직) URL창에 직접 /quiz/step2 를 치고 들어오면 step1으로 튕겨냄
     @GetMapping("/step2")
     public String step2Redirect() {
         return "redirect:/quiz/step1";
     }
 
-    // 4. 퀴즈 진행 페이지
+    // 3. 사용자가 단독으로 개인 퀴즈를 진행하는 플레이 화면
     @GetMapping("/play")
     public String play() {
         return "quiz/play";
     }
 
-    // 5. 퀴즈 결과 페이지
+    // 4. 결과 및 당첨용 경품 QR 출력 화면
     @GetMapping("/result")
     public String result() {
         return "quiz/result";
     }
 
-    @GetMapping("/host/main")
+    /*@GetMapping("/host/main")
     public String hostMain() {
         return "quiz/host/main";
     }
@@ -87,5 +80,5 @@ public class QuizController {
     @GetMapping("/host/end")
     public String hostEnd() {
         return "quiz/host/end";
-    }
+    }*/
 }

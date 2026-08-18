@@ -33,8 +33,8 @@
                             <div class="card shadow-sm mb-5">
                                 <div class="card-header border-0 pt-5">
                                     <h3 class="card-title align-items-start flex-column">
-                                        <span class="card-label fw-bold fs-3 mb-1">일자별 참가자 접속 현황</span>
-                                        <span class="text-muted mt-1 fw-semibold fs-7">퀴즈 이벤트 대기실 최근 10일 방문자 추이</span>
+                                        <span class="card-label fw-bold fs-3 mb-1">일자별 퀴즈 접속 현황</span>
+                                        <span class="text-muted mt-1 fw-semibold fs-7">퀴즈 이벤트 대기실 최근 방문자 추이</span>
                                     </h3>
                                 </div>
                                 <div class="card-body py-4">
@@ -46,7 +46,7 @@
                                             </div>
                                         </c:forEach>
                                         <c:if test="${empty visitStats}">
-                                            <div class="text-muted py-5">아직 수집된 접속 데이터가 없습니다.</div>
+                                            <div class="text-muted py-5">수집된 접속 데이터가 없습니다.</div>
                                         </c:if>
                                     </div>
                                 </div>
@@ -100,21 +100,15 @@
                                 <div class="card-header border-0 pt-6">
                                     <div class="card-title">
                                         <h3 class="fw-bold m-0 d-flex align-items-center">
-                                            참여자 목록
+                                            퀴즈 참여자 목록
                                             <c:if test="${not empty pageMaker}">
-                                                <span class="badge badge-light-primary fw-bolder fs-6 ms-3">
-                                                    총 <fmt:formatNumber value="${pageMaker.total}" pattern="#,###"/>건
-                                                </span>
+                                                <span class="badge badge-light-primary fw-bolder fs-6 ms-3">총 <fmt:formatNumber value="${pageMaker.total}" pattern="#,###"/>건</span>
                                             </c:if>
                                         </h3>
                                     </div>
-                                    <!-- 엑셀 다운로드 버튼 추가 -->
                                     <div class="card-toolbar">
                                         <button type="button" class="btn btn-success fw-bold mb-5" onclick="downloadExcel()">
-                                            <i class="ki-duotone ki-file-down fs-2">
-                                                <span class="path1"></span><span class="path2"></span>
-                                            </i>
-                                            엑셀 다운로드
+                                            <i class="ki-duotone ki-file-down fs-2"><span class="path1"></span><span class="path2"></span></i>엑셀 다운로드
                                         </button>
                                     </div>
                                 </div>
@@ -137,7 +131,7 @@
                                             </thead>
                                             <tbody class="fw-semibold text-gray-600 text-center">
                                             <c:if test="${empty list}">
-                                                <tr><td colspan="10" class="py-10">참여자가 없습니다.</td></tr>
+                                                <tr><td colspan="10" class="py-10">참여 내역이 없습니다.</td></tr>
                                             </c:if>
 
                                             <c:forEach items="${list}" var="user" varStatus="st">
@@ -247,12 +241,12 @@
             success: function(res) {
                 if(!res.success) {
                     alert(res.message);
-                    obj.checked = !obj.checked; // 실패 시 롤백
+                    obj.checked = !obj.checked;
                 }
             },
             error: function() {
-                alert("통신 오류");
-                obj.checked = !obj.checked; // 실패 시 롤백
+                alert("통신 오류가 발생했습니다.");
+                obj.checked = !obj.checked;
             }
         });
     }

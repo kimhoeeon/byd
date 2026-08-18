@@ -24,7 +24,7 @@
 
     <title>BYD</title>
 
-    <%-- 추가: 비정상 접근 시 화면 렌더링 전 강제 튕겨내기 --%>
+    <%-- 비정상 접근 시 화면 렌더링 전 강제 튕겨내기 --%>
     <c:if test="${empty sessionScope.tempInfo}">
         <script>
             alert("정상적인 접근 경로가 아닙니다.\n이름과 연락처를 먼저 입력해 주세요.");
@@ -61,7 +61,7 @@
                 <div class="inner">
 
                     <div class="notice-box">
-                        ※ 기념품 수령 및 시승 체험은 행사 기간 중<br>각각 1회에 한하여 참여 가능합니다.
+                        ※ 기념품 수령은 행사 기간 중<br>1회에 한하여 참여 가능합니다.
                     </div>
 
                     <%-- 서버 튕김 방지용 데이터 복구 세팅 --%>
@@ -138,21 +138,6 @@
                                         <option value="BYD ATTO 3" <c:if test="${retainedData.carModel == 'BYD ATTO 3'}">selected</c:if>>BYD ATTO 3</option>
                                         <option value="BYD SEAL" <c:if test="${retainedData.carModel == 'BYD SEAL'}">selected</c:if>>BYD SEAL</option>
                                         <option value="BYD SEALION 7" <c:if test="${retainedData.carModel == 'BYD SEALION 7'}">selected</c:if>>BYD SEALION 7</option>
-                                    </select>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="gubun">시승 시간 선택</div>
-                                <div class="input">
-                                    <select name="testDriveTime" id="testDriveTime" required>
-                                        <option value="시승 미신청" selected>시승 미신청</option>
-                                        <option value="11:00">11:00 ~ 12:00 (1회차)</option>
-                                        <option value="12:00">12:00 ~ 13:00 (2회차)</option>
-                                        <option value="13:00">13:00 ~ 14:00 (3회차)</option>
-                                        <option value="14:00">14:00 ~ 15:00 (4회차)</option>
-                                        <option value="15:00">15:00 ~ 16:00 (5회차)</option>
-                                        <option value="16:00">16:00 ~ 17:00 (6회차)</option>
-                                        <option value="17:00" class="weekend-only">17:00 ~ 18:00 (7회차)</option>
                                     </select>
                                 </div>
                             </li>
@@ -233,120 +218,7 @@
 
         const retainedShopInfo = "${retainedData.shopInfo}";
 
-        // [최적화] 시간 마감 현황을 체크하는 단일 함수
-        function updateDriveTimeStatus() {
-            var selectedCar = $("select[name='carModel']").val() || $("input[name='carModel']").val();
-
-            if(!selectedCar) {
-                // 경고창 제거, 강제로 비활성화 유지
-                $('#testDriveTime').prop('disabled', true);
-                return false;
-            }
-
-            const now = new Date();
-            const currentHour = now.getHours();
-            const currentMin = now.getMinutes();
-
-            $.ajax({
-                url: "/apply/getDriveTimeStatus",
-                type: "GET",
-                data: { carModel: selectedCar },
-                success: function(response) {
-                    const counts = response.counts;
-                    const maxCapacity = response.maxCapacity;
-
-                    const timeLabels = {
-                        "11:00": "11:00 ~ 12:00 (1회차)",
-                        "12:00": "12:00 ~ 13:00 (2회차)",
-                        "13:00": "13:00 ~ 14:00 (3회차)",
-                        "14:00": "14:00 ~ 15:00 (4회차)",
-                        "15:00": "15:00 ~ 16:00 (5회차)",
-                        "16:00": "16:00 ~ 17:00 (6회차)",
-                        "17:00": "17:00 ~ 18:00 (7회차)"
-                    };
-
-                    $('#testDriveTime option').each(function() {
-                        var timeVal = $(this).val();
-
-                        if(timeVal && timeVal !== "" && timeVal !== "시승 미신청") {
-
-                            const originalText = timeLabels[timeVal] || timeVal;
-                            const timeParts = timeVal.split(':');
-                            const targetHour = parseInt(timeParts[0], 10);
-
-                            let isNotAvailable = false;
-                            let statusSuffix = "";
-
-                            let isFull = false;
-                            if(counts[timeVal] && counts[timeVal] >= maxCapacity) {
-                                isFull = true;
-                            }
-
-                            const isWeekendDay = now.getDay() === 0 || now.getDay() === 6;
-
-                            // [1순위] 시간 경과 마감
-                            if (currentHour > targetHour || (currentHour === targetHour && currentMin >= 20)) {
-                                isNotAvailable = true;
-                                statusSuffix = " (마감)";
-                            }
-                            // [2순위] 정원 초과
-                            else if (isFull) {
-                                isNotAvailable = true;
-                                statusSuffix = " (정원 마감)";
-                            }
-                            // [3순위] 요일별 오픈 시간 세부 체크
-                            else if (isWeekendDay) {
-                                // 주말 오전 타임 (1~4회차: 11:00 ~ 14:00) -> 10:00 오픈
-                                if (targetHour >= 11 && targetHour <= 14 && currentHour < 10) {
-                                    isNotAvailable = true;
-                                    statusSuffix = " (10:00 오픈)";
-                                }
-                                // 주말 오후 타임 (5~7회차: 15:00 ~ 17:00) -> 14:00 오픈
-                                else if (targetHour >= 15 && targetHour <= 17 && currentHour < 14) {
-                                    isNotAvailable = true;
-                                    statusSuffix = " (14:00 오픈)";
-                                }
-                            } else {
-                                // 평일 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
-                                if (targetHour >= 11 && targetHour <= 13 && currentHour < 10) {
-                                    isNotAvailable = true;
-                                    statusSuffix = " (10:00 오픈)";
-                                }
-                                // 평일 오후 타임 (4~6회차: 14:00 ~ 16:00) -> 13:00 오픈
-                                else if (targetHour >= 14 && targetHour <= 16 && currentHour < 13) {
-                                    isNotAvailable = true;
-                                    statusSuffix = " (13:00 오픈)";
-                                }
-                            }
-
-                            // UI 적용
-                            if (isNotAvailable) {
-                                $(this).prop('disabled', true);
-                                $(this).text(originalText + statusSuffix);
-                            } else {
-                                $(this).prop('disabled', false);
-                                $(this).text(originalText);
-                            }
-                        } else if (timeVal === "시승 미신청") {
-                            $(this).prop('disabled', false);
-                            $(this).text("시승 미신청");
-                        }
-                    });
-                },
-                error: function(err) {
-                    console.log("시간대 실시간 조회 실패");
-                }
-            });
-        }
-
         $(document).ready(function() {
-            // 1. 평일일 경우 주말 전용(17:00) 옵션 숨김
-            const today = new Date();
-            const isWeekend = today.getDay() === 0 || today.getDay() === 6;
-            if (!isWeekend) {
-                $(".weekend-only").remove();
-            }
-
             // [서버 튕김 방지] 기존에 선택했던 지점 정보가 있다면 복구
             if (retainedShopInfo) {
                 for (const region in shopData) {
@@ -359,42 +231,9 @@
                 }
             }
 
-            // [모바일 UI 방어] 차종이 선택되어 있지 않다면 시승 시간 박스를 원천 비활성화
-            var initialCar = $("select[name='carModel']").val();
-            if(!initialCar) {
-                $('#testDriveTime').prop('disabled', true);
-            }
-
-            // 2. 페이지 로드 시 실시간 현황 최초 체크
-            updateDriveTimeStatus();
-
-            // 3. 차종을 변경할 때마다 시승 시간을 비활성/활성화 하고 현황 다시 체크
-            $("select[name='carModel']").on('change', function() {
-                if($(this).val() !== "") {
-                    $('#testDriveTime').prop('disabled', false);
-                } else {
-                    $('#testDriveTime').prop('disabled', true);
-                }
-                $('#testDriveTime').val('시승 미신청');
-                updateDriveTimeStatus();
-            });
-
-            // 4. 시승 시간 박스를 터치할 때 실시간 체크 (alert 제거됨)
-            $('#testDriveTime').on('focus click touchstart', function() {
-                updateDriveTimeStatus();
-            });
-
-            // 시승 시간을 선택했을 때 유의사항 팝업 노출
-            $('#testDriveTime').on('change', function() {
-                var selectedVal = $(this).val();
-                if (selectedVal !== "" && selectedVal !== "시승 미신청") {
-                    $('#testdrivePopup').addClass('open');
-                }
-            });
-
             // 백엔드 유효성 검사 실패 시 에러 메시지 출력
             <c:if test="${not empty errorMsg}">
-            alert("${errorMsg}");
+                alert("${errorMsg}");
             </c:if>
 
             // 이메일 아이디 전체 입력 방지
@@ -426,6 +265,7 @@
             const shopSelect = document.getElementById("shopSelect");
             const selectedRegion = regionSelect.value;
             shopSelect.innerHTML = '<option value="">전시장 선택</option>';
+
             if (selectedRegion && shopData[selectedRegion]) {
                 shopData[selectedRegion].forEach(function(shop) {
                     const option = document.createElement("option");
@@ -470,14 +310,6 @@
             if($("#regionSelect").val() === "") { alert("지역을 선택해 주세요."); return false; }
             if($("#shopSelect").val() === "") { alert("방문 가능 전시장를 선택해 주세요."); return false; }
             if($("select[name='carModel']").val() === "") { alert("관심차량 정보를 선택해 주세요."); return false; }
-
-            // 400 에러 원천 차단
-            const tdt = $("#testDriveTime").val();
-            if(!tdt) {
-                alert("선택하신 시승 시간은 방금 마감되었습니다. 다른 시간을 선택해 주세요.");
-                $("#testDriveTime").focus();
-                return false;
-            }
 
             $("#hiddenThirdParty").val($("#thirdPartyAgree").is(":checked") ? "Y" : "N");
             $("#hiddenEntrust").val($("#entrustAgree").is(":checked") ? "Y" : "N");

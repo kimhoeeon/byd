@@ -1,38 +1,39 @@
 package com.byd.controller;
 
 import com.byd.dto.PageDTO;
-import com.byd.dto.ResponseDTO;
 import com.byd.service.AdminMngService;
-import com.byd.service.EventService;
-import com.byd.util.AES128;
 import com.byd.vo.AdminVO;
 import com.byd.vo.Criteria;
 import com.byd.vo.ParticipantVO;
-import com.byd.vo.StatsVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
 
+@Slf4j
 @Controller
 @RequestMapping("/mng")
 @RequiredArgsConstructor
 public class AdminMngController {
 
     private final AdminMngService adminMngService;
-    private final EventService eventService;
 
     @GetMapping({"/", "/index", "/login"})
     public String loginPage(HttpSession session) {
-        // 이미 로그인된 상태라면 대시보드로 즉시 이동
         if (session.getAttribute("adminInfo") != null) {
             return "redirect:/mng/main";
         }
@@ -42,384 +43,133 @@ public class AdminMngController {
     @PostMapping("/loginProcess")
     public String loginProcess(@RequestParam("adminId") String adminId,
                                @RequestParam("adminPw") String adminPw,
-                               HttpServletRequest request, Model model) {
-        AdminVO adminVO = adminMngService.getAdminById(adminId);
-
-        if (adminVO != null && adminVO.getAdminPw().equals(adminPw)) {
-            request.getSession().setAttribute("adminInfo", adminVO);
+                               HttpSession session, Model model) {
+        AdminVO admin = adminMngService.getAdminById(adminId);
+        if (admin != null && admin.getAdminPw().equals(adminPw)) {
+            session.setAttribute("adminInfo", admin);
             return "redirect:/mng/main";
-        } else {
-            model.addAttribute("errorMessage", "아이디 또는 비밀번호가 일치하지 않습니다.");
-            return "mng/index";
         }
+        model.addAttribute("errorMessage", "아이디 또는 비밀번호가 일치하지 않습니다.");
+        return "mng/index";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/mng/login";
     }
 
     @GetMapping("/main")
-    public String mainPage(HttpSession session, Model model) {
-        if (session.getAttribute("adminInfo") == null) return "redirect:/mng/login";
+    public String mainDashboard(Model model) {
+        try {
+            Map<String, Object> stats = adminMngService.getDashboardSummaryStats();
+            List<Map<String, Object>> shopRaw = adminMngService.getShopDistributionStats();
+            List<Map<String, Object>> timeRaw = adminMngService.getHourlyCheckinStats();
 
-        StatsVO stats = adminMngService.getDashboardSummary();
-        if (stats == null) stats = new StatsVO();
+            Map<String, Object> chartData = new HashMap<>();
 
-        Map<String, Object> chartData = adminMngService.getChartData();
+            // 차종별 기본 목업 구성
+            List<Map<String, Object>> carStats = new ArrayList<>();
+            Map<String, Object> c1 = new HashMap<>(); c1.put("label", "BYD SEAL"); c1.put("cnt", 15); carStats.add(c1);
+            Map<String, Object> c2 = new HashMap<>(); c2.put("label", "BYD ATTO 3"); c2.put("cnt", 25); carStats.add(c2);
+            chartData.put("carStats", carStats);
 
-        model.addAttribute("stats", stats);
-        model.addAttribute("chartData", chartData);
+            List<Map<String, Object>> shopStats = new ArrayList<>();
+            for(Map<String, Object> m : shopRaw) {
+                Map<String, Object> sObj = new HashMap<>();
+                sObj.put("label", m.get("SHOP_INFO"));
+                sObj.put("cnt", m.get("CNT"));
+                shopStats.add(sObj);
+            }
+            chartData.put("shopStats", shopStats);
+
+            List<Map<String, Object>> timeStats = new ArrayList<>();
+            for(Map<String, Object> t : timeRaw) {
+                Map<String, Object> tObj = new HashMap<>();
+                tObj.put("dateLabel", "오늘");
+                tObj.put("timeLabel", t.get("TIME_STR"));
+                tObj.put("cnt", t.get("CNT"));
+                timeStats.add(tObj);
+            }
+            chartData.put("timeStats", timeStats);
+
+            chartData.put("dailyLabels", Arrays.asList("08.15", "08.16", "08.17", "08.18"));
+            chartData.put("dailyData", Arrays.asList(5, 10, 8, stats.get("todayCnt")));
+
+            model.addAttribute("stats", stats);
+            model.addAttribute("chartData", chartData);
+        } catch (Exception e) {
+            log.error("대시보드 에러: {}", e.getMessage());
+        }
         return "mng/main";
     }
 
-    // 통합 목록 뷰
     @GetMapping("/participant/list")
     public String participantList(Criteria cri, Model model) {
+        if (cri.getAmount() == 0) cri.setAmount(15);
+        if (cri.getPageNum() == 0) cri.setPageNum(1);
 
-        cri.setAmount(30); // 1페이지당 30개
-
-        // 데이터 목록 조회
         List<ParticipantVO> list = adminMngService.getList(cri);
-        // 전체 게시물 수 조회
         int total = adminMngService.getTotalCount(cri);
 
         model.addAttribute("list", list);
-        model.addAttribute("pageMaker", new PageDTO(cri, total)); // 페이징 객체 전달
-        model.addAttribute("cri", cri); // 현재 검색 조건 및 페이지 번호 유지용
+        model.addAttribute("pageMaker", new PageDTO(cri, total));
+        model.addAttribute("cri", cri);
 
-        return "mng/participant/list";
+        return "mng/list";
     }
 
-    // 통합 상세 뷰
-    // 상세 화면
     @GetMapping("/participant/detail")
-    public String participantDetail(@RequestParam("seq") int seq, @ModelAttribute("cri") Criteria cri, Model model) {
+    public String participantDetail(@RequestParam("seq") int seq, Criteria cri, Model model) {
         ParticipantVO data = adminMngService.getParticipantBySeq(seq);
-        if (data == null) {
-            // 존재하지 않는 데이터 처리
-            return "redirect:/mng/participant/list";
-        }
-
         model.addAttribute("data", data);
-        return "mng/participant/detail";
+        model.addAttribute("cri", cri);
+        return "mng/detail";
     }
 
-    @PostMapping("/api/participant/sendNoshowSms")
-    @ResponseBody
-    public ResponseDTO sendNoshowSms(@RequestParam("seq") int seq) {
-        ResponseDTO response = new ResponseDTO();
-        try {
-            // 1. 고객 정보 조회
-            ParticipantVO participant = adminMngService.getParticipantBySeq(seq);
-            if (participant == null) {
-                response.setSuccess(false);
-                response.setMessage("해당 참가자 정보를 찾을 수 없습니다.");
-                return response;
-            }
-
-            // 2. 모바일 티켓용 암호화 토큰 및 URL 생성
-            com.byd.util.AES128 aes128 = new com.byd.util.AES128("bydEventTokenKey");
-            String encryptedSeq = aes128.encrypt(String.valueOf(participant.getSeq()));
-            String encodedToken = java.net.URLEncoder.encode(encryptedSeq, "UTF-8");
-            String ticketUrl = "https://bydevtrend2026.kr/apply/ticket?token=" + encodedToken;
-
-            // 3. 발주사 요청 템플릿 작성
-            String message = "[BYD KOREA BIMOS 2026 시승 안내]\n\n" +
-                    participant.getName() + "님, 예약하신 시승을 위해 시승부스로 바로 방문 부탁드립니다.\n\n" +
-                    "접수 시 아래 모바일 티켓(QR)을 제시해 주세요.\n\n" +
-                    "▶ 모바일 티켓 확인\n" +
-                    ticketUrl + "\n\n" +
-                    "※ 예약 시간 이후 도착 시 시승이 취소되거나 대기 순서가 변경될 수 있습니다.\n" +
-                    "※ 현장 상황에 따라 대기가 발생할 수 있습니다.\n" +
-                    "※ 음주자는 시승에 참여하실 수 없습니다.\n" +
-                    "※ 실물 운전면허증을 반드시 지참해 주시기 바랍니다.";
-
-            // 4. 문자 발송 실행
-            boolean isSent = eventService.sendAligoCustomMessage(participant.getPhone(), message);
-
-            if(isSent) {
-                response.setSuccess(true);
-                response.setMessage("방문 요청 문자가 성공적으로 발송되었습니다.");
-            } else {
-                response.setSuccess(false);
-                response.setMessage("문자 발송 API 호출에 실패했습니다.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.setSuccess(false);
-            response.setMessage("문자 발송 중 서버 오류가 발생했습니다.");
-        }
-        return response;
-    }
-
-    @GetMapping("/scanner")
-    public String qrScannerPage(@RequestParam(value = "type", defaultValue = "challenge") String type, Model model) {
-        if ("drive".equals(type)) {
-            model.addAttribute("adminCode", "202");
-            model.addAttribute("eventName", "시승체험");
-            model.addAttribute("themeColor", "#28a745");
-        } else if ("gift".equals(type)) {
-            model.addAttribute("adminCode", "303");
-            model.addAttribute("eventName", "경품수령");
-            model.addAttribute("themeColor", "#f6c23e");
-        } else {
-            model.addAttribute("adminCode", "101");
-            model.addAttribute("eventName", "챌린지");
-            model.addAttribute("themeColor", "#009ef7");
-        }
-        return "mng/scanner";
-    }
-
-    // 수동 참가자 조회 화면 (QR 분실 시)
-    @GetMapping("/inquiry")
-    public String tabletInquiryPage() {
-        return "mng/inquiry";
-    }
-
-    // 태블릿 조회 화면용 고객 비동기 검색 API
-    @GetMapping("/api/searchParticipant")
-    @ResponseBody
-    public List<ParticipantVO> searchParticipant(Criteria cri) {
-        // 태블릿 팝업에서는 페이징 없이 최대 30개 정도만 넉넉히 가져와서 뿌려줌
-        cri.setPageNum(1);
-        cri.setAmount(30);
-        return adminMngService.getList(cri);
-    }
-
-    // 현장 스태프 도착 확인 API
-    @PostMapping("/api/checkArrival")
-    @ResponseBody
-    public ResponseDTO checkArrival(@RequestParam("qrToken") String qrToken,
-                                    @RequestParam(value = "adminCode", required = false, defaultValue = "101") String adminCode) {
-        ResponseDTO response = new ResponseDTO();
-
-        try {
-            ParticipantVO participant = adminMngService.getParticipantByQrCodeUrl(qrToken);
-
-            if (participant == null) {
-                response.setSuccess(false);
-                response.setMessage("유효하지 않은 QR 코드입니다.");
-                return response;
-            }
-
-            // 1. 이미 출석 처리된 경우 방어
-            if ("101".equals(adminCode) && "Y".equals(participant.getChallengeCheckYn())) {
-                response.setSuccess(false);
-                response.setMessage("이미 챌린지 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
-                return response;
-            } else if ("202".equals(adminCode) && "Y".equals(participant.getDriveCheckYn())) {
-                response.setSuccess(false);
-                response.setMessage("이미 시승 출석 처리가 완료된 고객입니다. (" + participant.getName() + ")");
-                return response;
-            } else if ("303".equals(adminCode) && "Y".equals(participant.getGiftCheckYn())) { // 경품 중복 수령 방지
-                response.setSuccess(false);
-                response.setMessage("이미 경품 수령 처리가 완료된 고객입니다. (" + participant.getName() + ")");
-                return response;
-            }
-
-            // ==========================================
-            // 시승 미신청 고객 QR 스캔 원천 차단
-            // ==========================================
-            if ("202".equals(adminCode) && "시승 미신청".equals(participant.getTestDriveTime())) {
-                response.setSuccess(false);
-                response.setMessage("시승을 신청하지 않은 고객입니다. (" + participant.getName() + "님)");
-                return response;
-            }
-
-            adminMngService.updateArrivalStatus(participant.getSeq(), adminCode);
-            String eventType = "101".equals(adminCode) ? "챌린지" : ("202".equals(adminCode) ? "시승" : "경품수령");
-            response.setSuccess(true);
-            response.setMessage(eventType + " 완료! [ " + participant.getName() + "님 ]");
-        } catch (Exception e) {
-            response.setSuccess(false);
-            response.setMessage("출석 처리 중 시스템 오류가 발생했습니다.");
-            e.printStackTrace();
-        }
-
-        return response;
-    }
-
-    // 수동 도착 확인/취소 토글 API
     @PostMapping("/api/manualArrival")
     @ResponseBody
-    public ResponseDTO manualArrival(@RequestParam("seq") int seq,
-                                     @RequestParam("status") boolean status,
-                                     @RequestParam("type") String type) {
-        ResponseDTO response = new ResponseDTO();
+    public Map<String, Object> updateGiftCheck(@RequestParam("seq") int seq,
+                                               @RequestParam("status") boolean status,
+                                               @RequestParam("type") String type) {
+        Map<String, Object> res = new HashMap<>();
         try {
-            String columnName = "challenge".equals(type) ? "challenge_check_yn" : ("drive".equals(type) ? "drive_check_yn" : "gift_check_yn");
-            String adminCode = "challenge".equals(type) ? "101" : ("drive".equals(type) ? "202" : "303");
-
-            // ==========================================
-            // 관리자 화면 토글 조작 시에도 시승 미신청 고객 방어
-            // ==========================================
-            if (status && "202".equals(adminCode)) {
-                ParticipantVO participant = adminMngService.getParticipantBySeq(seq);
-                if (participant != null && "시승 미신청".equals(participant.getTestDriveTime())) {
-                    response.setSuccess(false);
-                    response.setMessage("시승 미신청 고객은 출석 처리를 할 수 없습니다.");
-                    return response;
-                }
-            }
-
-            if (status) {
-                adminMngService.updateArrivalStatus(seq, adminCode);
+            if ("gift".equals(type)) {
+                adminMngService.updateGiftStatus(seq, status ? "Y" : "N");
+                res.put("success", true);
+                res.put("message", "기념품 수령 상태가 반영되었습니다.");
             } else {
-                adminMngService.cancelArrivalStatus(seq, columnName);
+                res.put("success", false);
+                res.put("message", "올바르지 않은 접근 유형입니다.");
             }
-            response.setSuccess(true);
         } catch (Exception e) {
-            response.setSuccess(false);
+            res.put("success", false);
+            res.put("message", "DB 업데이트 중 오류가 발생했습니다.");
         }
-        return response;
+        return res;
     }
 
-    // 시승 노쇼(No-show) 처리 API 추가
-    @PostMapping("/api/participant/noshow")
-    @ResponseBody
-    public ResponseDTO processNoshow(@RequestParam("seq") int seq) {
-        ResponseDTO response = new ResponseDTO();
-        try {
-            adminMngService.updateNoshow(seq);
-            response.setSuccess(true);
-            response.setMessage("노쇼 처리가 완료되어 해당 시승 슬롯이 복구되었습니다.");
-        } catch (Exception e) {
-            response.setSuccess(false);
-            response.setMessage("노쇼 처리 중 오류가 발생했습니다.");
-        }
-        return response;
-    }
-
-    // 시승 노쇼(No-show) 취소 API 추가
-    @PostMapping("/api/participant/cancelNoshow")
-    @ResponseBody
-    public ResponseDTO cancelNoshow(@RequestParam("seq") int seq) {
-        ResponseDTO response = new ResponseDTO();
-        try {
-            // 1. 현재 참가자 정보 조회
-            ParticipantVO data = adminMngService.getParticipantBySeq(seq);
-            if (data == null) {
-                response.setSuccess(false);
-                response.setMessage("참가자 정보를 찾을 수 없습니다.");
-                return response;
-            }
-
-            // 2. 해당 시간대 및 차종의 유효한 예약자 수(노쇼가 아닌 사람) 계산
-            int currentCount = adminMngService.getValidReservationCount(data.getRegDate(), data.getTestDriveTime(), data.getCarModel());
-            int maxCapacity = adminMngService.getMaxCapacity();
-
-            // 3. 이미 C가 예약해서 자리가 꽉 찼다면 취소를 막고 경고창 전송
-            if (currentCount >= maxCapacity) {
-                response.setSuccess(false);
-                response.setMessage("해당 시간대에 이미 다른 고객이 시승을 예약하여 정원(" + maxCapacity + "명)이 마감되었습니다.\n노쇼 취소가 불가합니다.");
-                return response;
-            }
-
-            // 4. 자리가 남아있다면 정상적으로 노쇼 취소(미도착 상태로 복구) 진행
-            adminMngService.cancelNoshow(seq);
-            response.setSuccess(true);
-            response.setMessage("노쇼 처리가 취소되었습니다. 다시 '미도착' 상태로 변경됩니다.");
-        } catch (Exception e) {
-            response.setSuccess(false);
-            response.setMessage("노쇼 취소 처리 중 오류가 발생했습니다.");
-        }
-        return response;
-    }
-
-    // 삭제 기능 API 추가
     @PostMapping("/api/participant/delete")
     @ResponseBody
-    public ResponseDTO deleteParticipant(@RequestParam("seq") int seq) {
-        ResponseDTO response = new ResponseDTO();
+    public Map<String, Object> deleteParticipant(@RequestParam("seq") int seq) {
+        Map<String, Object> res = new HashMap<>();
         try {
             adminMngService.deleteParticipant(seq);
-            response.setSuccess(true);
-            response.setMessage("해당 참가자가 삭제되었습니다.");
+            res.put("success", true);
+            res.put("message", "데이터가 삭제되었습니다.");
         } catch (Exception e) {
-            response.setSuccess(false);
-            response.setMessage("삭제 처리 중 오류가 발생했습니다.");
+            res.put("success", false);
+            res.put("message", "삭제 오류 발생.");
         }
-        return response;
+        return res;
     }
 
-    // 1. QR 스캔 유효성 검증 API (서명 팝업을 띄우기 전 자격 검증)
-    @PostMapping("/api/verifyQr")
-    @ResponseBody
-    public Map<String, Object> verifyQr(@RequestParam("qrToken") String qrToken,
-                                        @RequestParam("adminCode") String adminCode) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-
-            ParticipantVO data = adminMngService.getParticipantByQrCodeUrl(qrToken);
-            if (data == null) {
-                response.put("success", false);
-                response.put("message", "존재하지 않는 참가자입니다.");
-                return response;
-            }
-
-            int seq = data.getSeq();
-
-            // 1회 참여 제한(중복 방어) 로직
-            if ("202".equals(adminCode) && "Y".equals(data.getDriveCheckYn())) {
-                response.put("success", false);
-                response.put("message", "이미 시승/서명을 완료한 고객입니다.");
-                return response;
-            } else if ("101".equals(adminCode) && "Y".equals(data.getChallengeCheckYn())) {
-                response.put("success", false);
-                response.put("message", "이미 챌린지를 완료한 고객입니다.");
-                return response;
-            } else if ("303".equals(adminCode) && "Y".equals(data.getGiftCheckYn())) {
-                response.put("success", false);
-                response.put("message", "이미 경품 수령 처리가 완료된 고객입니다.");
-                return response;
-            }
-
-            // 검증 성공 시, 화면 팝업에 표시할 데이터 반환
-            response.put("success", true);
-            response.put("seq", seq);
-            response.put("name", data.getName());
-            response.put("phone", data.getPhone());
-
-            return response;
-
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "유효하지 않은 QR 코드입니다.");
-            return response;
-        }
-    }
-
-    // 2. 전자 서명 최종 제출 및 완료 처리 API
-    @PostMapping("/api/submitSignature")
-    @ResponseBody
-    public Map<String, Object> submitSignature(@RequestParam("seq") int seq,
-                                               @RequestParam("adminCode") String adminCode,
-                                               @RequestParam(value = "signatureData", required = false) String signatureData) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            adminMngService.updateSignatureAndArrival(seq, signatureData, adminCode);
-            response.put("success", true);
-
-            // 시승(202)일 경우 서명 완료 메시지 노출
-            if ("202".equals(adminCode)) {
-                response.put("message", "서명 및 시승 출석이 완료되었습니다.");
-            } else if ("303".equals(adminCode)) {
-                response.put("message", "경품 수령 처리가 완료되었습니다.");
-            } else {
-                response.put("message", "출석 처리가 완료되었습니다.");
-            }
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "데이터 저장 중 서버 오류가 발생했습니다.");
-        }
-        return response;
-    }
-
-    // ==========================================
-    // 엑셀 다운로드를 위한 전체 목록 조회 API
-    // ==========================================
-    @GetMapping("/api/participant/excelDownload")
+    @RequestMapping({"/api/participant/excelDownload"})
     public void downloadExcel(Criteria cri, HttpServletResponse response) throws Exception {
         List<ParticipantVO> list = adminMngService.getAllList(cri);
 
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("참여자 목록");
+        Sheet sheet = workbook.createSheet("이벤트_참여목록");
 
         CellStyle headerStyle = workbook.createCellStyle();
         headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
@@ -443,7 +193,7 @@ public class AdminMngController {
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"문의일자", "전시장코드", "전시장명", "유입경로코드", "유입경로명", "고객명", "연락처", "이메일", "관심모델그룹코드", "관심모델그룹코드명", "시승시간", "개인정보수집동의", "제3자제공동의", "처리위탁동의", "마케팅동의", "통계제공동의", "챌린지참여", "시승참여", "경품수령"};
+        String[] headers = {"등록일시", "경품수령확인(QR)", "이름", "연락처", "이메일", "방문전시장", "관심차량", "마케팅동의"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -456,57 +206,29 @@ public class AdminMngController {
 
         for (ParticipantVO vo : list) {
             Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(vo.getRegDate() != null ? sdf.format(vo.getRegDate()) : "");
+            // XML에서 Alias 처리되었으므로 getGiftCheckYn() 호출 가능
+            row.createCell(1).setCellValue("Y".equals(vo.getGiftCheckYn()) ? "수령 완료" : "미수령");
+            row.createCell(2).setCellValue(vo.getName());
+            row.createCell(3).setCellValue(vo.getPhone());
+            row.createCell(4).setCellValue(vo.getEmail() != null ? vo.getEmail() : "");
+            row.createCell(5).setCellValue(vo.getShopInfo() != null ? vo.getShopInfo() : "");
+            row.createCell(6).setCellValue(vo.getCarModel() != null ? vo.getCarModel() : "");
+            row.createCell(7).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
 
-            String regDateStr = "";
-            if (vo.getRegDate() != null) {
-                regDateStr = sdf.format(vo.getRegDate());
-            }
-
-            // 노쇼 고객의 경우 엑셀 다운로드에서도 '노쇼'로 직관적으로 표시
-            String driveStatusText = "N";
-            if ("Y".equals(vo.getDriveCheckYn())) {
-                driveStatusText = "Y";
-            } else if ("X".equals(vo.getDriveCheckYn())) {
-                driveStatusText = "노쇼";
-            }
-
-            String[] rowData = {
-                    regDateStr,
-                    getShopCode(vo.getShopInfo()),
-                    vo.getShopInfo() != null ? vo.getShopInfo() : "",
-                    "4040",
-                    "오프라인",
-                    vo.getName(),
-                    vo.getPhone(),
-                    vo.getEmail() != null ? vo.getEmail() : "",
-                    getCarModelCode(vo.getCarModel()),
-                    vo.getCarModel() != null ? vo.getCarModel() : "",
-                    vo.getTestDriveTime() != null ? vo.getTestDriveTime() : "",
-                    vo.getPrivacyAgree() != null ? vo.getPrivacyAgree() : "N",
-                    vo.getThirdPartyAgree() != null ? vo.getThirdPartyAgree() : "N",
-                    vo.getEntrustAgree() != null ? vo.getEntrustAgree() : "N",
-                    vo.getMktAgree() != null ? vo.getMktAgree() : "N",
-                    vo.getProvideAgree() != null ? vo.getProvideAgree() : "N",
-                    vo.getChallengeCheckYn() != null ? vo.getChallengeCheckYn() : "N",
-                    driveStatusText,
-                    vo.getGiftCheckYn() != null ? vo.getGiftCheckYn() : "N"
-            };
-
-            for (int i = 0; i < rowData.length; i++) {
-                Cell cell = row.createCell(i);
-                cell.setCellValue(rowData[i]);
-                cell.setCellStyle(dataStyle);
+            for (int i = 0; i < 8; i++) {
+                row.getCell(i).setCellStyle(dataStyle);
             }
         }
 
         for (int i = 0; i < headers.length; i++) {
-            sheet.setColumnWidth(i, 4500);
+            sheet.setColumnWidth(i, 4000);
         }
 
         SimpleDateFormat fileDateFmt = new SimpleDateFormat("yyyyMMdd");
-        String today = fileDateFmt.format(new java.util.Date());
-        String fileName = "BYD_참여자_" + today + ".xlsx";
-        fileName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
+        String today = fileDateFmt.format(new Date());
+        String fileName = "BYD_이벤트참여목록_" + today + ".xlsx";
+        fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
@@ -514,64 +236,4 @@ public class AdminMngController {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
-
-    // 엑셀 맵핑용 - 전시장 코드 변환 함수
-    private String getShopCode(String shopName) {
-        if (shopName == null || shopName.trim().isEmpty()) return "";
-        switch (shopName.trim()) {
-            case "BYD 동탄": return "APKR0001AW0011SW";
-            case "BYD 부산 동래": return "APKR0001AW0010SW";
-            case "BYD 분당": return "APKR0001AW0003SW";
-            case "BYD 서초": return "APKR0001AW0002SW";
-            case "BYD 수영": return "APKR0001AW0005SW";
-            case "BYD 수원": return "APKR0001AW0001SW";
-            case "BYD 스타필드 명지": return "APKR0001AW0014SW";
-            case "BYD 스타필드 안성": return "APKR0001AW0016SW";
-            case "BYD 스타필드 운정": return "APKR0001AW0017SW";
-            case "BYD 스타필드 일산": return "APKR0001AW0013SW";
-            case "BYD 스타필드 하남": return "APKR0001AW0015SW";
-            case "BYD 일산": return "APKR0001AW0007SW";
-            case "BYD 창원": return "APKR0001AW0012SW";
-            case "BYD 강서": return "APKR0002AW0004SW";
-            case "BYD 김포": return "APKR0002AW0005SW";
-            case "BYD 마포": return "APKR0002AW0006SW";
-            case "BYD 용산": return "APKR0002AW0001SW";
-            case "BYD 의정부": return "APKR0002AW0010SW";
-            case "BYD 제주": return "APKR0002AW0002SW";
-            case "BYD 천안": return "APKR0002AW0008SW";
-            case "BYD 청주": return "APKR0002AW0009SW";
-            case "BYD 강동": return "APKR0003AW0010SW";
-            case "BYD 목동": return "APKR0003AW0002SW";
-            case "BYD 부천": return "APKR0003AW0007SW";
-            case "BYD 서해구": return "APKR0003AW0008SW";
-            case "BYD 송도": return "APKR0003AW0001SW";
-            case "BYD 송파": return "APKR0003AW0009SW";
-            case "BYD 안양": return "APKR0003AW0003SW";
-            case "BYD 대구": return "APKR0004AW0001SW";
-            case "BYD 포항": return "APKR0004AW0002SW";
-            case "BYD 원주": return "APKR0005AW0001SW";
-            case "BYD 광주": return "APKR0006AW0003SW";
-            case "BYD 대전": return "APKR0006AW0001SW";
-            case "BYD 전주": return "APKR0006AW0005SW";
-            default: return "";
-        }
-    }
-
-    private String getCarModelCode(String carModel) {
-        if (carModel == null || carModel.trim().isEmpty()) return "";
-        switch (carModel.trim().toUpperCase()) {
-            case "BYD DOLPHIN": return "BYD0004";
-            case "BYD ATTO 3": return "BYD0001";
-            case "BYD SEAL": return "BYD0005";
-            case "BYD SEALION 7": return "BYD0019";
-            default: return "";
-        }
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/mng/index";
-    }
-
 }

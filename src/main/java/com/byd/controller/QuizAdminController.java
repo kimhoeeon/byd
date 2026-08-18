@@ -30,36 +30,23 @@ public class QuizAdminController {
                            @RequestParam(required = false) String perfectScoreOnly,
                            @RequestParam(required = false) String excludeInProgress,
                            @RequestParam(required = false) String searchDate,
-                           @RequestParam(required = false) String searchSession,
                            Model model) {
 
-        cri.setAmount(50); // 페이지당 50건으로 고정
+        cri.setAmount(50); // 페이지당 50건 고정
 
-        // 빈 문자열("") 방어 로직 추가: 값이 있을 때만 숫자로 변환
-        Integer sessionNo = null;
-        if (searchSession != null && !searchSession.trim().isEmpty()) {
-            try {
-                sessionNo = Integer.parseInt(searchSession);
-            } catch (NumberFormatException e) {
-                sessionNo = null;
-            }
-        }
+        List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly, excludeInProgress, searchDate, cri);
+        int total = quizService.getQuizAdminTotalCount(keyword, perfectScoreOnly, excludeInProgress, searchDate);
 
-        List<QuizUserVO> list = quizService.getQuizAdminList(keyword, perfectScoreOnly, excludeInProgress, searchDate, sessionNo, cri);
-        int total = quizService.getQuizAdminTotalCount(keyword, perfectScoreOnly, excludeInProgress, searchDate, sessionNo);
-
-        // 최근 7일 접속자 통계 데이터 조회
         List<DailyStatsVO> visitStats = quizService.getQuizDailyVisitStats();
 
         model.addAttribute("list", list);
-        model.addAttribute("pageMaker", new PageDTO(cri, total)); // 페이징 처리 객체
+        model.addAttribute("pageMaker", new PageDTO(cri, total));
         model.addAttribute("cri", cri);
         model.addAttribute("visitStats", visitStats);
         model.addAttribute("keyword", keyword);
         model.addAttribute("perfectScoreOnly", perfectScoreOnly);
         model.addAttribute("excludeInProgress", excludeInProgress);
         model.addAttribute("searchDate", searchDate);
-        model.addAttribute("searchSession", sessionNo);
 
         return "mng/quiz/list";
     }
@@ -69,15 +56,9 @@ public class QuizAdminController {
                               @RequestParam(required = false) String perfectScoreOnly,
                               @RequestParam(required = false) String excludeInProgress,
                               @RequestParam(required = false) String searchDate,
-                              @RequestParam(required = false) String searchSession,
                               HttpServletResponse response) throws Exception {
 
-        Integer sessionNo = null;
-        if (searchSession != null && !searchSession.trim().isEmpty()) {
-            try { sessionNo = Integer.parseInt(searchSession); } catch (Exception e) {}
-        }
-
-        List<QuizUserVO> list = quizService.getQuizAdminListAll(keyword, perfectScoreOnly, excludeInProgress, searchDate, sessionNo);
+        List<QuizUserVO> list = quizService.getQuizAdminListAll(keyword, perfectScoreOnly, excludeInProgress, searchDate);
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("퀴즈 참여자 목록");
@@ -104,7 +85,7 @@ public class QuizAdminController {
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"이름", "연락처", "이메일", "방문 지역", "방문 전시장", "관심차량", "참여날짜", "회차", "점수", "상태", "기념품 수령"};
+        String[] headers = {"이름", "연락처", "이메일", "방문 지역", "방문 전시장", "관심차량", "참여날짜", "점수", "상태", "기념품 수령"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -130,7 +111,6 @@ public class QuizAdminController {
                             user.getShopInfo() != null ? user.getShopInfo() : "",
                             user.getCarModelCode() != null ? user.getCarModelCode() : "",
                             hist.getPlayDate(),
-                            hist.getSessionNo() + "회차",
                             scoreStr,
                             statusStr,
                             hist.getGiftReceivedYn() != null ? hist.getGiftReceivedYn() : "N"

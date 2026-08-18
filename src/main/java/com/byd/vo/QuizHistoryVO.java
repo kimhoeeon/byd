@@ -6,7 +6,7 @@ public class QuizHistoryVO {
     private int historySeq;
     private int userSeq;
     private String playDate;
-    private int sessionNo;
+    private String assignedQuestions;
     private String userAnswers;
     private int score;
     private String status;

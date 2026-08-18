@@ -45,7 +45,7 @@
                     </div>
                 </div>
 
-                <div class="menu-item">
+                <%--<div class="menu-item">
                     <!-- /mng/participant 가 포함된 경로(목록, 상세페이지 모두)에서 active 클래스 부여 -->
                     <a class="menu-link ${fn:contains(currentUrl, '/mng/participant') ? 'active' : ''}" href="/mng/participant/list">
                         <span class="menu-icon">
@@ -59,9 +59,9 @@
                         </span>
                         <span class="menu-title">시승 관리</span>
                     </a>
-                </div>
+                </div>--%>
 
-                <div class="menu-item">
+                <%--<div class="menu-item">
                     <a class="menu-link ${fn:contains(currentUrl, '/mng/material') ? 'active' : ''}" href="/mng/material/list">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-parcel fs-2">
@@ -74,7 +74,7 @@
                         </span>
                         <span class="menu-title">물자 관리</span>
                     </a>
-                </div>
+                </div>--%>
 
                 <div class="menu-item">
                     <a class="menu-link ${fn:contains(currentUrl, '/mng/quiz') ? 'active' : ''}" href="/mng/quiz/list">

@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.byd.mapper.QuizMapper">
 
+    <!-- 1. 유저 정보 -->
     <insert id="insertUser" parameterType="com.byd.vo.QuizUserVO" useGeneratedKeys="true" keyProperty="userSeq">
         INSERT INTO quiz_user (name, phone, email, region, shop_info, car_model_code, privacy_agree, reg_date)
         VALUES (#{name}, #{phone}, #{email}, #{region}, #{shopInfo}, #{carModelCode}, #{privacyAgree}, NOW())
@@ -20,6 +21,7 @@
         LIMIT 1
     </select>
 
+    <!-- 2. 이력 및 진행 -->
     <select id="getTodayHistory" resultType="com.byd.vo.QuizHistoryVO">
         SELECT *
         FROM quiz_history
@@ -29,9 +31,13 @@
     </select>
 
     <insert id="insertHistory" parameterType="com.byd.vo.QuizHistoryVO" useGeneratedKeys="true" keyProperty="historySeq">
-        INSERT INTO quiz_history (user_seq, play_date, session_no, user_answers, score, status, gift_received_yn, reg_date)
-        VALUES (#{userSeq}, CURDATE(), #{sessionNo}, #{userAnswers}, 0, 'IN_PROGRESS', 'N', NOW())
+        INSERT INTO quiz_history (user_seq, play_date, assigned_questions, user_answers, score, status, gift_received_yn, reg_date)
+        VALUES (#{userSeq}, CURDATE(), #{assignedQuestions}, #{userAnswers}, 0, 'IN_PROGRESS', 'N', NOW())
     </insert>
+
+    <select id="getHistoryBySeq" resultType="com.byd.vo.QuizHistoryVO">
+        SELECT * FROM quiz_history WHERE history_seq = #{historySeq}
+    </select>
 
     <update id="updateHistoryScoreAndStatus" parameterType="com.byd.vo.QuizHistoryVO">
         UPDATE quiz_history
@@ -46,15 +52,11 @@
         WHERE history_seq = #{historySeq}
     </update>
 
-    <select id="getRandomQuestions" resultType="com.byd.vo.QuizQuestionVO">
-        SELECT *
+    <select id="getRandomQuestionIds" resultType="java.lang.Integer">
+        SELECT question_id
         FROM quiz_question
         ORDER BY RAND()
         LIMIT #{limit}
-    </select>
-
-    <select id="getHistoryBySeq" resultType="com.byd.vo.QuizHistoryVO">
-        SELECT * FROM quiz_history WHERE history_seq = #{historySeq}
     </select>
 
     <select id="getQuestionsByIds" resultType="com.byd.vo.QuizQuestionVO">
@@ -70,6 +72,13 @@
         )
     </select>
 
+    <update id="updateUserAnswers">
+        UPDATE quiz_history
+        SET user_answers = #{userAnswers}
+        WHERE history_seq = #{historySeq}
+    </update>
+
+    <!-- 3. 관리자 리스트용 -->
     <resultMap id="AdminListMap" type="com.byd.vo.QuizUserVO">
         <id property="userSeq" column="user_seq"/>
         <result property="name" column="name"/>
@@ -83,7 +92,6 @@
         <collection property="historyList" ofType="com.byd.vo.QuizHistoryVO">
             <id property="historySeq" column="history_seq"/>
             <result property="playDate" column="play_date"/>
-            <result property="sessionNo" column="session_no"/>
             <result property="score" column="score"/>
             <result property="status" column="status"/>
             <result property="giftReceivedYn" column="gift_received_yn"/>
@@ -104,9 +112,6 @@
         <if test="searchDate != null and searchDate != ''">
             AND h2.play_date = #{searchDate}
         </if>
-        <if test="searchSession != null">
-            AND h2.session_no = #{searchSession}
-        </if>
     </sql>
 
     <!-- 페이징 처리를 위한 총 인원수 카운트 쿼리 -->
@@ -123,7 +128,7 @@
     <select id="getQuizAdminList" resultMap="AdminListMap">
         SELECT
         u.user_seq, u.name, u.phone, u.email, u.region, u.shop_info, u.car_model_code, u.privacy_agree, u.reg_date AS u_reg_date,
-        h.history_seq, h.play_date, h.session_no, h.score, h.status, h.gift_received_yn
+        h.history_seq, h.play_date, h.score, h.status, h.gift_received_yn
         FROM quiz_user u
         INNER JOIN quiz_history h ON u.user_seq = h.user_seq
         WHERE u.user_seq IN (
@@ -135,18 +140,18 @@
             <include refid="quizSearchCondition"/>
         </where>
         GROUP BY u2.user_seq
-        ORDER BY MAX(h2.play_date) DESC, MAX(h2.session_no) DESC, u2.user_seq DESC
+        ORDER BY MAX(h2.play_date) DESC, u2.user_seq DESC
         LIMIT #{pageStart}, #{amount}
         ) sub
         )
-        ORDER BY h.play_date DESC, h.session_no DESC, u.user_seq DESC
+        ORDER BY h.play_date DESC, u.user_seq DESC
     </select>
 
     <!-- 엑셀 다운로드를 위한 LIMIT 없는 전체 리스트 쿼리 -->
     <select id="getQuizAdminListAll" resultMap="AdminListMap">
         SELECT
         u.user_seq, u.name, u.phone, u.email, u.region, u.shop_info, u.car_model_code, u.privacy_agree, u.reg_date AS u_reg_date,
-        h.history_seq, h.play_date, h.session_no, h.score, h.status, h.gift_received_yn
+        h.history_seq, h.play_date, h.score, h.status, h.gift_received_yn
         FROM quiz_user u
         INNER JOIN quiz_history h ON u.user_seq = h.user_seq
         WHERE u.user_seq IN (
@@ -156,9 +161,10 @@
             <include refid="quizSearchCondition"/>
         </where>
         )
-        ORDER BY h.play_date DESC, h.session_no DESC, u.user_seq DESC
+        ORDER BY h.play_date DESC, u.user_seq DESC
     </select>
 
+    <!-- 4. 퀴즈 문제 관리용 -->
     <select id="getQuestionList" resultType="com.byd.vo.QuizQuestionVO">
         SELECT * FROM quiz_question ORDER BY question_id ASC
     </select>
@@ -187,6 +193,7 @@
         DELETE FROM quiz_question WHERE question_id = #{questionId}
     </delete>
 
+    <!-- 5. 방문 통계 -->
     <insert id="insertQuizVisit">
         INSERT INTO quiz_visit_stats (visit_date, visit_count)
         VALUES (CURDATE(), 1)

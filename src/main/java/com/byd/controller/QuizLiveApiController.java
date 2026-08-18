@@ -2,7 +2,6 @@ package com.byd.controller;
 
 import com.byd.mapper.QuizMapper;
 import com.byd.service.QuizLiveService;
-import com.byd.vo.QuizLiveSessionVO;
 import com.byd.vo.QuizQuestionVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

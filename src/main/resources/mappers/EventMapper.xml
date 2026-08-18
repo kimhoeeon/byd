@@ -3,7 +3,10 @@
 <mapper namespace="com.byd.mapper.EventMapper">
 
     <select id="getParticipantByPhone" parameterType="string" resultType="com.byd.vo.ParticipantVO">
-        SELECT * FROM event_participant WHERE phone = #{phone} LIMIT 1
+        SELECT * FROM event_participant
+        WHERE phone = #{phone}
+        ORDER BY seq DESC
+        LIMIT 1
     </select>
 
     <select id="getParticipantByPhoneToday" parameterType="string" resultType="com.byd.vo.ParticipantVO">
@@ -13,38 +16,22 @@
         LIMIT 1
     </select>
 
-    <select id="getDriveTimeCountToday" resultType="java.util.LinkedHashMap">
-        SELECT test_drive_time AS testDriveTime, COUNT(*) AS cnt
-        FROM event_participant
-        WHERE DATE(reg_date) = CURDATE()
-          AND test_drive_time != '시승 미신청'
-          AND drive_check_yn != 'X'
-        GROUP BY test_drive_time
-    </select>
-
     <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
-        SELECT * FROM event_participant WHERE seq = #{seq}
+        SELECT * FROM event_participant
+        WHERE seq = #{seq}
     </select>
 
     <insert id="insertParticipant" parameterType="com.byd.vo.ParticipantVO" useGeneratedKeys="true" keyProperty="seq">
         INSERT INTO event_participant (
-            entry_type, name, phone, email, shop_info, car_model, test_drive_time, qr_code_url,
+            name, phone, email, shop_info, car_model,
             privacy_agree, third_party_agree, entrust_agree, mkt_agree, provide_agree,
-            challenge_check_yn, drive_check_yn, gift_check_yn, reg_date
+            drive_check_yn, sms_check_yn, qr_check_yn, reg_date
         ) VALUES (
-                     #{entryType}, #{name}, #{phone}, #{email}, #{shopInfo}, #{carModel}, #{testDriveTime}, #{qrCodeUrl},
+                     #{name}, #{phone}, #{email}, #{shopInfo}, #{carModel},
                      #{privacyAgree}, #{thirdPartyAgree}, #{entrustAgree}, #{mktAgree}, #{provideAgree},
                      'N', 'N', 'N', NOW()
                  )
     </insert>
-
-    <select id="getDriveTimeCount" parameterType="string" resultType="int">
-        SELECT COUNT(*)
-        FROM event_participant
-        WHERE DATE(reg_date) = CURDATE()
-          AND test_drive_time = #{testDriveTime}
-          AND drive_check_yn != 'X'
-    </select>
 
     <update id="updateParticipant">
         UPDATE event_participant
@@ -52,7 +39,6 @@
             email = #{vo.email},
             shop_info = #{vo.shopInfo},
             car_model = #{vo.carModel},
-            test_drive_time = #{vo.testDriveTime},
             mkt_agree = #{vo.mktAgree},
             <if test="updateRegDate == true">
                 reg_date = NOW()
@@ -60,22 +46,5 @@
         </set>
         WHERE seq = #{vo.seq}
     </update>
-
-    <select id="checkTestDriveHistory" resultType="int">
-        SELECT COUNT(*)
-        FROM event_participant
-        WHERE phone = #{phone}
-        AND test_drive_time != '시승 미신청'
-        <if test="seq != null and seq > 0">
-            AND seq != #{seq}
-        </if>
-    </select>
-
-    <select id="getParticipantsForReminder" resultType="com.byd.vo.ParticipantVO">
-        SELECT * FROM event_participant
-        WHERE DATE(reg_date) = CURDATE()
-        AND test_drive_time = #{targetTime}
-        AND drive_check_yn = 'N' <!-- 출석 전인 고객만 발송 -->
-    </select>
 
 </mapper>

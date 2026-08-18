@@ -28,7 +28,7 @@
                 <div class="app-main flex-column flex-row-fluid p-10">
                     <div class="card shadow-sm border-0">
                         <div class="card-header border-0 pt-6">
-                            <div class="card-title"><h3 class="fw-bold m-0">신청 상세 정보 (No.${data.seq})</h3></div>
+                            <div class="card-title"><h3 class="fw-bold m-0">이벤트 신청자 상세 (No.${data.seq})</h3></div>
                             <div class="card-toolbar"><a href="/mng/participant/list" class="btn btn-sm btn-light">목록으로</a></div>
                         </div>
                         <div class="card-body">
@@ -107,22 +107,6 @@
                                     <th class="bg-light fw-bold">관심차량 선택</th>
                                     <td class="code-text" title="${data.carModel}">${empty data.carModel ? '-' : carCode}</td>
                                 </tr>
-                                <tr>
-                                    <th class="bg-light fw-bold text-primary">시승 시간 선택</th>
-                                    <td colspan="3">
-                                        <c:set var="detailDisplayTime" value="${empty data.testDriveTime ? '-' : data.testDriveTime}" />
-                                        <c:choose>
-                                            <c:when test="${data.testDriveTime == '11:00'}"><c:set var="detailDisplayTime" value="11:00 ~ 12:00" /></c:when>
-                                            <c:when test="${data.testDriveTime == '12:00'}"><c:set var="detailDisplayTime" value="12:00 ~ 13:00" /></c:when>
-                                            <c:when test="${data.testDriveTime == '13:00'}"><c:set var="detailDisplayTime" value="13:00 ~ 14:00" /></c:when>
-                                            <c:when test="${data.testDriveTime == '14:00'}"><c:set var="detailDisplayTime" value="14:00 ~ 15:00" /></c:when>
-                                            <c:when test="${data.testDriveTime == '15:00'}"><c:set var="detailDisplayTime" value="15:00 ~ 16:00" /></c:when>
-                                            <c:when test="${data.testDriveTime == '16:00'}"><c:set var="detailDisplayTime" value="16:00 ~ 17:00" /></c:when>
-                                            <c:when test="${data.testDriveTime == '17:00'}"><c:set var="detailDisplayTime" value="17:00 ~ 18:00" /></c:when>
-                                        </c:choose>
-                                        <span class="fw-bolder fs-5 text-primary">${detailDisplayTime}</span>
-                                    </td>
-                                </tr>
 
                                 <tr>
                                     <th class="bg-light fw-bold">개인정보 수집·이용 동의</th>
@@ -131,88 +115,23 @@
                                     <td colspan="3"><span class="badge badge-primary">${empty data.thirdPartyAgree ? 'N' : data.thirdPartyAgree}</span></td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light fw-bold">개인정보 처리 위탁 안내 및 동의서</th>
+                                    <th class="bg-light fw-bold">개인정보 처리 위탁 안내 동의</th>
                                     <td><span class="badge badge-primary">${empty data.entrustAgree ? 'N' : data.entrustAgree}</span></td>
                                     <th class="bg-light fw-bold">마케팅 정보 수신 동의</th>
-                                    <td colspan="3">
+                                    <td>
                                         <span class="badge <c:choose><c:when test="${data.mktAgree eq 'Y'}">badge-primary</c:when><c:otherwise>badge-danger</c:otherwise></c:choose>">${empty data.mktAgree ? 'N' : data.mktAgree}</span>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <th class="bg-light fw-bold">챌린지 도착 확인</th>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${data.challengeCheckYn eq 'Y'}">
-                                                <span class="text-success fw-bold">도착 확인 완료</span>
-                                            </c:when>
-                                            <c:otherwise><span class="text-danger fw-bold">미도착</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <th class="bg-light fw-bold">시승 도착 확인</th>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <!-- 상태 렌더링 -->
-                                            <c:choose>
-                                                <c:when test="${data.driveCheckYn eq 'Y'}">
-                                                    <span class="text-success fw-bold">도착 확인 완료</span>
-                                                </c:when>
-                                                <c:when test="${data.driveCheckYn eq 'X'}">
-                                                    <span class="text-warning fw-bold">노쇼 (No-show)</span>
-                                                    <button type="button" class="btn btn-sm btn-light-primary ms-3 py-1 px-2" onclick="cancelNoshow(${data.seq})">노쇼 취소</button>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="text-danger fw-bold">미도착</span>
-                                                </c:otherwise>
-                                            </c:choose>
-
-                                            <c:if test="${data.testDriveTime ne '시승 미신청' and data.driveCheckYn ne 'Y' and data.driveCheckYn ne 'X'}">
-                                                <button type="button" class="btn btn-sm btn-light-danger ms-3 py-1 px-2" onclick="processNoshow(${data.seq})">노쇼 처리</button>
-                                            </c:if>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <th class="bg-light fw-bold">경품 수령 확인</th>
-                                    <td>
+                                    <th class="bg-light fw-bold text-primary">현장 기념품 수령 현황</th>
+                                    <td colspan="3">
                                         <c:choose>
                                             <c:when test="${data.giftCheckYn eq 'Y'}">
-                                                <span class="text-success fw-bold">경품 수령 완료</span>
-                                            </c:when>
-                                            <c:otherwise><span class="text-danger fw-bold">미수령</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-
-                                    <c:if test="${data.testDriveTime ne '시승 미신청' and data.driveCheckYn ne 'Y'}">
-                                        <th class="bg-light fw-bold text-info">시승 방문요청 발송</th>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <button type="button" class="btn btn-sm btn-light-info py-1 px-2" onclick="sendNoshowSms(${data.seq})">
-                                                    <i class="ki-duotone ki-sms fs-5 me-1"><span class="path1"></span><span class="path2"></span></i>방문요청 문자발송
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </c:if>
-                                </tr>
-
-                                <tr>
-                                    <th class="bg-light fw-bold align-middle">전자 서명 확인</th>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${not empty data.signatureData}">
-                                                <div class="mb-2">
-                                                    <span class="text-success fw-bold me-2">서명 완료</span>
-                                                    <span class="text-muted fs-7">
-                                                        (서명 일시: <fmt:formatDate value="${data.signDate}" pattern="yyyy.MM.dd HH:mm:ss"/>)
-                                                    </span>
-                                                </div>
-                                                <div style="border: 2px dashed #ddd; padding: 10px; display: inline-block; background: #fff; border-radius: 8px;">
-                                                    <img src="${data.signatureData}" alt="고객 전자 서명" style="max-width: 300px; max-height: 150px; display: block;">
-                                                </div>
+                                                <span class="text-success fw-bolder fs-5">수령 완료 (QR 체크인 확인)</span>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="text-danger fw-bold">미서명</span>
+                                                <span class="text-danger fw-bolder fs-5">미수령 대기</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
@@ -228,71 +147,5 @@
 
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
-    <script>
-        // 노쇼 처리
-        function processNoshow(seq) {
-            if(confirm("해당 고객을 노쇼(No-show) 처리하시겠습니까?\n처리 즉시 해당 시간대의 시승 예약 T/O가 1자리 복구됩니다.")) {
-                $.ajax({
-                    url: '/mng/api/participant/noshow',
-                    type: 'POST',
-                    data: { seq: seq },
-                    success: function(res) {
-                        if(res.success) {
-                            alert(res.message);
-                            location.reload();
-                        } else {
-                            alert(res.message);
-                        }
-                    },
-                    error: function() {
-                        alert("서버 통신 중 오류가 발생했습니다.");
-                    }
-                });
-            }
-        }
-
-        // 노쇼 취소 처리
-        function cancelNoshow(seq) {
-            if(confirm("노쇼 처리를 취소하고 다시 '미도착' 상태로 변경하시겠습니까?\n해당 시승 슬롯의 빈자리가 다시 1자리 차감됩니다.")) {
-                $.ajax({
-                    url: '/mng/api/participant/cancelNoshow',
-                    type: 'POST',
-                    data: { seq: seq },
-                    success: function(res) {
-                        if(res.success) {
-                            alert(res.message);
-                            location.reload();
-                        } else {
-                            alert(res.message);
-                        }
-                    },
-                    error: function() {
-                        alert("서버 통신 중 오류가 발생했습니다.");
-                    }
-                });
-            }
-        }
-
-        // 노쇼 방문요청 문자 발송
-        function sendNoshowSms(seq) {
-            if(confirm("해당 고객에게 '방문 요청 안내' 문자를 발송하시겠습니까?")) {
-                $.ajax({
-                    url: '/mng/api/participant/sendNoshowSms',
-                    type: 'POST',
-                    data: { seq: seq },
-                    success: function(res) {
-                        if(res.success) {
-                            alert(res.message);
-                        } else {
-                            alert(res.message);
-                        }
-                    },
-                    error: function() {
-                        alert("서버 통신 중 오류가 발생했습니다.");
-                    }
-                });
-            }
-        }
-    </script>
 </body>
 </html>

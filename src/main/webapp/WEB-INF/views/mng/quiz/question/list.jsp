@@ -25,13 +25,10 @@
                         <div class="app-container container-fluid">
 
                             <div class="d-flex justify-content-between align-items-center mb-5">
-                                <h3 class="fw-bold text-dark mb-0">퀴즈 문제 관리 <span
-                                        class="fs-6 text-muted">총 ${qList.size()}문제</span></h3>
+                                <h3 class="fw-bold text-dark mb-0">퀴즈 문제 관리 <span class="fs-6 text-muted">총 ${qList.size()}문제 등록됨</span></h3>
                                 <div>
-                                    <a href="/mng/quiz/list" class="btn btn-dark me-2">신청자 목록</a>
-                                    <button type="button" class="btn btn-primary fw-bold" onclick="openModal()">+ 새 문제
-                                        추가
-                                    </button>
+                                    <a href="/mng/quiz/list" class="btn btn-dark me-2">참가자 목록 조회</a>
+                                    <button type="button" class="btn btn-primary fw-bold" onclick="openModal()">+ 새 문제 추가</button>
                                 </div>
                             </div>
 
@@ -42,15 +39,15 @@
                                             <thead>
                                             <tr class="text-center text-gray-500 fw-bold fs-7 text-uppercase gs-0 bg-light">
                                                 <th class="w-50px">No</th>
-                                                <th class="min-w-300px text-start">문제 내용</th>
-                                                <th class="min-w-80px">정답</th>
+                                                <th class="min-w-300px text-start">문제 및 보기 내역</th>
+                                                <th class="min-w-80px">정답 번호</th>
                                                 <th class="min-w-100px">관리</th>
                                             </tr>
                                             </thead>
                                             <tbody class="fw-semibold text-gray-600 text-center">
                                             <c:if test="${empty qList}">
                                                 <tr>
-                                                    <td colspan="4" class="py-10">등록된 문제가 없습니다.</td>
+                                                    <td colspan="4" class="py-10 text-muted">등록된 퀴즈 문제가 없습니다.</td>
                                                 </tr>
                                             </c:if>
 
@@ -63,8 +60,8 @@
                                                             ① ${q.choice1} / ② ${q.choice2} / ③ ${q.choice3} / ④ ${q.choice4}
                                                         </div>
                                                     </td>
-                                                    <td><span
-                                                            class="badge badge-light-success fs-6 fw-bold">${q.correctAnswer}번</span>
+                                                    <td>
+                                                        <span class="badge badge-light-success fs-6 fw-bold">${q.correctAnswer}번</span>
                                                     </td>
                                                     <td>
                                                         <button class="btn btn-sm btn-light-primary me-1" onclick="openModal(${q.questionId})">수정</button>
@@ -158,9 +155,8 @@
     const modalEl = document.getElementById('questionModal');
     const bsModal = new bootstrap.Modal(modalEl);
 
-    // 모달 열기 (신규 OR 수정)
+    // 모달 데이터 불러오기 (수정 모드 지원)
     function openModal(questionId = 0) {
-        // 폼 초기화
         $('#questionForm')[0].reset();
         $('#questionId').val(questionId);
 
@@ -169,7 +165,6 @@
             bsModal.show();
         } else {
             $('#modalTitle').text('문제 수정');
-            // 기존 데이터 가져오기
             $.ajax({
                 url: '/mng/quiz/question/api/get',
                 type: 'GET',
@@ -191,7 +186,7 @@
         }
     }
 
-    // 문제 저장 (신규/수정 공통)
+    // 문제 데이터 저장 로직
     function saveQuestion() {
         if (!$('#questionText').val() || !$('#choice1').val() || !$('#choice2').val() || !$('#choice3').val() || !$('#choice4').val()) {
             alert("문제와 보기 4개를 모두 입력해 주세요.");
@@ -218,7 +213,7 @@
         });
     }
 
-    // 문제 삭제
+    // 퀴즈 문제 삭제 기능
     function deleteQuestion(questionId) {
         if (confirm("정말 이 문제를 삭제하시겠습니까?")) {
             $.ajax({

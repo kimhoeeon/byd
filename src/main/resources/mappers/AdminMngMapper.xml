@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.byd.mapper.AdminMngMapper">
 
+    <!-- 검색 조건 공통 SQL -->
     <sql id="searchCondition">
         <if test="searchType == 'name' and keyword != null and keyword != ''">
             AND name LIKE CONCAT('%', #{keyword}, '%')
@@ -9,188 +10,131 @@
         <if test="searchType == 'phone' and keyword != null and keyword != ''">
             AND REPLACE(phone, '-', '') LIKE CONCAT('%', REPLACE(#{keyword}, '-', ''), '%')
         </if>
-
-        <if test='arrivalStatus == "Y"'>
-            AND qr_scan_time IS NOT NULL
-        </if>
-        <if test='arrivalStatus == "N"'>
-            AND qr_scan_time IS NULL
-        </if>
         <if test="startDate != null and startDate != ''">
             AND reg_date <![CDATA[>=]]> CONCAT(#{startDate}, ' 00:00:00')
         </if>
         <if test="endDate != null and endDate != ''">
             AND reg_date <![CDATA[<=]]> CONCAT(#{endDate}, ' 23:59:59')
         </if>
-        <if test="testDriveTime != null and testDriveTime != ''">
-            AND test_drive_time = #{testDriveTime}
-        </if>
     </sql>
 
-    <select id="getAdminById" parameterType="string" resultType="com.byd.vo.AdminVO">
-        SELECT admin_id AS adminId, admin_pw AS adminPw, admin_name AS adminName, admin_role AS adminRole
-        FROM admin WHERE admin_id = #{adminId}
+    <!-- 관리자 정보 조회 -->
+    <select id="getAdminById" resultType="com.byd.vo.AdminVO">
+        SELECT
+            admin_id AS adminId,
+            admin_pw AS adminPw,
+            admin_name AS adminName,
+            admin_role AS adminRole
+        FROM admin
+        WHERE admin_id = #{adminId}
     </select>
 
-    <select id="getTotalCount" resultType="int">
-        SELECT COUNT(*) FROM event_participant
-        <where>
-            <include refid="searchCondition"></include>
-        </where>
-    </select>
-
+    <!-- 목록 조회 (페이징 적용 및 Alias 매핑) -->
     <select id="getList" resultType="com.byd.vo.ParticipantVO">
-        SELECT * FROM event_participant
+        SELECT *, qr_check_yn AS giftCheckYn
+        FROM event_participant
         <where>
-            <include refid="searchCondition"></include>
+            <include refid="searchCondition"/>
         </where>
-        <choose>
-            <when test="sortColumn == 'testDriveTime' and sortDir == 'ASC'">
-                ORDER BY (test_drive_time = '시승 미신청') ASC, DATE(reg_date) ASC, test_drive_time ASC, seq DESC
-            </when>
-            <when test="sortColumn == 'testDriveTime' and sortDir == 'DESC'">
-                ORDER BY (test_drive_time = '시승 미신청') ASC, DATE(reg_date) DESC, test_drive_time DESC, seq DESC
-            </when>
-            <otherwise>
-                ORDER BY seq DESC
-            </otherwise>
-        </choose>
+        ORDER BY seq DESC
         LIMIT #{pageStart}, #{amount}
     </select>
 
+    <!-- 엑셀 다운로드용 전체 목록 조회 -->
     <select id="getAllList" resultType="com.byd.vo.ParticipantVO">
-        SELECT * FROM event_participant
+        SELECT *, qr_check_yn AS giftCheckYn
+        FROM event_participant
         <where>
-            <include refid="searchCondition"></include>
+            <include refid="searchCondition"/>
         </where>
-        <choose>
-            <when test="sortColumn == 'testDriveTime' and sortDir == 'ASC'">
-                ORDER BY (test_drive_time = '시승 미신청') ASC, DATE(reg_date) ASC, test_drive_time ASC, seq DESC
-            </when>
-            <when test="sortColumn == 'testDriveTime' and sortDir == 'DESC'">
-                ORDER BY (test_drive_time = '시승 미신청') ASC, DATE(reg_date) DESC, test_drive_time DESC, seq DESC
-            </when>
-            <otherwise>
-                ORDER BY seq DESC
-            </otherwise>
-        </choose>
+        ORDER BY seq DESC
     </select>
 
-    <select id="getParticipantBySeq" parameterType="int" resultType="com.byd.vo.ParticipantVO">
-        SELECT * FROM event_participant WHERE seq = #{seq}
+    <!-- 총 신청자 수 조회 -->
+    <select id="getTotalCount" resultType="int">
+        SELECT COUNT(*) FROM event_participant
+        <where>
+            <include refid="searchCondition"/>
+        </where>
     </select>
 
-    <select id="getParticipantByQrCodeUrl" parameterType="string" resultType="com.byd.vo.ParticipantVO">
-        SELECT * FROM event_participant WHERE qr_code_url = #{qrCodeUrl}
-    </select>
-
-    <update id="updateArrivalStatus">
-        UPDATE event_participant
-        <set>
-            <if test="adminCode == '101'">challenge_check_yn = 'Y'</if>
-            <if test="adminCode == '202'">drive_check_yn = 'Y'</if>
-            <if test="adminCode == '303'">gift_check_yn = 'Y'</if>
-        </set>
+    <!-- 상세 정보 조회 -->
+    <select id="getParticipantBySeq" resultType="com.byd.vo.ParticipantVO">
+        SELECT *, qr_check_yn AS giftCheckYn
+        FROM event_participant
         WHERE seq = #{seq}
-    </update>
-
-    <update id="cancelArrivalStatus">
-        UPDATE event_participant
-        SET ${columnName} = 'N'
-        WHERE seq = #{seq}
-    </update>
-
-    <select id="getDashboardSummary" resultType="com.byd.vo.StatsVO">
-        SELECT
-            COUNT(*) AS totalCnt,
-            SUM(CASE WHEN DATE(reg_date) = CURDATE() THEN 1 ELSE 0 END) AS todayCnt,
-            SUM(CASE WHEN challenge_check_yn = 'Y' OR drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS qrCheckCnt,
-            SUM(CASE WHEN drive_check_yn = 'N' AND test_drive_time != '시승 미신청' THEN 1 ELSE 0 END) AS driveWaitCnt
-        FROM event_participant
     </select>
 
-    <select id="getDailyStats" resultType="com.byd.vo.DailyStatsVO">
-        SELECT DATE_FORMAT(reg_date, '%m.%d') AS regDateStr, COUNT(*) AS cnt
-        FROM event_participant
-        WHERE reg_date >= DATE(DATE_SUB(NOW(), INTERVAL 14 DAY))
-        GROUP BY DATE_FORMAT(reg_date, '%m.%d')
-    </select>
-
-    <select id="getCarModelStats" resultType="java.util.LinkedHashMap">
-        SELECT IFNULL(NULLIF(car_model, ''), '미지정') AS label, COUNT(*) AS cnt
-        FROM event_participant
-        GROUP BY car_model
-        ORDER BY cnt DESC
-    </select>
-
-    <select id="getTimeStats" resultType="java.util.LinkedHashMap">
-        SELECT
-            DATE_FORMAT(reg_date, '%m.%d') AS dateLabel,
-            IFNULL(NULLIF(test_drive_time, ''), '미지정') AS timeLabel,
-            COUNT(*) AS cnt
-        FROM event_participant
-        WHERE test_drive_time != '시승 미신청' AND test_drive_time IS NOT NULL AND test_drive_time != ''
-        GROUP BY DATE_FORMAT(reg_date, '%m.%d'), test_drive_time
-        ORDER BY dateLabel ASC, test_drive_time ASC
-    </select>
-
-    <select id="getShopStats" resultType="java.util.LinkedHashMap">
-        SELECT IFNULL(NULLIF(shop_info, ''), '미지정') AS label, COUNT(*) AS cnt
-        FROM event_participant
-        GROUP BY shop_info
-        ORDER BY cnt DESC
-        LIMIT 10
-    </select>
-
-    <select id="getAttendanceStats" resultType="java.util.LinkedHashMap">
-        SELECT
-            SUM(CASE WHEN challenge_check_yn = 'Y' THEN 1 ELSE 0 END) AS challengeCnt,
-            SUM(CASE WHEN drive_check_yn = 'Y' THEN 1 ELSE 0 END) AS driveCnt,
-            SUM(CASE WHEN drive_check_yn = 'X' THEN 1 ELSE 0 END) AS driveNoshowCnt,
-            SUM(CASE WHEN gift_check_yn = 'Y' THEN 1 ELSE 0 END) AS giftCnt
-        FROM event_participant
-    </select>
-
-    <delete id="deleteParticipant" parameterType="int">
+    <!-- 참가자 삭제 -->
+    <delete id="deleteParticipant">
         DELETE FROM event_participant WHERE seq = #{seq}
     </delete>
 
-    <update id="updateSignatureAndArrival">
+    <!-- 경품 수령 여부 수동 업데이트 (제공해주신 DDL의 qr_check_yn 사용) -->
+    <update id="updateGiftStatus">
         UPDATE event_participant
-        <set>
-            <if test="adminCode == '202'">
-                signature_data = #{signatureData},
-                sign_date = NOW(),
-                drive_check_yn = 'Y'
-            </if>
-            <if test="adminCode == '101'">
-                challenge_check_yn = 'Y'
-            </if>
-            <if test="adminCode == '303'">
-                gift_check_yn = 'Y'
-            </if>
-        </set>
+        SET qr_check_yn = #{status}
         WHERE seq = #{seq}
     </update>
 
-    <update id="updateNoshow" parameterType="int">
-        UPDATE event_participant
-        SET drive_check_yn = 'X'
-        WHERE seq = #{seq}
-    </update>
+    <!-- ================== 대시보드 통계용 쿼리 ================== -->
+    <select id="getTotalParticipantsCount" resultType="int">
+        SELECT COUNT(*) FROM event_participant
+    </select>
 
-    <update id="cancelNoshow" parameterType="int">
-        UPDATE event_participant
-        SET drive_check_yn = 'N'
-        WHERE seq = #{seq}
-    </update>
+    <select id="getTodayParticipantsCount" resultType="int">
+        SELECT COUNT(*) FROM event_participant WHERE DATE(reg_date) = CURDATE()
+    </select>
 
-    <select id="getValidReservationCount" resultType="int">
-        SELECT COUNT(*)
+    <!-- 금일 경품 수령 카운트 -->
+    <select id="getTodayGiftsCount" resultType="int">
+        SELECT COUNT(*) FROM event_participant
+        WHERE qr_check_yn = 'Y' AND DATE(reg_date) = CURDATE()
+    </select>
+
+    <select id="getTodayQuizCount" resultType="int">
+        SELECT COUNT(*) FROM quiz_history WHERE DATE(reg_date) = CURDATE()
+    </select>
+
+    <select id="getQuizPerfectCount" resultType="int">
+        SELECT COUNT(*) FROM quiz_history WHERE score = 10 AND status = 'COMPLETED'
+    </select>
+
+    <select id="getQuizFailCount" resultType="int">
+        SELECT COUNT(*) FROM quiz_history WHERE score &lt; 10 AND status = 'COMPLETED'
+    </select>
+
+    <select id="getShopDistributionStats" resultType="map">
+        SELECT IFNULL(NULLIF(shop_info, ''), '미지정') AS SHOP_INFO, COUNT(*) AS CNT
         FROM event_participant
-        WHERE DATE(reg_date) = DATE(#{regDate})
-          AND test_drive_time = #{testDriveTime}
-          AND drive_check_yn != 'X'
+        GROUP BY shop_info
+        ORDER BY CNT DESC
+    </select>
+
+    <!-- GROUP BY 정렬 무결성 오류 해결 버전 -->
+    <select id="getHourlyCheckinStats" resultType="map">
+        SELECT
+            CASE
+                WHEN HOUR(reg_date) BETWEEN 0 AND 10 THEN '11시 이전'
+                WHEN HOUR(reg_date) BETWEEN 11 AND 12 THEN '11시~13시'
+                WHEN HOUR(reg_date) BETWEEN 13 AND 14 THEN '13시~15시'
+                WHEN HOUR(reg_date) BETWEEN 15 AND 16 THEN '15시~17시'
+                WHEN HOUR(reg_date) BETWEEN 17 AND 18 THEN '17시~19시'
+                ELSE '19시 이후'
+                END AS TIME_STR,
+            COUNT(*) AS CNT
+        FROM event_participant
+        WHERE qr_check_yn = 'Y' AND DATE(reg_date) = CURDATE()
+        GROUP BY
+            CASE
+                WHEN HOUR(reg_date) BETWEEN 0 AND 10 THEN '11시 이전'
+                WHEN HOUR(reg_date) BETWEEN 11 AND 12 THEN '11시~13시'
+                WHEN HOUR(reg_date) BETWEEN 13 AND 14 THEN '13시~15시'
+                WHEN HOUR(reg_date) BETWEEN 15 AND 16 THEN '15시~17시'
+                WHEN HOUR(reg_date) BETWEEN 17 AND 18 THEN '17시~19시'
+                ELSE '19시 이후'
+                END
+        ORDER BY MIN(HOUR(reg_date)) ASC
     </select>
 
 </mapper>

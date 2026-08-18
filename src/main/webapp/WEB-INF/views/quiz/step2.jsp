@@ -131,7 +131,6 @@
     };
 
     $(document).ready(function () {
-        // 이메일 도메인 자동 세팅 로직
         $("#emailDomain").on("change", function () {
             var selectedVal = $(this).val();
             if (selectedVal === "direct") {
@@ -143,7 +142,6 @@
             }
         });
 
-        // 이메일 아이디 한글/공백 방지
         $("#emailId").on("input", function () {
             let val = $(this).val().replace(/[^a-zA-Z0-9_-]/g, '');
             $(this).val(val);
@@ -179,45 +177,26 @@
         const shopInfo = $("#shopSelect").val();
         const carModelCode = $("#carModelCode").val();
 
-        // 유효성 검사
-        if (emailId === "") {
-            alert("이메일 아이디를 입력해 주세요.");
-            $("#emailId").focus();
-            return;
-        }
+        if (emailId === "") { alert("이메일 아이디를 입력해 주세요."); $("#emailId").focus(); return; }
         if (customDomain === "") {
             alert("이메일 도메인을 선택하거나 입력해 주세요.");
-            if (emailDomainSelect === "direct") {
-                $("#customDomain").focus();
-            } else {
-                $("#emailDomain").focus();
-            }
+            if (emailDomainSelect === "direct") $("#customDomain").focus();
+            else $("#emailDomain").focus();
             return;
         }
 
         const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!domainRegex.test(customDomain)) {
-            alert("유효한 이메일 도메인 형식이 아닙니다.\n(예: example.com)");
-            $("#customDomain").focus();
-            return;
+            alert("유효한 이메일 도메인 형식이 아닙니다.");
+            $("#customDomain").focus(); return;
         }
 
-        if (region === "") {
-            alert("지역을 선택해 주세요.");
-            return;
-        }
-        if (shopInfo === "") {
-            alert("방문 가능 전시장를 선택해 주세요.");
-            return;
-        }
-        if (carModelCode === "") {
-            alert("관심차량 정보를 선택해 주세요.");
-            return;
-        }
+        if (region === "") { alert("지역을 선택해 주세요."); return; }
+        if (shopInfo === "") { alert("방문 가능 전시장를 선택해 주세요."); return; }
+        if (carModelCode === "") { alert("관심차량 정보를 선택해 주세요."); return; }
 
         const fullEmail = emailId + "@" + customDomain;
 
-        // API로 전송할 JSON 데이터
         const requestData = {
             name: name,
             phone: phone,
@@ -228,7 +207,6 @@
             carModelCode: carModelCode
         };
 
-        // AJAX로 퀴즈 시작 API 호출
         $.ajax({
             type: "POST",
             url: "/api/quiz/start",
@@ -236,19 +214,15 @@
             data: JSON.stringify(requestData),
             success: function (res) {
                 if (res.success) {
-                    // 성공 시 발급받은 참여 이력 번호(historySeq)와 문제 10개를 SessionStorage에 보관!
                     sessionStorage.setItem("quizHistorySeq", res.historySeq);
                     sessionStorage.setItem("quizUserSeq", res.userSeq);
                     sessionStorage.setItem("quizSessionNo", res.sessionNo);
                     sessionStorage.setItem("quizPlayDate", res.playDate);
                     sessionStorage.setItem("quizQuestions", JSON.stringify(res.questions));
-
-                    // 대망의 퀴즈 문제 풀이 화면으로 이동!
                     location.href = "/quiz/play";
                 } else {
-                    // 중복 참여 등으로 막힌 경우
                     alert(res.message);
-                    location.href = "/quiz/step1"; // 메인으로 돌려보냄
+                    location.href = "/quiz/step1";
                 }
             },
             error: function () {

@@ -61,21 +61,8 @@
                         <!-- 구글 API 이미지 태그 삭제 후 클라이언트 렌더링용 div 추가 -->
                         <div id="qrcode" style="display: flex; justify-content: center; margin: 15px 0;"></div>
 
-                        <!-- 저장된 시승 시간을 구간 텍스트로 변환 -->
-                        <c:set var="displayTime" value="${data.testDriveTime}" />
-                        <c:if test="${data.testDriveTime == '11:00'}"><c:set var="displayTime" value="11:00 ~ 12:00" /></c:if>
-                        <c:if test="${data.testDriveTime == '12:00'}"><c:set var="displayTime" value="12:00 ~ 13:00" /></c:if>
-                        <c:if test="${data.testDriveTime == '13:00'}"><c:set var="displayTime" value="13:00 ~ 14:00" /></c:if>
-                        <c:if test="${data.testDriveTime == '14:00'}"><c:set var="displayTime" value="14:00 ~ 15:00" /></c:if>
-                        <c:if test="${data.testDriveTime == '15:00'}"><c:set var="displayTime" value="15:00 ~ 16:00" /></c:if>
-                        <c:if test="${data.testDriveTime == '16:00'}"><c:set var="displayTime" value="16:00 ~ 17:00" /></c:if>
-                        <c:if test="${data.testDriveTime == '17:00'}"><c:set var="displayTime" value="17:00 ~ 18:00" /></c:if>
-
                         <p style="color: #333; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
-                            ▶ 시승 신청 내용 : <fmt:formatDate value="${data.regDate}" pattern="M/d" />(<fmt:formatDate value="${data.regDate}" pattern="E" />) / ${displayTime}
-                        </p>
-                        <p style="color: #e50000; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
-                            ※ 신청 타임 시작 15분 전까지 BYD 시승부스로 방문해 주세요.
+                            ▶ 이벤트 신청일 : <fmt:formatDate value="${data.regDate}" pattern="yyyy.MM.dd" />
                         </p>
                     </div>
 
@@ -154,24 +141,6 @@
                                     </select>
                                 </div>
                             </li>
-                            <li>
-                                <div class="gubun">시승 시간 선택</div>
-                                <div class="input">
-                                    <select name="testDriveTime" id="testDriveTime" required <c:if test="${data.driveCheckYn eq 'Y'}">disabled</c:if>>
-                                        <option value="시승 미신청" <c:if test="${data.testDriveTime == '시승 미신청'}">selected</c:if>>시승 미신청</option>
-                                        <option value="11:00" <c:if test="${data.testDriveTime == '11:00'}">selected</c:if>>11:00 ~ 12:00 (1회차)</option>
-                                        <option value="12:00" <c:if test="${data.testDriveTime == '12:00'}">selected</c:if>>12:00 ~ 13:00 (2회차)</option>
-                                        <option value="13:00" <c:if test="${data.testDriveTime == '13:00'}">selected</c:if>>13:00 ~ 14:00 (3회차)</option>
-                                        <option value="14:00" <c:if test="${data.testDriveTime == '14:00'}">selected</c:if>>14:00 ~ 15:00 (4회차)</option>
-                                        <option value="15:00" <c:if test="${data.testDriveTime == '15:00'}">selected</c:if>>15:00 ~ 16:00 (5회차)</option>
-                                        <option value="16:00" <c:if test="${data.testDriveTime == '16:00'}">selected</c:if>>16:00 ~ 17:00 (6회차)</option>
-                                        <option value="17:00" class="weekend-only" <c:if test="${data.testDriveTime == '17:00'}">selected</c:if>>17:00 ~ 18:00 (7회차)</option>
-                                    </select>
-                                    <c:if test="${data.driveCheckYn eq 'Y'}">
-                                        <p style="color: #ff9800; font-size: 12px; margin-top: 5px;">※ 시승 체험을 완료하여 시간을 변경할 수 없습니다.</p>
-                                    </c:if>
-                                </div>
-                            </li>
                         </ul>
                         <div class="terms-check">
                             <label>
@@ -228,22 +197,6 @@
     </div>
     <!-- //container -->
 
-    <div class="testdrive_popup" id="testdrivePopup">
-        <div class="testdrive_dim"></div>
-
-        <div class="testdrive_box">
-            <h3>시승 유의사항</h3>
-
-            <ul class="popup_notice">
-                <li>만 24세 이상만 시승 가능</li>
-                <li>운전면허증 필수 지참</li>
-                <li>시승 전 음주 측정 진행</li>
-            </ul>
-
-            <button type="button" class="popup_btn">확인</button>
-        </div>
-    </div>
-
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <script src="/js/jquery-1.9.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
@@ -267,124 +220,8 @@
             "제주": [ "BYD 제주" ]
         };
 
-        // 서버에서 받아온 기존 지점 데이터 및 본인 예약 시간
+        // 서버에서 받아온 기존 지점 데이터
         const currentShopInfo = "${data.shopInfo}";
-        const originalTestDriveTime = "${data.testDriveTime}";
-        const isDriveCheckYn = "${data.driveCheckYn}"; // 시승 완료 여부
-
-        // [최적화] 시간 마감 현황을 체크하는 단일 함수 (통합)
-        function updateDriveTimeStatus() {
-            var selectedCar = $("select[name='carModel']").val() || $("input[name='carModel']").val();
-
-            if(!selectedCar) {
-                // 경고창 제거, 강제로 비활성화 유지
-                $('#testDriveTime').prop('disabled', true);
-                return false;
-            }
-
-            const now = new Date();
-            const currentHour = now.getHours();
-            const currentMin = now.getMinutes();
-
-            $.ajax({
-                url: "/apply/getDriveTimeStatus",
-                type: "GET",
-                data: { carModel: selectedCar },
-                success: function(response) {
-                    const counts = response.counts;
-                    const maxCapacity = response.maxCapacity;
-
-                    const timeLabels = {
-                        "11:00": "11:00 ~ 12:00 (1회차)",
-                        "12:00": "12:00 ~ 13:00 (2회차)",
-                        "13:00": "13:00 ~ 14:00 (3회차)",
-                        "14:00": "14:00 ~ 15:00 (4회차)",
-                        "15:00": "15:00 ~ 16:00 (5회차)",
-                        "16:00": "16:00 ~ 17:00 (6회차)",
-                        "17:00": "17:00 ~ 18:00 (7회차)"
-                    };
-
-                    $('#testDriveTime option').each(function() {
-                        var timeVal = $(this).val();
-
-                        if(timeVal !== "시승 미신청" && timeVal !== "") {
-
-                            const originalText = timeLabels[timeVal] || timeVal;
-                            const timeParts = timeVal.split(':');
-                            const targetHour = parseInt(timeParts[0], 10);
-
-                            let isNotAvailable = false;
-                            let statusSuffix = "";
-
-                            let isFull = false;
-                            if(counts[timeVal] && counts[timeVal] >= maxCapacity) {
-                                isFull = true;
-                            }
-
-                            // 마이페이지 본인 예약 시간은 오픈/마감/정원 상태에 상관없이 '무조건' 활성화 유지
-                            const isMyTime = (typeof originalTestDriveTime !== 'undefined' && timeVal === originalTestDriveTime);
-
-                            if (isMyTime) {
-                                $(this).prop('disabled', false);
-                                $(this).text(originalText);
-                            } else {
-                                const isWeekendDay = (now.getDay() === 0 || now.getDay() === 6);
-
-                                // [1순위] 시간 경과 마감
-                                if (currentHour > targetHour || (currentHour === targetHour && currentMin >= 20)) {
-                                    isNotAvailable = true;
-                                    statusSuffix = " (마감)";
-                                }
-                                // [2순위] 정원 초과
-                                else if (isFull) {
-                                    isNotAvailable = true;
-                                    statusSuffix = " (정원 마감)";
-                                }
-                                // [3순위] 요일별 오픈 시간 세부 체크
-                                else if (isWeekendDay) {
-                                    // 주말 오전 타임 (1~4회차: 11:00 ~ 14:00) -> 10:00 오픈
-                                    if (targetHour >= 11 && targetHour <= 14 && currentHour < 10) {
-                                        isNotAvailable = true;
-                                        statusSuffix = " (10:00 오픈)";
-                                    }
-                                    // 주말 오후 타임 (5~7회차: 15:00 ~ 17:00) -> 14:00 오픈
-                                    else if (targetHour >= 15 && targetHour <= 17 && currentHour < 14) {
-                                        isNotAvailable = true;
-                                        statusSuffix = " (14:00 오픈)";
-                                    }
-                                } else {
-                                    // 평일 오전 타임 (1~3회차: 11:00 ~ 13:00) -> 10:00 오픈
-                                    if (targetHour >= 11 && targetHour <= 13 && currentHour < 10) {
-                                        isNotAvailable = true;
-                                        statusSuffix = " (10:00 오픈)";
-                                    }
-                                    // 평일 오후 타임 (4~6회차: 14:00 ~ 16:00) -> 13:00 오픈
-                                    else if (targetHour >= 14 && targetHour <= 16 && currentHour < 13) {
-                                        isNotAvailable = true;
-                                        statusSuffix = " (13:00 오픈)";
-                                    }
-                                }
-
-                                // UI 적용
-                                if (isNotAvailable) {
-                                    $(this).prop('disabled', true);
-                                    $(this).text(originalText + statusSuffix);
-                                } else {
-                                    $(this).prop('disabled', false);
-                                    $(this).text(originalText);
-                                }
-                            }
-                        } else if (timeVal === "시승 미신청") {
-                            $(this).prop('disabled', false);
-                            $(this).text("시승 미신청");
-                        }
-                    });
-                },
-                error: function(err) {
-                    console.log("시간대 실시간 조회 실패");
-                }
-            });
-        }
 
         $(document).ready(function() {
             // 1. QR 코드 클라이언트 렌더링
@@ -400,49 +237,8 @@
                 });
             }
 
-            // 2. 평일일 경우 17:00 옵션 숨김 (본인이 선택한 상태면 제외)
-            const today = new Date();
-            const isWeekend = today.getDay() === 0 || today.getDay() === 6;
-            if (!isWeekend) {
-                $(".weekend-only:not(:selected)").remove();
-            }
-
-            // [모바일 UI 방어] 차종이 선택되어 있지 않다면 원천 비활성화
-            var initialCar = $("select[name='carModel']").val();
-            if(!initialCar) {
-                $('#testDriveTime').prop('disabled', true);
-            }
-
-            // 3. 기존 데이터에 맞춰 지역 및 전시장 초기화
+            // 2. 기존 데이터에 맞춰 지역 및 전시장 초기화
             initRegionAndShop();
-
-            // 4. 페이지 로드 시 실시간 현황 최초 체크
-            updateDriveTimeStatus();
-
-            // 5. 차종 변경 시 시승 시간 활성/비활성 제어 및 현황 갱신
-            $("select[name='carModel']").on('change', function() {
-                // 시승 완료 고객이 아니라면 선택 여부에 따라 풀림
-                if($(this).val() !== "" && isDriveCheckYn !== "Y") {
-                    $('#testDriveTime').prop('disabled', false);
-                } else {
-                    $('#testDriveTime').prop('disabled', true);
-                }
-                $('#testDriveTime').val('시승 미신청');
-                updateDriveTimeStatus();
-            });
-
-            // 6. 시승 시간 클릭 시 현황 갱신 (alert 제거됨)
-            $('#testDriveTime').on('focus click touchstart', function() {
-                updateDriveTimeStatus();
-            });
-
-            // 시승 시간을 선택했을 때 유의사항 팝업 노출
-            $('#testDriveTime').on('change', function() {
-                var selectedVal = $(this).val();
-                if (selectedVal !== "" && selectedVal !== "시승 미신청") {
-                    $('#testdrivePopup').addClass('open');
-                }
-            });
 
             // 이메일 아이디 입력 (공백 방지)
             $("#emailId").on("input", function() {
@@ -466,12 +262,12 @@
                 }
             });
 
-            // 7. [마이페이지 고유] 정보 수정 버튼 클릭 시 AJAX 전송
+            // 3. [마이페이지 고유] 정보 수정 버튼 클릭 시 AJAX 전송
             $("#btnUpdate").on("click", function(e) {
                 e.preventDefault();
 
                 if(validateCombinedForm()) {
-                    if(confirm("입력하신 정보로 시승 예약을 수정하시겠습니까?")) {
+                    if(confirm("입력하신 정보로 이벤트 참여 정보를 수정하시겠습니까?")) {
                         var formData = $("#updateForm").serialize();
 
                         $.ajax({
@@ -483,7 +279,7 @@
                                     alert(response.message);
                                     location.reload(); // 성공 시 새로고침
                                 } else {
-                                    alert(response.message); // 정원 초과 등 검증 실패 메시지
+                                    alert(response.message); // 에러 메시지
                                 }
                             },
                             error: function(xhr, status, error) {
@@ -516,6 +312,7 @@
             const shopSelect = document.getElementById("shopSelect");
             const selectedRegion = regionSelect.value;
             shopSelect.innerHTML = '<option value="">전시장 선택</option>';
+
             if (selectedRegion && shopData[selectedRegion]) {
                 shopData[selectedRegion].forEach(function(shop) {
                     const option = document.createElement("option");

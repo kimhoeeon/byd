@@ -11,39 +11,42 @@ import java.util.List;
 
 @Mapper
 public interface QuizMapper {
+
+    // --- 1. 유저 정보 관련 ---
     void insertUser(QuizUserVO user);
 
     void updateUser(QuizUserVO user);
 
     QuizUserVO getUserByNameAndPhone(@Param("name") String name, @Param("phone") String phone);
 
+    // --- 2. 퀴즈 진행 이력 관련 ---
     QuizHistoryVO getTodayHistory(@Param("userSeq") int userSeq);
 
     void insertHistory(QuizHistoryVO history);
+
+    QuizHistoryVO getHistoryBySeq(@Param("historySeq") int historySeq);
 
     void updateHistoryScoreAndStatus(QuizHistoryVO history);
 
     void updateGiftStatus(@Param("historySeq") int historySeq, @Param("giftReceivedYn") String giftReceivedYn);
 
-    List<QuizQuestionVO> getRandomQuestions(@Param("limit") int limit);
+    List<Integer> getRandomQuestionIds(@Param("limit") int limit);
 
     List<QuizQuestionVO> getQuestionsByIds(@Param("ids") List<String> ids);
 
-    QuizHistoryVO getHistoryBySeq(@Param("historySeq") int historySeq);
+    void updateUserAnswers(@Param("historySeq") int historySeq, @Param("userAnswers") String userAnswers);
 
-    // 관리자 페이지 페이징을 위한 전체 카운트
+    // --- 3. 관리자 페이지용
     int getQuizAdminTotalCount(@Param("keyword") String keyword,
                                @Param("perfectScoreOnly") String perfectScoreOnly,
                                @Param("excludeInProgress") String excludeInProgress,
-                               @Param("searchDate") String searchDate,
-                               @Param("searchSession") Integer searchSession);
+                               @Param("searchDate") String searchDate);
 
     // 관리자 페이지 50건 페이징 조회용
     List<QuizUserVO> getQuizAdminList(@Param("keyword") String keyword,
                                       @Param("perfectScoreOnly") String perfectScoreOnly,
                                       @Param("excludeInProgress") String excludeInProgress,
                                       @Param("searchDate") String searchDate,
-                                      @Param("searchSession") Integer searchSession,
                                       @Param("pageStart") int pageStart,
                                       @Param("amount") int amount);
 
@@ -51,10 +54,9 @@ public interface QuizMapper {
     List<QuizUserVO> getQuizAdminListAll(@Param("keyword") String keyword,
                                          @Param("perfectScoreOnly") String perfectScoreOnly,
                                          @Param("excludeInProgress") String excludeInProgress,
-                                         @Param("searchDate") String searchDate,
-                                         @Param("searchSession") Integer searchSession);
+                                         @Param("searchDate") String searchDate);
 
-    // --- 퀴즈 문제 관리용 ---
+    // --- 4. 퀴즈 문제 관리용 ---
     List<QuizQuestionVO> getQuestionList();
 
     QuizQuestionVO getQuestionById(@Param("questionId") int questionId);
@@ -65,6 +67,7 @@ public interface QuizMapper {
 
     void deleteQuestion(@Param("questionId") int questionId);
 
+    // --- 5. 통계용 ---
     void insertQuizVisit();
 
     List<DailyStatsVO> getQuizDailyVisitStats();

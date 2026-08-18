@@ -13,9 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,270 +25,177 @@ import java.util.Map;
 public class EventController {
 
     private final EventService eventService;
-
     private static final String SECRET_KEY = "bydEventTokenKey";
 
-    @GetMapping("/")
-    public String index() {
-        return "index";
-    }
-
-    // 시승 신청 1페이지 (이름, 연락처 입력)
     @GetMapping("/step1")
     public String step1(HttpSession session) {
         session.removeAttribute("tempInfo");
         return "apply/step1";
     }
 
-    // 1페이지 제출 시 기존 정보 확인 및 분기 처리
+    // 1단계 이름/연락처 검증 및 중복 참여 체크 API
     @PostMapping("/checkParticipant")
     @ResponseBody
-    public Map<String, Object> checkParticipant(@RequestParam String name,
-                                                @RequestParam String phone,
-                                                @RequestParam(defaultValue = "N") String privacyAgree,
+    public Map<String, Object> checkParticipant(@RequestParam("name") String name,
+                                                @RequestParam("phone") String phone,
+                                                @RequestParam("privacyAgree") String privacyAgree,
+                                                HttpServletRequest request,
                                                 HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        ParticipantVO existing = eventService.getParticipantByPhone(phone);
+        Map<String, Object> result = new HashMap<>();
+        String cleanPhone = phone.replaceAll("[^0-9]", "");
 
-        if (existing != null) {
-            try {
+        try {
+            ParticipantVO existing = eventService.getParticipantByPhoneToday(cleanPhone);
+            if (existing != null) {
+                // 이미 오늘 참여 완료한 유저는 마이페이지 티켓 확인 주소 발행
                 AES128 aes128 = new AES128(SECRET_KEY);
                 String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
-                String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
+                String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+                String redirectUrl = baseUrl + "/apply/ticket?token=" + URLEncoder.encode(encryptedSeq, "UTF-8");
 
-                response.put("exists", true);
-                response.put("redirectUrl", "/apply/ticket?token=" + encodedToken);
-            } catch (Exception e) {
-                log.error("중복 신청자 토큰 생성 오류: ", e);
-                response.put("error", true);
+                result.put("exists", true);
+                result.put("redirectUrl", redirectUrl);
+            } else {
+                // 신규 유저는 임시 세션 생성 후 2단계 허용
+                ParticipantVO temp = new ParticipantVO();
+                temp.setName(name);
+                temp.setPhone(cleanPhone);
+                temp.setPrivacyAgree(privacyAgree);
+                session.setAttribute("tempInfo", temp);
+                result.put("exists", false);
             }
-        } else {
-            // DB에 아예 신청 이력이 없는(생애 최초) 경우에만 신규 신청(step2)으로 간주
-            ParticipantVO newInfo = new ParticipantVO();
-            newInfo.setName(name);
-            newInfo.setPhone(phone);
-            newInfo.setPrivacyAgree(privacyAgree);
-            session.setAttribute("tempInfo", newInfo);
-
-            response.put("exists", false);
+            result.put("error", false);
+        } catch (Exception e) {
+            result.put("error", true);
         }
-        return response;
+        return result;
     }
 
-    // 시승 시간대별 마감 현황 조회 (Ajax용 API)
-    @GetMapping("/getDriveTimeStatus")
-    @ResponseBody
-    public Map<String, Object> getDriveTimeStatus(@RequestParam(value = "carModel", required = false, defaultValue = "") String carModel) {
-        Map<String, Object> response = new HashMap<>();
-
-        // 1. 해당 차종의 오늘자 예약 카운트 맵
-        response.put("counts", eventService.getDriveTimeCountToday(carModel));
-        // 2. 해당 차종의 1시간당 최대 예약 가능 수 (현재 2)
-        //response.put("maxCapacity", eventService.getCarCapacity(carModel));
-        response.put("maxCapacity", eventService.getMaxCapacity());
-
-        return response;
-    }
-
-    // 시승 신청 2페이지 (상세 정보 입력)
     @GetMapping("/step2")
-    public String step2(HttpSession session, HttpServletResponse response, Model model) throws IOException {
-
-        // 1. 비정상 접근 완벽 차단: 세션에 tempInfo가 없으면
-        if (session.getAttribute("tempInfo") == null) {
-            log.warn("비정상 접근 감지: /apply/step1 을 거치지 않고 /apply/step2 에 직접 접근 시도");
-
-            // 확실하게 브라우저를 튕겨냅니다.
-            response.sendRedirect("/apply/step1");
-            return null; // 뷰를 렌더링하지 않도록 null 반환
+    public String step2(HttpSession session, Model model) {
+        ParticipantVO temp = (ParticipantVO) session.getAttribute("tempInfo");
+        if (temp == null) {
+            return "redirect:/apply/step1";
         }
-
-        // 2. 정상 접근일 경우 뷰 렌더링
+        model.addAttribute("tempInfo", temp);
         return "apply/step2";
     }
 
-    // 최종 제출 처리
-    @PostMapping("/applyProcess")
-    public String applyProcess(ParticipantVO participantVO, HttpSession session, HttpServletRequest request, RedirectAttributes rttr) {
-        ParticipantVO step1Info = (ParticipantVO) session.getAttribute("tempInfo");
-        if (step1Info == null) {
-            log.warn("세션 만료 또는 1단계 정보 누락으로 인한 비정상 접근");
+    // 2단계 최종 참여 신청 양식 등록 처리 (JSP의 전송 타깃 경로 매핑 보완)
+    @PostMapping({"/submit", "/applyProcess"})
+    public String submitParticipant(@ModelAttribute ParticipantVO participantVO,
+                                    HttpSession session,
+                                    HttpServletRequest request,
+                                    RedirectAttributes redirectAttributes) {
+        ParticipantVO temp = (ParticipantVO) session.getAttribute("tempInfo");
+        if (temp == null) {
             return "redirect:/apply/step1";
         }
 
-        participantVO.setName(step1Info.getName());
-        participantVO.setPhone(step1Info.getPhone());
-        participantVO.setPrivacyAgree(step1Info.getPrivacyAgree());
+        participantVO.setName(temp.getName());
+        participantVO.setPhone(temp.getPhone());
+        participantVO.setPrivacyAgree(temp.getPrivacyAgree());
 
         try {
             eventService.insertParticipant(participantVO);
-        } catch (IllegalArgumentException e) {
-            // 3일간 1회 참여 제한에 걸렸을 경우 사용자에게 알림 및 입력 데이터 유지
-            log.warn("행사 기간 중 시승 신청 1회 초과: {}", participantVO.getPhone());
-            rttr.addFlashAttribute("errorMsg", e.getMessage());
-            rttr.addFlashAttribute("retainedData", participantVO);
-            return "redirect:/apply/step2";
-        } catch (IllegalStateException e) {
-            // 정원 초과 등 시승 시간 차단 시 사용자에게 알림 및 입력 데이터 유지
-            log.warn("시승 시간 차단: {}", e.getMessage());
-            rttr.addFlashAttribute("errorMsg", e.getMessage());
-            rttr.addFlashAttribute("retainedData", participantVO);
-            return "redirect:/apply/step2";
-        } catch (DuplicateKeyException e) {
-            log.warn("중복 시승 신청 감지 (DB Unique Key 방어): {}", participantVO.getPhone());
-            ParticipantVO existing = eventService.getParticipantByPhone(participantVO.getPhone());
-            if (existing != null) {
-                try {
-                    AES128 aes128 = new AES128(SECRET_KEY);
-                    String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
-                    String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
-                    return "redirect:/apply/ticket?token=" + encodedToken;
-                } catch (Exception ex) {
-                    return "error/400";
-                }
-            }
-            return "redirect:/apply/step1";
-        } catch (Exception e) {
-            log.error("신청 처리 중 예기치 않은 오류 발생: ", e);
-            return "error/400";
-        }
+            session.removeAttribute("tempInfo");
 
-        session.removeAttribute("tempInfo"); // 세션 정리
-
-        try {
+            // 고유 식별용 암호화 토큰 링크 발행
             AES128 aes128 = new AES128(SECRET_KEY);
             String encryptedSeq = aes128.encrypt(String.valueOf(participantVO.getSeq()));
 
-            // URL 인코딩 적용
-            String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
+            String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+            String ticketUrl = baseUrl + "/apply/ticket?token=" + URLEncoder.encode(encryptedSeq, "UTF-8");
 
-            String domain = "https://bydevtrend2026.kr";
-            String ticketUrl = domain + "/apply/ticket?token=" + encodedToken;
+            // 알리고 문자 자동 발송
+            eventService.sendNotificationSms(participantVO, ticketUrl);
 
-            eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl, participantVO.getTestDriveTime(), false);
+            redirectAttributes.addFlashAttribute("applyCompleteFlag", true);
+            return "redirect:/apply/complete";
 
+        } catch (DuplicateKeyException de) {
+            redirectAttributes.addFlashAttribute("errorMsg", "이미 오늘 날짜로 신청 완료된 연락처입니다.");
+            return "redirect:/apply/step1";
         } catch (Exception e) {
-            log.error("알림 발송 실패 (신청은 완료됨): ", e);
-        }
-
-        // 신청이 정상적으로 완료되었음을 증명하는 일회성 토큰(플래그) 발급
-        rttr.addFlashAttribute("applyCompleteFlag", true);
-
-        return "redirect:/apply/complete";
-    }
-
-    // 마이페이지 정보 수정 프로세스 (AJAX 통신 용도)
-    @PostMapping("/updateAjax")
-    @ResponseBody
-    public Map<String, Object> updateAjax(ParticipantVO participantVO) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            // 1. 기존 DB 정보 조회 (변경 전 상태 확인)
-            ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
-            String oldTime = (existing.getTestDriveTime() == null) ? "시승 미신청" : existing.getTestDriveTime();
-            String newTime = (participantVO.getTestDriveTime() == null) ? "시승 미신청" : participantVO.getTestDriveTime();
-
-            // 2. 정보 수정 진행
-            eventService.updateParticipant(participantVO);
-
-            // 3. 시승 시간이 변경되었다면 알맞은 템플릿으로 문자 재발송
-            if (!oldTime.equals(newTime)) {
-                // 기존 방식대로 QR 티켓 URL 생성
-                com.byd.util.AES128 aes128 = new com.byd.util.AES128(SECRET_KEY);
-                String encryptedSeq = aes128.encrypt(String.valueOf(participantVO.getSeq()));
-                String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
-                String ticketUrl = "https://bydevtrend2026.kr/apply/ticket?token=" + encodedToken;
-
-                // 수정한 분기 처리 로직이 타도록 newTime 전달
-                eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl, newTime, true);
-            }
-
-            response.put("success", true);
-            response.put("message", "정보가 성공적으로 수정되었습니다.");
-
-        } catch (IllegalArgumentException e) {
-            // 1회 제한 등 방어
-            log.warn("마이페이지 수정 중 정책 위반 방어: {}", e.getMessage());
-            response.put("success", false);
-            response.put("message", e.getMessage());
-        } catch (IllegalStateException e) {
-            // 과거 시간 선택 또는 4명 마감 시간 선택 시 고객에게 정확한 사유 노출
-            log.warn("마이페이지 수정 중 마감/과거시간 차단: {}", e.getMessage());
-            response.put("success", false);
-            response.put("message", e.getMessage());
-        } catch (Exception e) {
-            log.error("AJAX 정보 수정 중 오류 발생: ", e);
-            response.put("success", false);
-            response.put("message", "정보 수정 중 서버 오류가 발생했습니다.");
-        }
-        return response;
-    }
-
-    // 3. 완료 페이지 매핑 추가
-    @GetMapping("/complete")
-    public String completePage(HttpServletRequest request) {
-
-        // 1. applyProcess에서 넘겨준 Flash Attribute 가 있는지 확인
-        Map<String, ?> flashMap = RequestContextUtils.getInputFlashMap(request);
-
-        if (flashMap == null || !flashMap.containsKey("applyCompleteFlag")) {
-            // 플래그가 없으면 (즉, 주소를 직접 치고 들어왔거나 새로고침 한 경우) step1으로 강제 이동
-            log.warn("비정상 접근 감지: /apply/complete 에 직접 접근 시도");
+            redirectAttributes.addFlashAttribute("errorMsg", "등록 중 에러가 발생했습니다. 다시 시도해 주세요.");
             return "redirect:/apply/step1";
         }
+    }
 
-        // 2. 정상적인 흐름일 경우 뷰 렌더링
+    @GetMapping("/complete")
+    public String complete(HttpServletRequest request, Model model) {
+        Map<String, ?> flashMap = RequestContextUtils.getInputFlashMap(request);
+        if (flashMap == null || !flashMap.containsKey("applyCompleteFlag")) {
+            return "redirect:/apply/step1";
+        }
         return "apply/complete";
     }
 
-    // 모바일 티켓 (문자 링크 클릭 시 접속)
+    // 발송된 문자 링크 클릭 시 개인 모바일 티켓(QR)을 조회하는 전용 화면
     @GetMapping("/ticket")
-    public String mobileTicket(@RequestParam(value = "token", required = false) String token, Model model) {
-
-        // 파라미터 없이 직접 접근한 경우 에러를 뱉지 않고 step1으로 튕겨냅니다.
+    public String viewTicket(@RequestParam(value = "token", required = false) String token, Model model) {
         if (token == null || token.trim().isEmpty()) {
-            log.warn("티켓 접근 오류 - 토큰 파라미터 누락 (비정상 접근 시도)");
             return "redirect:/apply/step1";
         }
 
         try {
-
-            // [오류 방어 로직 추가 시작]
-            // 1. 토큰에 '%' 기호가 남아있다면 (이중 인코딩된 경우) 한 번 더 디코딩
             if (token.contains("%")) {
                 token = java.net.URLDecoder.decode(token, "UTF-8");
             }
-            // 2. Base64의 '+' 기호가 HTTP 전송 중 공백(' ')으로 치환된 경우 다시 '+'로 복구
             token = token.replace(" ", "+");
-            // [오류 방어 로직 추가 끝]
 
-            // 1. 토큰 복호화
             AES128 aes128 = new AES128(SECRET_KEY);
             String decryptedSeqStr = aes128.decrypt(token);
             int seq = Integer.parseInt(decryptedSeqStr);
 
-            // 2. DB 정보 조회
             ParticipantVO data = eventService.getParticipantBySeq(seq);
-
             if (data == null) {
-                return "error/404"; // 없는 정보일 경우 에러페이지
+                return "error/404";
             }
 
-            // QR 인식률을 높이고 스캐너 로직과 맞추기 위해 전체 URL이 아닌 순수 토큰값만 삽입
-            String qrCodeImgUrl = "https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=" + data.getQrCodeUrl();
+            // QR코드 내부에 주입할 URL 데이터 바인딩 주소 생성
+            String qrCodeUrl = token;
 
             model.addAttribute("data", data);
-            model.addAttribute("qrCodeImgUrl", qrCodeImgUrl);
+            model.addAttribute("qrCodeImgUrl", "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + URLEncoder.encode(qrCodeUrl, "UTF-8"));
 
-        } catch (NumberFormatException e) {
-            log.error("티켓 접근 오류 - 변조된 토큰(숫자 변환 실패): {}", token);
-            return "error/400";
+            // 기존 스크립트 대응용 보완
+            model.addAttribute("qrCodeUrl", qrCodeUrl);
+
+            return "apply/mypage";
+
         } catch (Exception e) {
-            log.error("티켓 접근 오류 - 잘못된 토큰: ", e);
-            return "error/400";
+            return "redirect:/apply/step1";
         }
-
-        return "apply/mypage";
     }
 
+    // mypage.jsp 내부 비동기 정보 수정 처리 핸들러 (시승 시간 검증부 제외)
+    @PostMapping("/updateAjax")
+    @ResponseBody
+    public Map<String, Object> updateAjax(@ModelAttribute ParticipantVO participantVO) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
+            if (existing == null) {
+                result.put("success", false);
+                result.put("message", "존재하지 않는 참여자 정보입니다.");
+                return result;
+            }
+
+            // 변경 가능한 데이터 세팅
+            existing.setEmail(participantVO.getEmail());
+            existing.setShopInfo(participantVO.getShopInfo());
+            existing.setCarModel(participantVO.getCarModel());
+            existing.setMktAgree(participantVO.getMktAgree());
+
+            eventService.updateParticipant(existing, false);
+
+            result.put("success", true);
+            result.put("message", "이벤트 참여 정보가 성공적으로 수정되었습니다.");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "정보 수정 중 오류가 발생했습니다.");
+        }
+        return result;
+    }
 }

@@ -21,97 +21,99 @@
     <script src="/js/jquery.cookie.min.js"></script>
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
-    <style>
-        .end_success, .end_fail { display: none; }
-    </style>
 </head>
 <body class="quiz">
 
-<div id="container">
-    <div class="ck-in center">
+    <div id="container">
+        <div class="ck-in center">
 
-        <div class="top_tit">
-            <div class="inner">
-                <div class="tit">
-                    <a href="/quiz/step1">
-                        <img src="/img/logo.png" alt="logo">
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="bar">
-            <%--<div class="tit">BYD <span>퀴즈 이벤트</span></div>--%>
-            <div class="end_progress">
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-                <div class="progress_item on"></div>
-            </div>
-        </div>
-
-        <div id="content">
-            <div class="ct_wrap end_wrap">
-
-                <div class="end_success" id="successView">
-                    <img src="/img/icon_success.png" alt="성공">
-                    <div class="tit text-primary">10문제 정답!</div>
-                    <%--<div class="desc">안내센터로 가서 기념품을 수령해 보세요.</div>--%>
-                    <div class="txt_box">
-                        <img src="/img/ico_present.png" alt="선물">
-                        <div class="txt">퀴즈 이벤트 리워드 안내</div>
-                        <div class="desc">BYD 퀴즈 이벤트에 참여해 주셔서 감사합니다.<br>등록하신 연락처로 커피 쿠폰이 순차 발송될 예정입니다.</div>
+            <div class="top_tit">
+                <div class="inner">
+                    <div class="tit">
+                        <a href="/quiz/step1">
+                            <img src="/img/logo.png" alt="logo">
+                        </a>
                     </div>
                 </div>
+            </div>
 
-                <div class="end_fail" id="failView">
-                    <img src="/img/icon_fail.png" alt="실패">
-                    <div class="tit"><span id="failScore">0</span>문제 정답!</div>
-                    <div class="desc">너무 아쉬워요 <br/>대신 다른 모델을 둘러보세요.</div>
-                    <img src="/img/img_car.png" alt="자동차 이미지">
-                    <div class="btn_box">
-                        <a href="/" class="btn_st05_f">모델 둘러보기</a>
+            <div id="content">
+                <div class="ct_wrap end_wrap">
+
+                    <div class="end_success" id="successView" style="display: none;">
+                        <img src="/img/icon_success.png" alt="성공">
+                        <div class="tit">10문제 만점!</div>
+                        <div class="desc">대단해요! 퀴즈를 모두 맞히셨습니다.</div>
+
+                        <div class="qr_wrap" style="background: #ffffff; padding: 15px; border-radius: 15px; display: inline-block; margin: 20px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <img id="qrCodeImg" src="" alt="경품 교환용 QR Code" width="160" height="160">
+                        </div>
+
+                        <div class="info_box">
+                            <div class="txt" style="line-height: 1.4;">안내데스크 직원에게 위 QR코드를 보여주시고<br>소정의 기념품을 수령해 주세요!</div>
+                        </div>
+
+                        <div class="btn_box" style="margin-top: 30px;">
+                            <a href="javascript:void(0);" onclick="goHome()" class="btn_st05">처음으로 돌아가기</a>
+                        </div>
                     </div>
-                </div>
 
+                    <div class="end_fail" id="failView" style="display: none;">
+                        <img src="/img/icon_fail.png" alt="실패">
+                        <div class="tit"><span id="failScore">0</span>문제 정답!</div>
+                        <div class="desc">너무 아쉬워요 <br/>대신 다른 모델을 둘러보세요.</div>
+                        <img src="/img/img_car.png" alt="자동차 이미지">
+
+                        <div class="btn_box">
+                            <a href="javascript:void(0);" onclick="goModel()" class="btn_st05_f">모델 둘러보기</a>
+                            <a href="javascript:void(0);" onclick="goHome()" class="btn_st05" style="margin-top: 10px;">처음으로 돌아가기</a>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    $(document).ready(function () {
-        // 1. 세션에 저장해둔 점수 가져오기
-        const scoreStr = sessionStorage.getItem("quizScore");
+    <script>
+        $(document).ready(function () {
+            // [버그 수정] 저장 시 사용한 키(quizHistorySeq)와 정확하게 매핑
+            const scoreStr = sessionStorage.getItem("finalScore");
+            const historySeq = sessionStorage.getItem("quizHistorySeq");
 
-        // 점수 데이터가 없으면 강제 접근으로 간주하고 튕겨냄
-        if (scoreStr === null || scoreStr === "") {
-            alert("정상적인 접근이 아닙니다. 퀴즈를 다시 진행해 주세요.");
+            if (scoreStr === null || scoreStr === "") {
+                alert("정상적인 접근이 아닙니다. 퀴즈를 다시 진행해 주세요.");
+                location.replace("/quiz/step1");
+                return;
+            }
+
+            const score = parseInt(scoreStr);
+
+            if (score === 10) {
+                // 만점자 QR 코드 발급
+                const qrData = "BYD_HISTORY_" + historySeq;
+                const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=" + encodeURIComponent(qrData);
+                $('#qrCodeImg').attr('src', qrUrl);
+
+                $('#successView').show();
+                $('#failView').hide();
+            } else {
+                // 실패
+                $('#failScore').text(score);
+                $('#successView').hide();
+                $('#failView').show();
+            }
+        });
+
+        function goHome() {
+            sessionStorage.clear();
             location.replace("/quiz/step1");
-            return;
         }
 
-        const score = parseInt(scoreStr);
-
-        // 2. 점수에 따른 화면 분기
-        if (score === 10) {
-            // 만점자: 성공 뷰 노출
-            $('#successView').fadeIn(300);
-        } else {
-            // 실패자: 몇 문제 맞혔는지 숫자 업데이트 후 실패 뷰 노출
-            $('#failScore').text(score);
-            $('#failView').fadeIn(300);
+        function goModel() {
+            sessionStorage.clear();
+            location.replace("/");
         }
-
-        // 3. 재접근 시 어뷰징을 막기 위해 문제 데이터 세션 초기화 (선택적)
-        sessionStorage.removeItem("quizQuestions");
-    });
-</script>
+    </script>
 </body>
 </html>
