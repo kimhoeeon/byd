@@ -164,7 +164,7 @@ public class EventController {
             // URL 인코딩 적용
             String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
 
-            String domain = "https://byd-bimos2026.kr";
+            String domain = "https://bydevtrend2026.kr";
             String ticketUrl = domain + "/apply/ticket?token=" + encodedToken;
 
             eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl, participantVO.getTestDriveTime(), false);
@@ -199,7 +199,7 @@ public class EventController {
                 com.byd.util.AES128 aes128 = new com.byd.util.AES128(SECRET_KEY);
                 String encryptedSeq = aes128.encrypt(String.valueOf(participantVO.getSeq()));
                 String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
-                String ticketUrl = "https://byd-bimos2026.kr/apply/ticket?token=" + encodedToken;
+                String ticketUrl = "https://bydevtrend2026.kr/apply/ticket?token=" + encodedToken;
 
                 // 수정한 분기 처리 로직이 타도록 newTime 전달
                 eventService.sendAligoSms(participantVO.getPhone(), participantVO.getName(), ticketUrl, newTime, true);

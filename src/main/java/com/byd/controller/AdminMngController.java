@@ -117,7 +117,7 @@ public class AdminMngController {
             com.byd.util.AES128 aes128 = new com.byd.util.AES128("bydEventTokenKey");
             String encryptedSeq = aes128.encrypt(String.valueOf(participant.getSeq()));
             String encodedToken = java.net.URLEncoder.encode(encryptedSeq, "UTF-8");
-            String ticketUrl = "https://byd-bimos2026.kr/apply/ticket?token=" + encodedToken;
+            String ticketUrl = "https://bydevtrend2026.kr/apply/ticket?token=" + encodedToken;
 
             // 3. 발주사 요청 템플릿 작성
             String message = "[BYD KOREA BIMOS 2026 시승 안내]\n\n" +

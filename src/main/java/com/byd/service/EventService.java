@@ -381,7 +381,7 @@ public class EventService {
                 String encodedToken = URLEncoder.encode(encryptedSeq, "UTF-8");
 
                 // 요청하신 도메인으로 URL 세팅
-                String ticketUrl = "https://byd-bimos2026.kr/apply/ticket?token=" + encodedToken;
+                String ticketUrl = "https://bydevtrend2026.kr/apply/ticket?token=" + encodedToken;
 
                 // 문자 발송 시 시승 시간을 예쁘게 구간으로 텍스트 변환
                 String displayTime = p.getTestDriveTime();
