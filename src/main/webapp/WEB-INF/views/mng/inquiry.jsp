@@ -9,177 +9,34 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f4f6f9;
-            font-family: 'Noto Sans KR', sans-serif;
-            text-align: center;
-        }
+        body { margin: 0; padding: 0; background-color: #f4f6f9; font-family: 'Noto Sans KR', sans-serif; text-align: center; }
+        .header-box { padding: 20px 15px; background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
+        .header-box h2 { margin: 0 0 5px 0; font-size: 1.5em; color: #333; }
+        .header-box p { margin: 0; color: #666; font-size: 0.9em; }
 
-        .header-box {
-            padding: 20px 15px;
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
+        .search-area { background: #fff; margin: 0 15px 20px 15px; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .search-area select, .search-area input { padding: 12px; font-size: 16px; border: 1px solid #ced4da; border-radius: 5px; box-sizing: border-box; }
+        .search-area input { flex: 1; min-width: 150px; }
 
-        .header-box h2 {
-            margin: 0 0 5px 0;
-            font-size: 1.5em;
-            color: #333;
-        }
+        .btn-search { padding: 12px 20px; background-color: #343a40; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; }
 
-        .header-box p {
-            margin: 0;
-            color: #666;
-            font-size: 0.9em;
-        }
+        .result-list { padding: 0 15px; text-align: left; padding-bottom: 80px; }
+        .result-card { background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #009ef7; }
+        .result-info strong { font-size: 1.1em; color: #333; }
+        .result-info p { margin: 5px 0 0 0; font-size: 0.9em; color: #555; }
 
-        .mode-toggle {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+        .btn-checkin { padding: 10px 15px; background-color: #009ef7; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn-cancel { padding: 10px 15px; background-color: #dc3545; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
-        .mode-toggle input[type="radio"] {
-            display: none;
-        }
-
-        .mode-toggle label {
-            padding: 10px 20px;
-            background-color: #e4e6ef;
-            color: #333;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .mode-toggle input[type="radio"]:checked + label {
-            background-color: #009ef7;
-            color: #fff;
-        }
-
-        .search-area {
-            background: #fff;
-            margin: 0 15px 20px 15px;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .search-area select, .search-area input {
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        .search-area input {
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .btn-search {
-            padding: 12px 20px;
-            background-color: #343a40;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .result-list {
-            padding: 0 15px;
-            text-align: left;
-            padding-bottom: 80px;
-        }
-
-        .result-card {
-            background: #fff;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid #009ef7;
-        }
-
-        .result-info strong {
-            font-size: 1.1em;
-            color: #333;
-        }
-
-        .result-info p {
-            margin: 5px 0 0 0;
-            font-size: 0.9em;
-            color: #555;
-        }
-
-        .btn-checkin {
-            padding: 10px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-checkin:hover {
-            opacity: 0.8;
-        }
-
-        .floating-bottom {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #fff;
-            padding: 15px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .btn-scanner-link {
-            display: inline-block;
-            padding: 12px 20px;
-            color: white;
-            text-decoration: none;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 1.1em;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
+        .floating-bottom { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 15px 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); display: flex; justify-content: center; gap: 15px; }
+        .btn-scanner-link { display: inline-block; padding: 12px 20px; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 1.1em; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
     </style>
 </head>
 <body>
 
 <div class="header-box">
     <h2>현장 참가자 수동 조회</h2>
-    <p>QR 코드가 없는 고객을 검색하여 처리합니다.</p>
-</div>
-
-<div class="mode-toggle">
-    <input type="radio" id="modeChallenge" name="eventType" value="challenge" checked>
-    <label for="modeChallenge">챌린지</label>
-
-    <input type="radio" id="modeGift" name="eventType" value="gift">
-    <label for="modeGift">경품수령</label>
+    <p>모바일 티켓(QR)이 없는 고객을 검색하여 처리합니다.</p>
 </div>
 
 <div class="search-area">
@@ -198,17 +55,14 @@
 </div>
 
 <div class="floating-bottom">
-    <a href="/mng/scanner?type=challenge" class="btn-scanner-link" style="background-color: #009ef7;">📷 챌린지 스캐너</a>
-    <a href="/mng/scanner?type=gift" class="btn-scanner-link" style="background-color: #f6c23e;">📷 경품 스캐너</a>
+    <a href="/mng/scanner?type=gift" class="btn-scanner-link" style="background-color: #f6c23e; color: #333;">📷 1단계 경품 스캐너 열기</a>
 </div>
 
 <script>
     $(document).ready(function() {
-
         // 검색창(#keyword) 자동 포맷팅
         $('#keyword').on('input', function() {
             var searchType = $('#searchType').val();
-
             if (searchType === 'phone') {
                 var val = $(this).val().replace(/[^0-9]/g, '');
                 if (val.length > 11) val = val.substring(0, 11);
@@ -228,21 +82,8 @@
             $('#keyword').val('').focus();
         });
 
-        // 라디오 버튼(탭)이 변경될 때마다 화면 즉시 새로고침
-        $('input[name="eventType"]').on('change', function() {
-            const keyword = $('#keyword').val().trim();
-            if (keyword.length >= 2) {
-                searchData();
-            } else {
-                $('#resultList').html('<div style="text-align: center; color: #888; margin-top: 30px;">고객의 <strong>이름</strong> 또는 <strong>연락처</strong>를 2글자 이상 입력하여 검색해주세요.</div>');
-            }
-        });
-
-        // 엔터키 검색 지원
         $('#keyword').on('keypress', function (e) {
-            if (e.which === 13) {
-                searchData();
-            }
+            if (e.which === 13) searchData();
         });
     });
 
@@ -258,15 +99,10 @@
 
         $('#resultList').html('<div style="text-align:center;">검색 중...</div>');
 
-        const currentEventType = $('input[name="eventType"]:checked').val();
-
         $.ajax({
             url: '/mng/api/searchParticipant',
             type: 'GET',
-            data: {
-                searchType: searchType,
-                keyword: keyword
-            },
+            data: { searchType: searchType, keyword: keyword },
             dataType: 'json',
             success: function (list) {
                 let html = '';
@@ -276,27 +112,16 @@
                     $.each(list, function (index, item) {
                         html += '<div class="result-card">';
                         html += '<div class="result-info">';
-                        html += '<strong>' + item.name + '</strong><span style="font-size:0.85em; color:#999;">(' + item.phone + ')</span>';
-                        html += '<p>관심모델: ' + (item.carModel ? item.carModel : '미지정') + '</p>';
+                        html += '<strong>' + item.name + '</strong><span style="font-size:0.85em; color:#999;"> (' + item.phone + ')</span>';
+                        html += '<p>관심차량: ' + (item.carModel ? item.carModel : '미지정') + '</p>';
                         html += '</div>';
 
-                        let btnLabel = '출석 처리';
-                        let isAlreadyChecked = false;
-
-                        if (currentEventType === 'challenge') {
-                            if (item.challengeCheckYn === 'Y') isAlreadyChecked = true;
-                        } else if (currentEventType === 'gift') {
-                            btnLabel = '경품 수령';
-                            // XML Mapper에서 qr_check_yn을 giftCheckYn으로 별칭(Alias) 처리함
-                            if (item.giftCheckYn === 'Y') isAlreadyChecked = true;
-                        }
-
-                        if (isAlreadyChecked) {
-                            html += '<button class="btn-checkin" style="background-color: #dc3545;" onclick="processCancel(' + item.seq + ', \'' + item.name + '\')">상태 취소</button>';
+                        // 오직 'gift' 수령 여부만 판단
+                        if (item.giftCheckYn === 'Y') {
+                            html += '<button class="btn-cancel" onclick="processStatus(' + item.seq + ', \'' + item.name + '\', false)">수령 취소</button>';
                         } else {
-                            html += '<button class="btn-checkin" onclick="processCheckIn(' + item.seq + ', \'' + item.name + '\')">' + btnLabel + '</button>';
+                            html += '<button class="btn-checkin" onclick="processStatus(' + item.seq + ', \'' + item.name + '\', true)">경품 수령</button>';
                         }
-
                         html += '</div>';
                     });
                 }
@@ -309,12 +134,10 @@
         });
     }
 
-    function processCheckIn(seq, name) {
-        const eventType = $('input[name="eventType"]:checked').val();
-        const typeText = eventType === 'challenge' ? '챌린지' : '경품';
-        const checkText = eventType === 'gift' ? '수령' : '출석';
+    function processStatus(seq, name, isCheckIn) {
+        const actionText = isCheckIn ? "수령 완료" : "수령 취소";
 
-        if (!confirm(name + ' 고객님을 [ ' + typeText + ' ] ' + checkText + ' 처리하시겠습니까?')) {
+        if (!confirm(name + ' 고객님을 [ 경품 ' + actionText + ' ] 처리하시겠습니까?')) {
             return;
         }
 
@@ -323,49 +146,16 @@
             type: 'POST',
             data: {
                 seq: seq,
-                type: eventType,
-                status: true
+                type: 'gift', // 퀴즈가 없으므로 무조건 gift 고정
+                status: isCheckIn
             },
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    alert('✅ ' + typeText + ' ' + checkText + ' 처리가 완료되었습니다.');
-                    searchData();
+                    alert('✅ 경품 ' + actionText + ' 처리가 완료되었습니다.');
+                    searchData(); // 리스트 새로고침
                 } else {
                     alert('❌ ' + response.message);
-                }
-            },
-            error: function () {
-                alert('❌ 서버와의 통신에 실패했습니다.');
-            }
-        });
-    }
-
-    // 출석(수령) 취소 함수
-    function processCancel(seq, name) {
-        const eventType = $('input[name="eventType"]:checked').val();
-        const typeText = eventType === 'challenge' ? '챌린지' : '경품';
-        const checkText = eventType === 'gift' ? '수령' : '출석';
-
-        if (!confirm(name + ' 고객님의 [' + typeText + '] ' + checkText + ' 상태를 취소하시겠습니까?')) {
-            return;
-        }
-
-        $.ajax({
-            url: '/mng/api/manualArrival',
-            type: 'POST',
-            data: {
-                seq: seq,
-                type: eventType,
-                status: false
-            },
-            dataType: 'json',
-            success: function (response) {
-                if (response.success) {
-                    alert('✅ ' + typeText + ' ' + checkText + ' 취소 처리가 완료되었습니다.');
-                    searchData();
-                } else {
-                    alert('❌ 처리 중 오류가 발생했습니다.');
                 }
             },
             error: function () {
