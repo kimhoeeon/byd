@@ -97,11 +97,11 @@
     </select>
 
     <select id="getQuizPerfectCount" resultType="int">
-        SELECT COUNT(*) FROM quiz_history WHERE score = 10 AND status = 'COMPLETED'
+        SELECT COUNT(*) FROM quiz_history WHERE score = 1 AND status = 'COMPLETED'
     </select>
 
     <select id="getQuizFailCount" resultType="int">
-        SELECT COUNT(*) FROM quiz_history WHERE score &lt; 10 AND status = 'COMPLETED'
+        SELECT COUNT(*) FROM quiz_history WHERE score &lt; 1 AND status = 'COMPLETED'
     </select>
 
     <select id="getShopDistributionStats" resultType="map">

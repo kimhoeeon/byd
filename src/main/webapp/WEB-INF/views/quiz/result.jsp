@@ -44,32 +44,25 @@
 
                     <div class="end_success" id="successView" style="display: none;">
                         <img src="/img/icon_success.png" alt="성공">
-                        <div class="tit">10문제 만점!</div>
-                        <div class="desc">대단해요! 퀴즈를 모두 맞히셨습니다.</div>
+                        <div class="tit">정답!</div>
+                        <div class="desc">축하합니다!<br>정답입니다.</div>
 
                         <div class="qr_wrap" style="background: #ffffff; padding: 15px; border-radius: 15px; display: inline-block; margin: 20px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <!-- qrcode.js가 렌더링할 영역 -->
                             <div id="qrcode" style="display: flex; justify-content: center; align-items: center; width: 160px; height: 160px;"></div>
                         </div>
 
-                        <div class="info_box">
-                            <div class="txt" style="line-height: 1.4;">안내데스크 직원에게 위 QR코드를 보여주시고<br>소정의 기념품을 수령해 주세요!</div>
-                        </div>
-
-                        <div class="btn_box" style="margin-top: 30px;">
-                            <a href="javascript:void(0);" onclick="goHome()" class="btn_st05">처음으로 돌아가기</a>
+                        <div class="txt_box">
+                            <img src="/img/ico_present.png" alt="선물">
+                            <div class="txt">퀴즈 이벤트 리워드 안내</div>
+                            <div class="desc">안내데스크 직원에게 위 QR코드를 보여주시고<br>소정의 기념품을 수령해 주세요!</div>
                         </div>
                     </div>
 
                     <div class="end_fail" id="failView" style="display: none;">
                         <img src="/img/icon_fail.png" alt="실패">
-                        <div class="tit"><span id="failScore">0</span>문제 정답!</div>
-                        <div class="desc">너무 아쉬워요 <br/>대신 다른 모델을 둘러보세요.</div>
-                        <img src="/img/img_car.png" alt="자동차 이미지">
-
-                        <div class="btn_box">
-                            <a href="javascript:void(0);" onclick="goModel()" class="btn_st05_f">모델 둘러보기</a>
-                            <a href="javascript:void(0);" onclick="goHome()" class="btn_st05" style="margin-top: 10px;">처음으로 돌아가기</a>
-                        </div>
+                        <div class="tit">오답!</div>
+                        <div class="desc">너무 아쉬워요!<br><br>BYD 퀴즈 이벤트에 참여해 주셔서 감사합니다.</div>
                     </div>
 
                 </div>
@@ -79,7 +72,6 @@
 
     <script>
         $(document).ready(function () {
-            // 저장 시 사용한 키(quizHistorySeq)와 정확하게 매핑
             const scoreStr = sessionStorage.getItem("finalScore");
             const historySeq = sessionStorage.getItem("quizHistorySeq");
 
@@ -89,13 +81,15 @@
                 return;
             }
 
+            // 퀴즈를 완료했으므로 브라우저에 참여 완료 꼬리표 부착 (재접속 차단용)
+            localStorage.setItem('quizCompleted_BYD2026', 'Y');
+
             const score = parseInt(scoreStr);
 
-            if (score === 10) {
-                // 만점자 QR 코드 발급
+            // 1점(만점)일 경우 성공 화면
+            if (score === 1) {
                 const qrData = "BYD_HISTORY_" + historySeq;
 
-                // qrcode.js를 이용한 클라이언트 자체 렌더링
                 new QRCode(document.getElementById("qrcode"), {
                     text: qrData,
                     width: 160,
@@ -108,11 +102,14 @@
                 $('#successView').show();
                 $('#failView').hide();
             } else {
-                // 실패
-                $('#failScore').text(score);
+                // 실패 (0점)
                 $('#successView').hide();
                 $('#failView').show();
             }
+
+            // 보안을 위해 일회성 세션스토리지(퀴즈 문제, 정답 정보 등)는 즉시 삭제
+            sessionStorage.removeItem("quizQuestions");
+            sessionStorage.removeItem("finalScore");
         });
 
         function goHome() {

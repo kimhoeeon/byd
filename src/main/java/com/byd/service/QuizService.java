@@ -76,7 +76,7 @@ public class QuizService {
                 result.put("message", "오늘은 이미 퀴즈 이벤트에 참여하셨습니다.");
                 return result;
             } else {
-                // 이전에 튕긴 유저: 본인에게 배정되어 있던 기존 문제 목록 그대로 로드
+                // 이전에 튕긴 유저: 본인에게 배정되어 있던 기존 문제 1개 그대로 로드
                 log.info("▷ [참가자 재입장 복구] 이름: {}, 연락처: {} (기존 배정 문제 복원)", savedUser.getName(), savedUser.getPhone());
                 List<String> qIds = Arrays.asList(todayHistory.getAssignedQuestions().split(","));
                 List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
@@ -90,9 +90,9 @@ public class QuizService {
             }
         }
 
-        // 완전히 처음 참여하는 신규 유저: 문제은행에서 무작위 10문제 추출
-        List<Integer> randomIds = quizMapper.getRandomQuestionIds(10);
-        if (randomIds == null || randomIds.size() < 10) {
+        // 완전히 처음 참여하는 신규 유저: 문제은행에서 무작위 1문제 추출
+        List<Integer> randomIds = quizMapper.getRandomQuestionIds(1);
+        if (randomIds == null || randomIds.isEmpty()) {
             result.put("success", false);
             result.put("message", "등록된 퀴즈 문제가 부족합니다. 관리자에게 문의해 주세요.");
             return result;
@@ -102,14 +102,14 @@ public class QuizService {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 
-        // 신규 이력 생성
+        // 신규 이력 생성 (답안 초기값 0 1개)
         QuizHistoryVO newHistory = new QuizHistoryVO();
         newHistory.setUserSeq(savedUser.getUserSeq());
         newHistory.setAssignedQuestions(assignedQuestionsStr);
-        newHistory.setUserAnswers("0,0,0,0,0,0,0,0,0,0");
+        newHistory.setUserAnswers("0");
         quizMapper.insertHistory(newHistory);
 
-        log.info("▷ [참가자 신규 시작] 이름: {}, 연락처: {}, 배정된 문제 목록: [{}]", savedUser.getName(), savedUser.getPhone(), assignedQuestionsStr);
+        log.info("▷ [참가자 신규 시작] 이름: {}, 연락처: {}, 배정된 문제: [{}]", savedUser.getName(), savedUser.getPhone(), assignedQuestionsStr);
 
         List<String> qIds = randomIds.stream().map(String::valueOf).collect(Collectors.toList());
         List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
@@ -130,19 +130,9 @@ public class QuizService {
             return;
         }
 
-        String currentAnswersStr = history.getUserAnswers();
-        if (currentAnswersStr == null || currentAnswersStr.isEmpty()) {
-            currentAnswersStr = "0,0,0,0,0,0,0,0,0,0";
-        }
-
-        String[] answersArr = currentAnswersStr.split(",");
-        if (questionIndex >= 1 && questionIndex <= 10) {
-            answersArr[questionIndex - 1] = String.valueOf(answerId);
-        }
-
-        String updatedAnswers = String.join(",", answersArr);
-        quizMapper.updateUserAnswers(historySeq, updatedAnswers);
-        log.info("▷ [임시 저장] 이력번호(Seq:{}) - {}번 문제에 '{}'번 선택 완료", historySeq, questionIndex, answerId);
+        // 1문항이므로 무조건 첫 번째 배열값 업데이트
+        quizMapper.updateUserAnswers(historySeq, String.valueOf(answerId));
+        log.info("▷ [임시 저장] 이력번호(Seq:{}) - '{}'번 보기 선택 완료", historySeq, answerId);
     }
 
     // 4. 최종 개별 채점 및 제출 처리
@@ -162,22 +152,21 @@ public class QuizService {
             return result;
         }
 
-        // 본인에게 배정되었던 10문제를 정확히 매핑하여 로드
+        // 본인에게 배정되었던 1문제를 로드
         List<String> qIds = Arrays.asList(history.getAssignedQuestions().split(","));
         List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
-        String[] userAnswersArr = history.getUserAnswers().split(",");
+        String userAnswerStr = history.getUserAnswers();
 
         int calculatedScore = 0;
-        for (int i = 0; i < questions.size(); i++) {
-            QuizQuestionVO q = questions.get(i);
+        if (!questions.isEmpty()) {
+            QuizQuestionVO q = questions.get(0);
             int userAnswer = 0;
-            if (i < userAnswersArr.length) {
-                try {
-                    userAnswer = Integer.parseInt(userAnswersArr[i]);
-                } catch (Exception e) {}
-            }
+            try {
+                userAnswer = Integer.parseInt(userAnswerStr);
+            } catch (Exception e) {}
+
             if (userAnswer != 0 && userAnswer == q.getCorrectAnswer()) {
-                calculatedScore++;
+                calculatedScore = 1; // 1점 만점
             }
         }
 

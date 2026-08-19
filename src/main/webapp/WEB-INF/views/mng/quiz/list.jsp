@@ -82,7 +82,7 @@
 
                                         <div class="form-check form-check-custom form-check-solid form-check-danger me-2">
                                             <input class="form-check-input" type="checkbox" name="perfectScoreOnly" value="Y" id="chkPerfect" ${perfectScoreOnly == 'Y' ? 'checked' : ''}/>
-                                            <label class="form-check-label fw-bold text-gray-700" for="chkPerfect">만점자(10점)만 조회</label>
+                                            <label class="form-check-label fw-bold text-gray-700" for="chkPerfect">정답자만 조회</label>
                                         </div>
 
                                         <div class="position-relative flex-grow-1 mw-250px">
@@ -137,7 +137,7 @@
                                             <c:forEach items="${list}" var="user" varStatus="st">
                                                 <tr>
                                                     <td class="text-center fw-bold text-gray-700">
-                                                        ${pageMaker.total - ((cri.pageNum - 1) * cri.amount) - st.index}
+                                                            ${pageMaker.total - ((cri.pageNum - 1) * cri.amount) - st.index}
                                                     </td>
                                                     <td>
                                                         <c:forEach items="${user.historyList}" var="hist" varStatus="st">
@@ -174,7 +174,7 @@
                                                             <div class="py-2">
                                                                 <c:choose>
                                                                     <c:when test="${hist.status == 'COMPLETED'}">
-                                                                        <span class="fw-bold ${hist.score == 10 ? 'text-danger' : 'text-primary'}">${hist.score} / 10 점</span>
+                                                                        <span class="fw-bold ${hist.score == 1 ? 'text-danger' : 'text-primary'}">${hist.score} / 1 점</span>
                                                                     </c:when>
                                                                     <c:otherwise>
                                                                         <span class="text-muted">진행중</span>

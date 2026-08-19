@@ -60,24 +60,8 @@
                 </div>
             </div>
 
-            <!-- 진행도 바 (10문제) -->
-            <div class="bar">
-                <div class="quiz_progress">
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                    <div class="progress_item"></div>
-                </div>
-            </div>
-
             <!-- 개별 10초 타이머 -->
-            <div class="time_box">
+            <div class="time_box mt-5">
                 <div class="timer_box">
                     <div id="timer" class="time"><span id="timer_label">10</span></div>
                 </div>
@@ -85,13 +69,12 @@
 
             <!-- 퀴즈 영역 -->
             <div id="content">
-                <div class="ct_wrap quiz_wrap">
+                <div class="ct_wrap quiz_wrap mt-4">
                     <div class="quiz_a">
-                        <div class="numb" id="qNum">1</div>
-                        <div class="ask" id="qText">문제 로딩 중...</div>
+                        <div class="ask" id="qText" style="padding-top: 15px;">문제 로딩 중...</div>
                     </div>
 
-                    <div class="quiz_q">
+                    <div class="quiz_q mt-4">
                         <div class="multi">
                             <div class="btn_multi" onclick="selectAnswer(1)">
                                 <input type="radio" id="choice1" name="choice" value="1">
@@ -117,9 +100,8 @@
     </div>
 
     <script>
-        let questions = [];
+        let questionData = null;
         let historySeq = 0;
-        let currentQIndex = 0;
         let timer = 10;
         let countdownInterval;
         let isAnswered = false;
@@ -128,7 +110,6 @@
         const soundTimerEnd = new Audio('/audio/timer_end.mp3');
 
         $(document).ready(function () {
-            // step2에서 넘어온 데이터를 스토리지에서 직접 꺼내 즉시 시작
             const questionsStr = sessionStorage.getItem('quizQuestions');
             const hSeq = sessionStorage.getItem('quizHistorySeq');
 
@@ -138,32 +119,27 @@
                 return;
             }
 
-            questions = JSON.parse(questionsStr);
+            const parsedQuestions = JSON.parse(questionsStr);
+            if (parsedQuestions.length > 0) {
+                questionData = parsedQuestions[0]; // 단일 문제 할당
+            }
             historySeq = hSeq;
 
             $('#loadingOverlay').hide();
-            loadQuestion(0);
+            loadQuestion();
         });
 
-        function loadQuestion(index) {
-            currentQIndex = index;
+        function loadQuestion() {
             isAnswered = false;
-            const q = questions[index];
 
-            $('#qNum').text(index + 1);
-            $('#qText').text(q.questionText);
-            $('#label1').text(q.choice1);
-            $('#label2').text(q.choice2);
-            $('#label3').text(q.choice3);
-            $('#label4').text(q.choice4);
+            $('#qText').text(questionData.questionText);
+            $('#label1').text(questionData.choice1);
+            $('#label2').text(questionData.choice2);
+            $('#label3').text(questionData.choice3);
+            $('#label4').text(questionData.choice4);
 
             $('input[name="choice"]').prop('checked', false);
             $('.btn_multi label').removeClass('selected_ans');
-
-            $('.quiz_progress .progress_item').removeClass('on');
-            $('.quiz_progress .progress_item').each(function(i) {
-                if (i <= index) $(this).addClass('on');
-            });
 
             startTimer();
         }
@@ -189,7 +165,7 @@
 
                     if (!isAnswered) {
                         isAnswered = true;
-                        autoSaveAndNext(0);
+                        autoSaveAndNext(0); // 시간 초과 시 0번(오답) 전송
                     }
                 }
             }, 1000);
@@ -215,18 +191,14 @@
                 type: 'POST',
                 data: {
                     historySeq: historySeq,
-                    questionIndex: currentQIndex + 1,
+                    questionIndex: 1, // 단일 문제이므로 1 전송
                     answerId: answerId
                 }
             });
 
+            // 1문항이므로 지연 후 즉시 제출 로직 호출
             setTimeout(function() {
-                const isLast = (currentQIndex === questions.length - 1);
-                if (isLast) {
-                    executeSubmitQuiz();
-                } else {
-                    loadQuestion(currentQIndex + 1);
-                }
+                executeSubmitQuiz();
             }, 700);
         }
 

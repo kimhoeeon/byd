@@ -21,6 +21,14 @@
     <script src="/js/jquery.cookie.min.js"></script>
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
+
+    <!-- 기기 참여 이력 검증 스크립트를 최상단에 배치하여 즉시 차단 -->
+    <script>
+        if (localStorage.getItem('quizCompleted_BYD2026') === 'Y') {
+            alert('이미 퀴즈 이벤트에 참여하셨습니다.\n(기기당 1회만 참여 가능합니다.)');
+            location.replace('/'); // 브랜드 메인 페이지로 강제 이동
+        }
+    </script>
 </head>
 <body class="quiz">
 
