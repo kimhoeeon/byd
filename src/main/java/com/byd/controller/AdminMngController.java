@@ -2,6 +2,7 @@ package com.byd.controller;
 
 import com.byd.dto.PageDTO;
 import com.byd.service.AdminMngService;
+import com.byd.util.AES128;
 import com.byd.vo.AdminVO;
 import com.byd.vo.Criteria;
 import com.byd.vo.ParticipantVO;
@@ -17,12 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 @Slf4j
 @Controller
@@ -31,6 +27,8 @@ import java.util.Arrays;
 public class AdminMngController {
 
     private final AdminMngService adminMngService;
+
+    private static final String SECRET_KEY = "bydEventTokenKey";
 
     @GetMapping({"/", "/index", "/login"})
     public String loginPage(HttpSession session) {
@@ -188,6 +186,71 @@ public class AdminMngController {
             res.put("message", "삭제 오류 발생.");
         }
         return res;
+    }
+
+    @GetMapping("/scanner")
+    public String qrScannerPage(@RequestParam(value = "type", defaultValue = "challenge") String type, Model model) {
+        if ("gift".equals(type)) {
+            model.addAttribute("adminCode", "303");
+            model.addAttribute("eventName", "경품수령");
+            model.addAttribute("themeColor", "#f6c23e");
+        }
+        return "mng/scanner";
+    }
+
+    @PostMapping("/api/checkArrival")
+    @ResponseBody
+    public Map<String, Object> checkArrival(@RequestParam("qrToken") String qrToken,
+                                            @RequestParam(value = "adminCode", required = false) String adminCode) {
+        Map<String, Object> res = new HashMap<>();
+        try {
+            // 1. 넘어온 토큰 복호화
+            AES128 aes128 = new AES128(SECRET_KEY);
+            String decryptedSeqStr = aes128.decrypt(qrToken);
+            int seq = Integer.parseInt(decryptedSeqStr);
+
+            // 2. 해당 참여자 데이터 조회
+            ParticipantVO data = adminMngService.getParticipantBySeq(seq);
+            if (data == null) {
+                res.put("success", false);
+                res.put("message", "유효하지 않은 QR 코드입니다.");
+                return res;
+            }
+
+            // 3. 중복 수령 방지 로직
+            if ("Y".equals(data.getGiftCheckYn())) {
+                res.put("success", false);
+                res.put("message", data.getName() + "님은 이미 경품을 수령하셨습니다.");
+                return res;
+            }
+
+            // 4. 경품 수령 상태 즉시 업데이트
+            adminMngService.updateGiftStatus(seq, "Y");
+
+            res.put("success", true);
+            res.put("message", data.getName() + "님 경품 수령이 확인되었습니다.");
+
+        } catch (Exception e) {
+            log.error("QR 스캔 에러: {}", e.getMessage());
+            res.put("success", false);
+            res.put("message", "잘못된 형식의 QR 코드이거나 처리 중 오류가 발생했습니다.");
+        }
+        return res;
+    }
+
+    @GetMapping("/inquiry")
+    public String tabletInquiryPage() {
+        return "mng/inquiry";
+    }
+
+    // 태블릿 조회 화면용 고객 비동기 검색 API
+    @GetMapping("/api/searchParticipant")
+    @ResponseBody
+    public List<ParticipantVO> searchParticipant(Criteria cri) {
+        // 태블릿 팝업에서는 페이징 없이 최대 30개 정도만 넉넉히 가져와서 뿌려줌
+        cri.setPageNum(1);
+        cri.setAmount(30);
+        return adminMngService.getList(cri);
     }
 
     @RequestMapping({"/api/participant/excelDownload"})

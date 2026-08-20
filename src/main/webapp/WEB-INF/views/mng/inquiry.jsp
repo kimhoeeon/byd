@@ -20,7 +20,7 @@
 
         .btn-search { padding: 12px 20px; background-color: #343a40; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; }
 
-        .result-list { padding: 0 15px; text-align: left; padding-bottom: 80px; }
+        .result-list { text-align: left; padding: 0 15px 80px; }
         .result-card { background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #009ef7; }
         .result-info strong { font-size: 1.1em; color: #333; }
         .result-info p { margin: 5px 0 0 0; font-size: 0.9em; color: #555; }
