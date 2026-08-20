@@ -6,7 +6,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8"/>
-    <title>BYD ADMIN | 시승 관리</title>
+    <title>BYD ADMIN | 신청 관리</title>
     <link rel="stylesheet" href="/assets/plugins/custom/datatables/datatables.bundle.css">
     <link rel="stylesheet" href="/assets/plugins/global/plugins.bundle.css">
     <link rel="stylesheet" href="/assets/css/style.bundle.css">

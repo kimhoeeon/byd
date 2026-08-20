@@ -42,10 +42,11 @@
 
 <c:set var="totalCnt" value="${stats.totalCnt != null ? stats.totalCnt : 0}" />
 <c:set var="todayCnt" value="${stats.todayCnt != null ? stats.todayCnt : 0}" />
-<c:set var="challengeCnt" value="${chartData.attStats.challengeCnt != null ? chartData.attStats.challengeCnt : 0}" />
-<c:set var="giftCnt" value="${chartData.attStats.giftCnt != null ? chartData.attStats.giftCnt : 0}" />
+<c:set var="quizTotalCnt" value="${stats.challengeCnt != null ? stats.challengeCnt : 0}" />
+<c:set var="quizPerfectCnt" value="${stats.quizPerfectCount != null ? stats.quizPerfectCount : 0}" />
+<c:set var="giftCnt" value="${stats.giftCnt != null ? stats.giftCnt : 0}" />
 
-<c:set var="challPct" value="${totalCnt > 0 ? (challengeCnt * 100.0 / totalCnt) : 0}" />
+<c:set var="quizPct" value="${quizTotalCnt > 0 ? (quizPerfectCnt * 100.0 / quizTotalCnt) : 0}" />
 <c:set var="giftPct" value="${totalCnt > 0 ? (giftCnt * 100.0 / totalCnt) : 0}" />
 
 <!-- 레이아웃 붕괴 방지를 위해 id 필수 적용 (kt_app_root) -->
@@ -109,16 +110,16 @@
                         <div class="col">
                             <div class="card summary-card bg-card-3 p-6 h-100 d-flex flex-column justify-content-between">
                                 <div>
-                                    <div class="fw-bold fs-6 opacity-75">챌린지 확인 완료</div>
-                                    <div class="fw-bolder fs-2x mt-2"><fmt:formatNumber value="${challengeCnt}" pattern="#,###"/> <span class="fs-5 opacity-75">명</span></div>
+                                    <div class="fw-bold fs-6 opacity-75">퀴즈 정답 현황</div>
+                                    <div class="fw-bolder fs-2x mt-2"><fmt:formatNumber value="${quizPerfectCnt}" pattern="#,###"/> <span class="fs-5 opacity-75">명</span></div>
                                 </div>
                                 <div class="mt-4">
                                     <div class="d-flex justify-content-between fs-8 opacity-75 mb-1">
-                                        <span>대상자(${totalCnt}명) 대비</span>
-                                        <span class="fw-bold"><fmt:formatNumber value="${challPct}" pattern="##0.0"/>%</span>
+                                        <span>금일 참여자(${quizTotalCnt}명) 대비 비율</span>
+                                        <span class="fw-bold"><fmt:formatNumber value="${quizPct}" pattern="##0.0"/>%</span>
                                     </div>
                                     <div class="progress w-100">
-                                        <div class="progress-bar" style="width: ${challPct}%"></div>
+                                        <div class="progress-bar" style="width: ${quizPct}%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -132,7 +133,7 @@
                                 </div>
                                 <div class="mt-4">
                                     <div class="d-flex justify-content-between fs-8 opacity-75 mb-1">
-                                        <span>대상자(${totalCnt}명) 대비</span>
+                                        <span>대상자(${totalCnt}명) 대비 비율</span>
                                         <span class="fw-bold"><fmt:formatNumber value="${giftPct}" pattern="##0.0"/>%</span>
                                     </div>
                                     <div class="progress w-100">
