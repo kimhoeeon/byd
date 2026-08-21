@@ -72,11 +72,18 @@ public class EventController {
     }
 
     @GetMapping("/step2")
-    public String step2(HttpSession session, Model model) {
+    public String step2(HttpServletRequest request, HttpSession session, Model model) {
         ParticipantVO temp = (ParticipantVO) session.getAttribute("tempInfo");
         if (temp == null) {
             return "redirect:/apply/step1";
         }
+
+        // 에러로 인해 튕겨져 돌아온 경우 Flash 속성으로 받아온 retainedData를 모델에 세팅
+        Map<String, ?> flashMap = RequestContextUtils.getInputFlashMap(request);
+        if (flashMap != null && flashMap.containsKey("retainedData")) {
+            model.addAttribute("retainedData", flashMap.get("retainedData"));
+        }
+
         model.addAttribute("tempInfo", temp);
         return "apply/step2";
     }
@@ -115,10 +122,12 @@ public class EventController {
 
         } catch (DuplicateKeyException de) {
             redirectAttributes.addFlashAttribute("errorMsg", "이미 오늘 날짜로 신청 완료된 연락처입니다.");
-            return "redirect:/apply/step1";
+            redirectAttributes.addFlashAttribute("retainedData", participantVO);
+            return "redirect:/apply/step2";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "등록 중 에러가 발생했습니다. 다시 시도해 주세요.");
-            return "redirect:/apply/step1";
+            redirectAttributes.addFlashAttribute("retainedData", participantVO);
+            return "redirect:/apply/step2";
         }
     }
 
