@@ -543,7 +543,7 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 
 
 /* 화이트 */
-.quiz_w{background-color: #FFFFFF;}
+.quiz_w{background-color: #FFFFFF;background: linear-gradient(to bottom,#fff 85%,rgb(128, 128, 128) 100%);}
 .quiz_w .form_box li{color: #383838; font-weight: 500;}
 .quiz_w .info_box .tit span{color: #383838;}
 .quiz_w .info_box .tit div{color: #383838;}
@@ -574,7 +574,7 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 .quiz_w .end_wrap .end_success .desc{font-weight: 500;}
 .quiz_w .end_wrap .txt_box .txt{color: #383838;}
 
-.host_w .ck-in{background: #fff;}
+.host_w .ck-in{background-color: #FFFFFF;background: linear-gradient(to bottom,#fff 85%,rgb(128, 128, 128) 100%);}
 .host_w .ck-in .info_box{color: #383838;}
 .host_w .ck-in .info_box .tit span{color: #383838;}
 .host_w .btn_st05 {color: #fff; background: #383838; }
@@ -587,10 +587,11 @@ body.host_w .btn_multi label.correct {background: #383838;border-color: #383838;
 .host_w .end_success .txt_box .txt{color: #383838;}
 
 .host_w .quiz_a .ask{padding-bottom: 15px;}
+.quiz_w .quiz_a .ask{padding-bottom: 15px;}
 .host_w .time_box #timer{color: #383838 !important;}
 
-.apply_w{background: #fff;}
-.apply_w .ck-in{background: #fff;padding-bottom: 50px;}
+.apply_w{background-color: #FFFFFF;background: linear-gradient(to bottom,#fff 85%,rgb(128, 128, 128) 100%);}
+.apply_w .ck-in{background-color: #FFFFFF;background: linear-gradient(to bottom,#fff 85%,rgb(128, 128, 128) 100%);padding-bottom: 50px;}
 .apply_w .ck-in .info_box{color: #383838;}
 .apply_w .form_box li{color: #383838;}
 .apply_w .ck-in input[type="text"],
@@ -599,7 +600,7 @@ body.host_w .btn_multi label.correct {background: #383838;border-color: #383838;
 .apply_w .ck-in input[type="email"],
 .apply_w .ck-in input[type="tel"],
 .apply_w .ck-in textarea{background: #CCCCCC; border:1px solid #686D71;border-radius: 10px; color: #000;}
-.apply_w .ck-in .form_box .input select{background: #CCCCCC url(../img/icon_select_arrow.svg) no-repeat right 1em bottom 50%; border:1px solid #2A466C;border-radius: 10px; color: #fff;}
+.apply_w .ck-in .form_box .input select{background: #CCCCCC url(../img/icon_select_arrow_b.svg) no-repeat right 1em bottom 50%;background-size: 12px; border:1px solid #2A466C;border-radius: 10px; color: #fff;}
 .apply_w input[type="checkbox"]:checked, input[type="radio"]:checked{border: 5px solid #383838; border-radius: 3px;}
 .apply_w input:focus{outline: #383838;}
 .apply_w textarea:focus{outline: #383838;}
