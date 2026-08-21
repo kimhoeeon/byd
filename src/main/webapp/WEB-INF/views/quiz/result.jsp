@@ -22,7 +22,7 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
 </head>
-<body class="quiz">
+<body class="quiz quiz_w">
 
     <div id="container">
         <div class="ck-in center">
@@ -31,7 +31,7 @@
                 <div class="inner">
                     <div class="tit">
                         <a href="/quiz/step1">
-                            <img src="/img/logo.png" alt="logo">
+                            <img src="/img/logo_g.png" alt="logo">
                         </a>
                     </div>
                 </div>
@@ -41,13 +41,19 @@
                 <div class="ct_wrap end_wrap">
 
                     <div class="end_success" id="successView" style="display: none;">
-                        <img src="/img/icon_success.png" alt="성공">
+                        <img src="/img/icon_success_g.png" alt="성공">
                         <div class="tit">정답!</div>
                         <div class="desc">축하합니다!<br>정답입니다.</div>
+
+                        <div class="txt_box">
+                            <img src="/img/ico_present_g.png" alt="선물">
+                            <div class="txt">기념품 수령 안내</div>
+                            <div class="desc">안내센터로 가서 기념품을 수령해 보세요.<br>기념품은 1인 1개만 수령 가능합니다.</div>
+                        </div>
                     </div>
 
                     <div class="end_fail" id="failView" style="display: none;">
-                        <img src="/img/icon_fail.png" alt="실패">
+                        <img src="/img/icon_fail_g.png" alt="실패">
                         <div class="tit">오답!</div>
                         <div class="desc">너무 아쉬워요!</div>
 

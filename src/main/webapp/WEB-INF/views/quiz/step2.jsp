@@ -22,7 +22,7 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
 </head>
-<body class="quiz">
+<body class="quiz quiz_w">
 
 <div id="container">
 
@@ -32,12 +32,12 @@
             <div class="inner">
                 <div class="back">
                     <a href="javascript:history.back();">
-                        <img src="/img/left_arrow.svg" alt="뒤로가기">
+                        <img src="/img/left_arrow_g.svg" alt="뒤로가기">
                     </a>
                 </div>
                 <div class="tit">
                     <a href="/quiz/step1">
-                        <img src="/img/logo.png" alt="logo">
+                        <img src="/img/logo_g.png" alt="logo">
                     </a>
                 </div>
             </div>

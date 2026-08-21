@@ -541,6 +541,52 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 .popup_btn{width:100%;height:50px;margin-top:25px;border:0;border-radius:8px;background:linear-gradient(90deg, rgba(16, 58, 187, 1) 0%, rgba(61, 102, 228, 1) 100%);color:#fff;font-size:16px;font-weight:700;cursor:pointer;}
 .popup_close{position:absolute;top:15px;right:15px;width:36px;height:36px;border:0;background:none;font-size:28px;line-height:1;cursor:pointer;}
 
+
+/* 화이트 */
+.quiz_w{background-color: #FFFFFF;}
+.quiz_w .form_box li{color: #383838; font-weight: 500;}
+.quiz_w .info_box .tit span{color: #383838;}
+.quiz_w .info_box .tit div{color: #383838;}
+.quiz_w input[type="text"],
+.quiz_w input[type="password"],
+.quiz_w input[type="date"],
+.quiz_w input[type="email"],
+.quiz_w input[type="tel"],
+.quiz_w textarea{background: #CCCCCC; border:1px solid #686D71;border-radius: 10px; color: #000; font-weight: 500;}
+.quiz_w .ck-in{background: none;}
+.quiz_w .form_box .input select{background: #CCCCCC url(../img/icon_select_arrow.svg) no-repeat right 1em bottom 50%; border:1px solid #686D71;border-radius: 10px; color: #000;}
+.quiz_w .terms-check_label{color: #383838; font-weight: 500;}
+.quiz_w .terms-check input{margin-bottom: 0;}
+.quiz_w input[type="checkbox"]:checked, input[type="radio"]:checked{border: 5px solid #383838; border-radius: 3px;}
+.quiz_w input:focus{outline: #383838;}
+.quiz_w textarea:focus{outline: #383838;}
+.quiz_w .btn_st05{width: 100%;padding: 17px 0; display: flex; align-items: center; justify-content: center; gap: 8px; background: #383838; border: none; cursor: pointer; border-radius: 15px;}
+.quiz_w .btn_st05::after{content: ''; background: url(/img/right_arrow.svg) no-repeat; background-size: contain; width: 9px; height: 12px; display: block;}
+
+.quiz_w .btn_st05_f{width: 100%;padding: 17px 0; display: flex; align-items: center; justify-content: center; gap: 8px; background: #383838; border: none; cursor: pointer; border-radius: 15px;}
+.quiz_w .btn_st05_f::after{content: ''; background: url(/img/right_arrow.svg) no-repeat; background-size: contain; width: 9px; height: 12px; display: block;}
+.quiz_w .form_box .input select{background: #CCCCCC url(../img/icon_select_arrow_b.svg) no-repeat right 1em bottom 50%; background-size: 12px;border: 1px solid #383838;border-radius: 10px;color: #fff;}
+.quiz_w .quiz_a{color: #383838;}
+.quiz_w .bar .tit{color: #383838;}
+.quiz_w .quiz_q .btn_multi label{color: #383838; background: #ccc; border:1px solid #686D71}
+.quiz_w .quiz_q .btn_multi input:checked + label{background: #383838; color: #fff; border: 1px solid #383838;}
+.quiz_w .end_wrap{color: #383838;}
+.quiz_w .end_wrap .end_success .desc{font-weight: 500;}
+.quiz_w .end_wrap .txt_box .txt{color: #383838;}
+
+.host_w .ck-in{background: #fff;}
+.host_w .ck-in .info_box{color: #383838;}
+.host_w .ck-in .info_box .tit span{color: #383838;}
+.host_w .btn_st05 {color: #fff; background: #383838; }
+.host_w .btn_st05_f {color: #fff; background: #383838; }
+.host_w .quiz_a{color: #383838;}
+.host_w .time_box{color: #383838;}
+.host_w .quiz_q .btn_multi label{background: #ccc; color: #383838; border: 1px solid #686D71;}
+body.host_w .btn_multi label.correct {background: #383838;border-color: #383838;color: #fff;}
+.host_w .prize {scrollbar-width: thin;scrollbar-color: rgb(161, 161, 161) rgba(255, 255, 255, 18);}
+.host_w .end_success .txt_box .txt{color: #383838;}
+
+
 @media screen and (max-width:1400px) {
     .main_car .car_top{width: 90%;font-size: 48px;padding: 240px 0;}
     .main_car .car_top a{width: 60%;}

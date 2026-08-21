@@ -41,7 +41,7 @@
         }
     </style>
 </head>
-<body class="quiz">
+<body class="quiz quiz_w">
 
     <!-- 로딩 오버레이 -->
     <div id="loadingOverlay">
@@ -50,14 +50,26 @@
 
     <div id="container">
         <div class="ck-in mobile center">
+
+            <!-- title -->
             <div class="top_tit">
                 <div class="inner">
+                    <div class="back">
+                        <a href="javascript:history.back();">
+                            <img src="/img/left_arrow_g.svg" alt="뒤로가기">
+                        </a>
+                    </div>
                     <div class="tit">
                         <a href="/quiz/step1">
                             <img src="/img/logo.png" alt="logo">
                         </a>
                     </div>
                 </div>
+            </div>
+            <!-- //title -->
+
+            <div class="bar">
+                <div class="tit">BYD 퀴즈 이벤트</div>
             </div>
 
             <!-- 개별 10초 타이머 -->

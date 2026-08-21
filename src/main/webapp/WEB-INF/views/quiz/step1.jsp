@@ -22,7 +22,7 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
 </head>
-<body class="quiz">
+<body class="quiz quiz_w">
 
     <div id="container">
 
@@ -31,7 +31,7 @@
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
-                        <img src="/img/logo.png" alt="logo">
+                        <img src="/img/logo_g.png" alt="logo">
                     </div>
                 </div>
             </div>
