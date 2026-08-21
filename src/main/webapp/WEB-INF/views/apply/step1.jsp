@@ -26,7 +26,7 @@
 
 </head>
 
-<body>
+<body class="apply_w">
 
     <!-- container -->
     <div id="container">
@@ -38,7 +38,7 @@
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
-                        <img src="/img/logo.png" alt="logo">
+                        <img src="/img/logo_g.png" alt="logo">
                     </div>
                 </div>
             </div>

@@ -77,6 +77,7 @@
                                 <c:when test="${data.carModel eq 'BYD ATTO 3'}"><c:set var="carCode" value="BYD0001"/></c:when>
                                 <c:when test="${data.carModel eq 'BYD SEAL'}"><c:set var="carCode" value="BYD0005"/></c:when>
                                 <c:when test="${data.carModel eq 'BYD SEALION 7'}"><c:set var="carCode" value="BYD0019"/></c:when>
+                                <c:when test="${data.carModel eq 'BYD SEALION 6'}"><c:set var="carCode" value="BYD0000"/></c:when>
                             </c:choose>
 
                             <table class="table table-bordered align-middle gs-7 gy-4">

@@ -30,7 +30,7 @@
     </style>
 </head>
 
-<body>
+<body class="apply_w">
 
     <!-- container -->
     <div id="container">
@@ -42,7 +42,7 @@
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
-                        <img src="/img/logo.png" alt="logo">
+                        <img src="/img/logo_g.png" alt="logo">
                     </div>
                 </div>
             </div>
@@ -139,6 +139,7 @@
                                         <option value="BYD ATTO 3" <c:if test="${data.carModel == 'BYD ATTO 3'}">selected</c:if>>BYD ATTO 3</option>
                                         <option value="BYD SEAL" <c:if test="${data.carModel == 'BYD SEAL'}">selected</c:if>>BYD SEAL</option>
                                         <option value="BYD SEALION 7" <c:if test="${data.carModel == 'BYD SEALION 7'}">selected</c:if>>BYD SEALION 7</option>
+                                        <option value="BYD SEALION 6" <c:if test="${data.carModel == 'BYD SEALION 6'}">selected</c:if>>BYD SEALION 6</option>
                                     </select>
                                 </div>
                             </li>
@@ -211,8 +212,8 @@
     <script>
         // 1. 전시장 데이터 맵
         const shopData = {
-            "서울": [ "BYD 강동", "BYD 강서", "BYD 마포", "BYD 목동", "BYD 서초", "BYD 송파", "BYD 용산" ],
-            "경기": [ "BYD 김포", "BYD 동탄", "BYD 부천", "BYD 분당", "BYD 수원", "BYD 스타필드 안성", "BYD 스타필드 운정", "BYD 스타필드 일산", "BYD 스타필드 하남", "BYD 안양", "BYD 의정부", "BYD 일산" ],
+            "서울": ["BYD 강동", "BYD 강서", "BYD 동대문", "BYD 마포", "BYD 목동", "BYD 서초", "BYD 송파", "BYD 용산"],
+            "경기": ["BYD 김포", "BYD 동탄", "BYD 부천", "BYD 분당", "BYD 수원", "BYD 스타필드 안성", "BYD 스타필드 운정", "BYD 스타필드 일산", "BYD 스타필드 하남", "BYD 안양", "BYD 용인", "BYD 의정부", "BYD 일산"],
             "인천": [ "BYD 서해구", "BYD 송도" ],
             "강원": [ "BYD 원주" ],
             "충청/대전": [ "BYD 대전", "BYD 천안", "BYD 청주" ],

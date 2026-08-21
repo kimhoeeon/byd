@@ -29,10 +29,6 @@
             border-color: #E50000 !important;
             box-shadow: 0 0 15px rgba(229, 0, 0, 0.4) !important;
         }
-        .timer_box .time {
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
         #loadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 9999;
