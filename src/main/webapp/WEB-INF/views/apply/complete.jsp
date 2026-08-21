@@ -66,7 +66,7 @@
                 </div>
 
                 <div class="btn_box" style="margin-top: 40px;">
-                    <a href="/" class="btn_st01">메인 페이지로 이동</a>
+                    <a href="/apply/step1" class="btn_st01">메인 페이지로 이동</a>
                 </div>
 
             </div>

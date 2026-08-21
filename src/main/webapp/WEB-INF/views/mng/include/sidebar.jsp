@@ -2,6 +2,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+<!-- 사이드바 호버 시 글자가 검은색으로 변해 안 보이는 현상 수정 -->
+<style>
+    #kt_app_sidebar_menu_wrapper .menu-link:hover .menu-title,
+    #kt_app_sidebar_menu_wrapper .menu-link:hover .menu-icon i {
+        color: #ffffff !important;
+    }
+    #kt_app_sidebar_menu_wrapper .menu-link:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+</style>
+
 <!-- 현재 접속 중인 URL을 추출하여 currentUrl 변수에 저장 -->
 <c:set var="currentUrl" value="${requestScope['javax.servlet.forward.servlet_path']}" />
 <c:if test="${empty currentUrl}">

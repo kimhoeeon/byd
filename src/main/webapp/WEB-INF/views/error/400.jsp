@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>잘못된 접근 - BYD 시승신청</title>
+    <title>잘못된 접근 - BYD 이벤트 신청</title>
     <link rel="stylesheet" type="text/css" href="/css/reset.css">
     <link rel="stylesheet" type="text/css" href="/css/style.css?ver=20260616">
     <style>
@@ -44,7 +44,7 @@
             <h1>400</h1>
             <h2>잘못된 접근입니다.</h2>
             <p>유효하지 않은 티켓 링크이거나<br>잘못된 경로로 접근하셨습니다.</p>
-            <a href="/apply/step1" class="btn-home">시승 신청 홈으로</a>
+            <a href="/apply/step1" class="btn-home">이벤트 신청 홈으로</a>
         </div>
     </div>
 </body>

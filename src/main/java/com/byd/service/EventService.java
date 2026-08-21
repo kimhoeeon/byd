@@ -52,7 +52,7 @@ public class EventService {
             String sender = "07089498065";           // 사전에 등록된 발신자 번호 (ex. 0212345678)
 
             // 일반 이벤트 참여자 전용 안내 문자
-            String title = "[BYD KOREA BIMOS 2026 참여 티켓]\n\n";
+            String title = "[2026 부산 모빌리티쇼 BYD 참여 티켓]\n\n";
             String greeting = "신청이 완료되었습니다.";
             String message = title +
                     p.getName() + "님, " + greeting + "\n" +

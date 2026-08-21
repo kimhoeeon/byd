@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>페이지를 찾을 수 없습니다 - BYD 시승신청</title>
+    <title>페이지를 찾을 수 없습니다 - BYD 이벤트 신청</title>
     <link rel="stylesheet" type="text/css" href="/css/reset.css">
     <link rel="stylesheet" type="text/css" href="/css/style.css?ver=20260616">
     <style>
@@ -44,7 +44,7 @@
             <h1>404</h1>
             <p>페이지를 찾을 수 없습니다.</p>
             <p>존재하지 않는 페이지이거나,<br>신청 내역을 찾을 수 없습니다.</p>
-            <a href="/apply/step1" class="btn-home">시승 신청 홈으로</a>
+            <a href="/apply/step1" class="btn-home">이벤트 신청 홈으로</a>
         </div>
     </div>
 </body>

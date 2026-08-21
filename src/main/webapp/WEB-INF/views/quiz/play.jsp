@@ -53,7 +53,7 @@
             <div class="top_tit">
                 <div class="inner">
                     <div class="tit">
-                        <a href="/">
+                        <a href="/quiz/step1">
                             <img src="/img/logo.png" alt="logo">
                         </a>
                     </div>

@@ -63,18 +63,6 @@
                                             <input type="date" name="searchDate" value="${searchDate}" class="form-control form-control-solid" title="참여 날짜">
                                         </div>
 
-                                        <div class="position-relative mw-125px">
-                                            <select name="searchSession" class="form-select form-select-solid" data-control="select2" data-hide-search="true">
-                                                <option value="">전체 회차</option>
-                                                <option value="1" ${searchSession == 1 ? 'selected' : ''}>1회차</option>
-                                                <option value="2" ${searchSession == 2 ? 'selected' : ''}>2회차</option>
-                                                <option value="3" ${searchSession == 3 ? 'selected' : ''}>3회차</option>
-                                                <option value="4" ${searchSession == 4 ? 'selected' : ''}>4회차</option>
-                                                <option value="5" ${searchSession == 5 ? 'selected' : ''}>5회차</option>
-                                                <option value="6" ${searchSession == 6 ? 'selected' : ''}>6회차</option>
-                                            </select>
-                                        </div>
-
                                         <div class="form-check form-check-custom form-check-solid form-check-warning me-2">
                                             <input class="form-check-input" type="checkbox" name="excludeInProgress" value="Y" id="chkExclude" ${excludeInProgress == 'Y' ? 'checked' : ''}/>
                                             <label class="form-check-label fw-bold text-gray-700" for="chkExclude">진행중 제외</label>
@@ -89,8 +77,8 @@
                                             <input type="text" name="keyword" value="${keyword}" class="form-control form-control-solid" placeholder="이름 / 연락처 검색">
                                         </div>
 
-                                        <button type="button" class="btn btn-dark" onclick="searchData()">검색</button>
-                                        <a href="/mng/quiz/list" class="btn btn-light">초기화</a>
+                                        <button type="button" class="btn btn-dark text-white fw-bold" onclick="searchData()">검색</button>
+                                        <a href="/mng/quiz/list" class="btn btn-light fw-bold">초기화</a>
                                         <a href="/mng/quiz/question/list" class="btn btn-primary fw-bold ms-auto">문제 관리 바로가기</a>
                                     </form>
                                 </div>
@@ -125,7 +113,7 @@
                                                 <th class="min-w-100px">방문 지역</th>
                                                 <th class="min-w-150px">방문 전시장</th>
                                                 <th class="min-w-100px">관심차량</th>
-                                                <th class="min-w-150px">참여날짜(회차)</th>
+                                                <th class="min-w-150px">참여날짜</th>
                                                 <th class="min-w-100px">퀴즈현황</th>
                                             </tr>
                                             </thead>
@@ -137,7 +125,7 @@
                                             <c:forEach items="${list}" var="user" varStatus="st">
                                                 <tr>
                                                     <td class="text-center fw-bold text-gray-700">
-                                                            ${pageMaker.total - ((cri.pageNum - 1) * cri.amount) - st.index}
+                                                        ${pageMaker.total - ((cri.pageNum - 1) * cri.amount) - st.index}
                                                     </td>
                                                     <td>
                                                         <c:forEach items="${user.historyList}" var="hist" varStatus="st">
@@ -158,13 +146,13 @@
                                                                      user.carModelCode == 'BYD0005' ? 'BYD SEAL' :
                                                                      user.carModelCode == 'BYD0001' ? 'BYD ATTO 3' :
                                                                      user.carModelCode == 'BYD0004' ? 'BYD DOLPHIN' : '기타'}">
-                                                                ${user.carModelCode}
+                                                            ${user.carModelCode}
                                                         </span>
                                                     </td>
 
                                                     <td>
                                                         <c:forEach items="${user.historyList}" var="hist" varStatus="st">
-                                                            <div class="py-2">${hist.playDate} <span class="badge badge-light-dark fs-8">${hist.sessionNo}회차</span></div>
+                                                            <div class="py-2">${hist.playDate}</div>
                                                             <c:if test="${!st.last}"><hr class="my-1 border-dashed"/></c:if>
                                                         </c:forEach>
                                                     </td>
@@ -174,7 +162,15 @@
                                                             <div class="py-2">
                                                                 <c:choose>
                                                                     <c:when test="${hist.status == 'COMPLETED'}">
-                                                                        <span class="fw-bold ${hist.score == 1 ? 'text-danger' : 'text-primary'}">${hist.score} / 1 점</span>
+                                                                        <!-- 정답자는 빨간색 O, 오답자는 회색 X로 직관적 표기 변경 -->
+                                                                        <c:choose>
+                                                                            <c:when test="${hist.score == 1}">
+                                                                                <span class="fw-bolder text-danger fs-4">O</span>
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <span class="fw-bolder text-muted fs-4">X</span>
+                                                                            </c:otherwise>
+                                                                        </c:choose>
                                                                     </c:when>
                                                                     <c:otherwise>
                                                                         <span class="text-muted">진행중</span>
