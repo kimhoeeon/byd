@@ -351,7 +351,7 @@
             $("#fullEmail").val(emailId + "@" + customDomain);
 
             if($("#regionSelect").val() === "") { alert("지역을 선택해 주세요."); return false; }
-            if($("#shopSelect").val() === "") { alert("방문 가능 전시장를 선택해 주세요."); return false; }
+            if($("#shopSelect").val() === "") { alert("방문 가능 전시장을 선택해 주세요."); return false; }
             if($("select[name='carModel']").val() === "") { alert("관심차량을 선택해 주세요."); return false; }
 
             $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");

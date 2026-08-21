@@ -96,7 +96,7 @@
                 alert('이미 퀴즈 이벤트에 참여하셨습니다.\n(기기당 1회만 참여 가능합니다.)');
                 $('#step1Form').hide();
                 $('.btn_box').hide();
-                $('.info_box .inner').append('<div style="text-align:center; padding: 50px 0; color:#fff; font-size:18px; line-height:1.5;">이미 퀴즈에 참여한 기기입니다.<br><br>이벤트에 참여해 주셔서 감사합니다.</div>');
+                $('.info_box .inner').append('<div style="text-align:center; padding: 50px 0; color:#383838; font-size:18px; line-height:1.5;">이미 퀴즈에 참여한 기기입니다.<br><br>이벤트에 참여해 주셔서 감사합니다.</div>');
             }
 
             // 이름 입력 시 공백(스페이스바) 완전 차단

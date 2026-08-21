@@ -42,6 +42,7 @@
                 </div>
             </div>
         </div>
+
         <div class="info_box padding_b">
             <div class="inner">
                 <div class="tit">
@@ -193,7 +194,7 @@
         }
 
         if (region === "") { alert("지역을 선택해 주세요."); return; }
-        if (shopInfo === "") { alert("방문 가능 전시장를 선택해 주세요."); return; }
+        if (shopInfo === "") { alert("방문 가능 전시장을 선택해 주세요."); return; }
         if (carModelCode === "") { alert("관심차량 정보를 선택해 주세요."); return; }
 
         const fullEmail = emailId + "@" + customDomain;

@@ -586,6 +586,8 @@ body.host_w .btn_multi label.correct {background: #383838;border-color: #383838;
 .host_w .prize {scrollbar-width: thin;scrollbar-color: rgb(161, 161, 161) rgba(255, 255, 255, 18);}
 .host_w .end_success .txt_box .txt{color: #383838;}
 
+.host_w .quiz_a .ask{padding-bottom: 15px;}
+.host_w .time_box #timer{color: #383838 !important;}
 
 @media screen and (max-width:1400px) {
     .main_car .car_top{width: 90%;font-size: 48px;padding: 240px 0;}
@@ -651,6 +653,9 @@ body.host_w .btn_multi label.correct {background: #383838;border-color: #383838;
     .testdrive_box h3{font-size:20px;}
     .popup_notice li{font-size:15px;}
     .popup_btn{height:46px;}
+    
+    .time_box{right: 20px}
+    .time_box #timer{font-size: 54px;}
 }
 
 .ck-in.mobile{height: 100%; margin-top: 70px;}
