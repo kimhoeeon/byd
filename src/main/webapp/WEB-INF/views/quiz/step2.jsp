@@ -112,7 +112,7 @@
                                 <option value="BYD0001">BYD ATTO 3</option>
                                 <option value="BYD0005">BYD SEAL</option>
                                 <option value="BYD0019">BYD SEALION 7</option>
-                                <option value="BYD0000">BYD SEALION 6</option>
+                                <option value="BYD0012">BYD SEALION 6</option>
                             </select>
                         </div>
                     </li>

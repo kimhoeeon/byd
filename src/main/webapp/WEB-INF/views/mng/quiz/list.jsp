@@ -144,7 +144,7 @@
                                                         <span class="badge badge-light-primary fs-7"
                                                               data-bs-toggle="tooltip"
                                                               title="${user.carModelCode == 'BYD0019' ? 'BYD SEALION 7' :
-                                                              user.carModelCode == 'BYD0000' ? 'BYD SEALION 6' :
+                                                              user.carModelCode == 'BYD0012' ? 'BYD SEALION 6' :
                                                               user.carModelCode == 'BYD0005' ? 'BYD SEAL' :
                                                               user.carModelCode == 'BYD0001' ? 'BYD ATTO 3' :
                                                               user.carModelCode == 'BYD0004' ? 'BYD DOLPHIN' : '기타'}">
