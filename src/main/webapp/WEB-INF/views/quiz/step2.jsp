@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
     <link href="/css/reset.css" rel="stylesheet">
     <link href="/css/font.css" rel="stylesheet">
-    <link href="/css/style.css?ver=20260616" rel="stylesheet">
+    <link href="/css/style.css?ver=20260824" rel="stylesheet">
 
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <script src="/js/jquery-1.9.1.min.js"></script>

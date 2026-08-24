@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
-    <link rel="stylesheet" href="/css/style.css?ver=20260616">
+    <link rel="stylesheet" href="/css/style.css?ver=20260824">
 
     <title>BYD</title>
 
