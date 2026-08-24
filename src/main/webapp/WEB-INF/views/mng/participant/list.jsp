@@ -136,6 +136,7 @@
                                     <c:forEach items="${list}" var="item">
                                         <c:set var="shopCode" value="${item.shopInfo}" />
                                         <c:choose>
+                                            <c:when test="${item.shopInfo eq 'BYD 동대문'}"><c:set var="shopCode" value="APKR0001AW0020SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 동탄'}"><c:set var="shopCode" value="APKR0001AW0011SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 부산 동래'}"><c:set var="shopCode" value="APKR0001AW0010SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 분당'}"><c:set var="shopCode" value="APKR0001AW0003SW"/></c:when>
@@ -147,6 +148,7 @@
                                             <c:when test="${item.shopInfo eq 'BYD 스타필드 운정'}"><c:set var="shopCode" value="APKR0001AW0017SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 스타필드 일산'}"><c:set var="shopCode" value="APKR0001AW0013SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 스타필드 하남'}"><c:set var="shopCode" value="APKR0001AW0015SW"/></c:when>
+                                            <c:when test="${item.shopInfo eq 'BYD 용인'}"><c:set var="shopCode" value="APKR0001AW0009SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 일산'}"><c:set var="shopCode" value="APKR0001AW0007SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 창원'}"><c:set var="shopCode" value="APKR0001AW0012SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 강서'}"><c:set var="shopCode" value="APKR0002AW0004SW"/></c:when>
