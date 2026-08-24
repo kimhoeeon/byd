@@ -52,7 +52,7 @@ public class EventService {
             String sender = "07089498065";           // 사전에 등록된 발신자 번호 (ex. 0212345678)
 
             // 일반 이벤트 참여자 전용 안내 문자
-            String title = "[2026 부산 모빌리티쇼 BYD 참여 티켓]\n\n";
+            String title = "[EV TREND KOREA 2026 BYD 부스]\n\n";
             String greeting = "신청이 완료되었습니다.";
             String message = title +
                     p.getName() + "님, " + greeting + "\n" +
@@ -97,7 +97,7 @@ public class EventService {
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine);
                     }
-                    log.info("▶ [알리고 문자 전송 완료] 수신자: {}, 결과: {}", p.getPhone(), response.toString());
+                    //log.info("▶ [알리고 문자 전송 완료] 수신자: {}, 결과: {}", p.getPhone(), response.toString());
                 }
             } else {
                 log.error("▶ [알리고 에러] HTTP 응답 코드 오류: {}", responseCode);

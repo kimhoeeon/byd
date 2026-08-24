@@ -15,9 +15,9 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
     <meta property="og:site_name" content="BYD">
+    <meta property="og:image" content="https://bydevtrend2026.kr/img/og_img.jpg">
 
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
-
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/style.css?ver=20260616">
@@ -44,7 +44,7 @@
     </header>
 
     <div id="container" style="padding-top: 60px;">
-        <div class="info_box padding_tb" style="color: #fff;">
+        <div class="info_box padding_tb h-100" style="color: #fff;">
             <div class="inner" style="text-align: center;">
 
                 <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
@@ -54,8 +54,8 @@
 
                 <div class="bd_txt_w" style="margin-top: 20px;">
                     <div class="big">이벤트 참여가 성공적으로 완료되었습니다.</div>
-                    <p style="color: #CBCBCA; line-height: 1.6; margin-top: 15px;">
-                        입력하신 연락처로 <span style="color: #fff; font-weight: bold;">모바일 티켓(QR) 링크</span>가 발송되었습니다.
+                    <p style="color: #383838; line-height: 1.6; margin-top: 15px;">
+                        입력하신 연락처로 <span style="color: #383838; font-weight: bold;">모바일 티켓(QR) 링크</span>가 발송되었습니다.
                     </p>
                 </div>
 

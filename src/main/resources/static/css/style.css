@@ -139,7 +139,7 @@ label:last-child {margin-right: 0;}
 .bd_tit {font-weight: 700; font-size: 2.9rem; line-height: 3.5rem; margin-bottom: 15px; letter-spacing: -1px;}
 .bd_tit .small {font-size:2rem; line-height: 2.6rem;}
 .bd_txt_w {color: #fff; text-align: center; font-size: 1.6rem; line-height: 2.2rem;}
-.bd_txt_w .big {color: #fff; font-size: 2rem; line-height: 2.6rem; text-align: center; margin-bottom: 20px; }
+.bd_txt_w .big {color: #383838; font-size: 2rem; line-height: 2.6rem; text-align: center; margin-bottom: 20px; }
 .bd_txt_b {font-size: 1.6rem; line-height: 2.2rem;}
 .bd_txt_w .eng {color: #CBCBCA;}
 .bd_txt_b .eng {margin-top: 10px;}
@@ -216,7 +216,7 @@ label:last-child {margin-right: 0;}
 .ck-in .inner{margin: 0;}
 
 .ck-in{background: url(/img/quiz_bg.png) no-repeat;background-color: #000;background-position: center 70%; padding: 20px;}
-.ck-in .info_box{margin-top: 40px; padding: 20px;border: 1px solid #1B222C;border-radius: 10px;position: relative; overflow: hidden;;}
+.ck-in .info_box{margin-top: 40px; padding: 20px;border: 1px solid #1B222C;border-radius: 10px;position: relative; overflow: auto;}
 .ck-in .info_box::before{content: '';background: rgba(255,255,255,0.06); position: absolute; inset: 0;backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); z-index: 0;}
 .ck-in .info_box > *{position: relative; z-index: 1;}
 .ck-in input::placeholder{color: #fff;}
@@ -296,7 +296,7 @@ label:last-child {margin-right: 0;}
 
 .success {background:#000;}
 .success .top_tit img {width: 270px;}
-.success .nt_box {margin-top: 30px; color: #CBCBCA; font-size: 1.4rem; line-height: 2rem;}
+.success .nt_box {margin-top: 60px; color: #CBCBCA; font-size: 1.4rem; line-height: 2rem;}
 .success .nt_box .eng {margin-top: 30px; display: none;}
 .success .nt_box .txt p {margin: 5px 0; padding-left: 12px; position: relative;}
 .success .nt_box .txt p:before {display: block; content:"-"; position: absolute; left: 0;}
@@ -611,6 +611,8 @@ body.host_w .btn_multi label.correct {background: #383838;border-color: #383838;
 .apply_w .form_box .gubun{font-weight: 500;}
 .apply_w .ck-in .info_box .tel .phone-cert{background: #383838;color: #fff; border: 0;border-radius: 10px; padding: 0 15px;}
 .apply_w .terms-check p{color: #383838;}
+
+.info_box.h-100{height: 100vh;}
 
 @media screen and (max-width:1400px) {
     .main_car .car_top{width: 90%;font-size: 48px;padding: 240px 0;}
