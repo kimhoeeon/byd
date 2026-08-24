@@ -15,7 +15,7 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
     <meta property="og:site_name" content="BYD">
-    <meta property="og:image" content="https://bydevtrend2026.kr/img/og_img.jpg">
+    <meta property="og:image" content="https://bydevtrend2026.kr/img/og_img.jpg?ver=20260824">
 
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
     <link rel="stylesheet" href="/css/reset.css">
