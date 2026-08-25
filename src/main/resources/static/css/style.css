@@ -568,6 +568,8 @@ body.host .btn_multi input:disabled + label {pointer-events: none;}
 .quiz_w .form_box .input select{background: #CCCCCC url(../img/icon_select_arrow_b.svg) no-repeat right 1em bottom 50%; background-size: 12px;border: 1px solid #383838;border-radius: 10px;color: #fff;}
 .quiz_w .quiz_a{color: #383838;}
 .quiz_w .bar .tit{color: #383838;}
+.quiz_w .quiz_q .btn_multi.correct label{color: #03ff18 !important; border:2px solid #23eb3e !important}
+.quiz_w .quiz_q .btn_multi.fail label{color: #ff0303 !important; border:2px solid #eb2323 !important}
 .quiz_w .quiz_q .btn_multi label{color: #383838; background: #ccc; border:1px solid #686D71}
 .quiz_w .quiz_q .btn_multi input:checked + label{background: #383838; color: #fff; border: 1px solid #383838;}
 .quiz_w .end_wrap{color: #383838;}

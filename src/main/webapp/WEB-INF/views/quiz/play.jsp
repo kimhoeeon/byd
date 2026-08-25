@@ -28,12 +28,10 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
     <style>
-        .selected_ans {
-            background-color: #E50000 !important;
-            color: #fff !important;
-            font-weight: bold !important;
-            border-color: #E50000 !important;
-            box-shadow: 0 0 15px rgba(229, 0, 0, 0.4) !important;
+        .timer_box .time {
+            color: #383838 !important; /* 화이트 테마에 맞게 어두운 색상 */
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            font-variant-numeric: tabular-nums;
         }
         #loadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -51,7 +49,7 @@
     </div>
 
     <div id="container">
-        <div class="ck-in mobile center">
+        <div class="ck-in center">
 
             <!-- title -->
             <div class="top_tit">
@@ -74,13 +72,6 @@
                 <div class="tit">BYD 퀴즈 이벤트</div>
             </div>
 
-            <!-- 개별 10초 타이머 -->
-            <div class="time_box mt-5">
-                <div class="timer_box">
-                    <div id="timer" class="time"><span id="timer_label">10</span></div>
-                </div>
-            </div>
-
             <!-- 퀴즈 영역 -->
             <div id="content">
                 <div class="ct_wrap quiz_wrap mt-4">
@@ -90,19 +81,19 @@
 
                     <div class="quiz_q mt-4">
                         <div class="multi">
-                            <div class="btn_multi" onclick="selectAnswer(1)">
+                            <div class="btn_multi" id="div_choice1" onclick="selectAnswer(1)">
                                 <input type="radio" id="choice1" name="choice" value="1">
                                 <label for="choice1" id="label1">보기1</label>
                             </div>
-                            <div class="btn_multi" onclick="selectAnswer(2)">
+                            <div class="btn_multi" id="div_choice2" onclick="selectAnswer(2)">
                                 <input type="radio" id="choice2" name="choice" value="2">
                                 <label for="choice2" id="label2">보기2</label>
                             </div>
-                            <div class="btn_multi" onclick="selectAnswer(3)">
+                            <div class="btn_multi" id="div_choice3" onclick="selectAnswer(3)">
                                 <input type="radio" id="choice3" name="choice" value="3">
                                 <label for="choice3" id="label3">보기3</label>
                             </div>
-                            <div class="btn_multi" onclick="selectAnswer(4)">
+                            <div class="btn_multi" id="div_choice4" onclick="selectAnswer(4)">
                                 <input type="radio" id="choice4" name="choice" value="4">
                                 <label for="choice4" id="label4">보기4</label>
                             </div>
@@ -116,7 +107,7 @@
     <script>
         let questionData = null;
         let historySeq = 0;
-        let timer = 10;
+        let timer = 300; // 5분
         let countdownInterval;
         let isAnswered = false;
 
@@ -153,23 +144,30 @@
             $('#label4').text(questionData.choice4);
 
             $('input[name="choice"]').prop('checked', false);
-            $('.btn_multi label').removeClass('selected_ans');
+            $('.btn_multi').removeClass('correct fail'); // 초기화
 
             startTimer();
+        }
+
+        function updateTimerLabel() {
+            let minutes = Math.floor(timer / 60);
+            let seconds = timer % 60;
+            let formattedTime = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+            $('#timer_label').text(formattedTime);
         }
 
         function startTimer() {
             if (countdownInterval) clearInterval(countdownInterval);
 
-            timer = 10;
-            $('#timer_label').text(timer);
+            timer = 300;
+            updateTimerLabel();
 
             soundTimerIng.currentTime = 0;
             soundTimerIng.play().catch(e => console.log('사운드 재생 에러:', e));
 
             countdownInterval = setInterval(function () {
                 timer--;
-                $('#timer_label').text(timer);
+                updateTimerLabel();
 
                 if (timer <= 0) {
                     clearInterval(countdownInterval);
@@ -179,7 +177,7 @@
 
                     if (!isAnswered) {
                         isAnswered = true;
-                        autoSaveAndNext(0); // 시간 초과 시 0번(오답) 전송
+                        applyResultEffect(0); // 0 = 시간초과 (오답 처리)
                     }
                 }
             }, 1000);
@@ -193,33 +191,55 @@
             soundTimerIng.pause();
 
             $('input[name="choice"]').eq(answerId - 1).prop('checked', true);
-            $('.btn_multi label').removeClass('selected_ans');
-            $('#label' + answerId).addClass('selected_ans');
 
-            autoSaveAndNext(answerId);
+            applyResultEffect(answerId);
+        }
+
+        // [신규 로직] 퍼블리셔 CSS(correct, fail)를 활용한 시각적 피드백
+        function applyResultEffect(userAnswerId) {
+            const correctId = questionData.correctAnswer; // 실제 정답 번호
+
+            if (userAnswerId === correctId) {
+                // 정답을 맞춘 경우: 선택한 div에 'correct' 클래스 부여
+                $('#div_choice' + userAnswerId).addClass('correct');
+            } else {
+                // 오답이거나 시간초과인 경우
+                if (userAnswerId !== 0) {
+                    // 선택한 번호에는 'fail' 클래스 (빨간색)
+                    $('#div_choice' + userAnswerId).addClass('fail');
+                }
+                // 실제 정답이 무엇이었는지 'correct' 클래스로 보여줌 (녹색)
+                $('#div_choice' + correctId).addClass('correct');
+            }
+
+            // 시각적 피드백을 주기 위해 2.5초 대기 후 채점 로직으로 넘어감
+            setTimeout(function() {
+                autoSaveAndNext(userAnswerId);
+            }, 2500);
         }
 
         function autoSaveAndNext(answerId) {
+            $('#loadingText').text('결과를 확인 중입니다...');
+            $('#loadingOverlay').show();
+
             $.ajax({
                 url: '/api/quiz/auto-save',
                 type: 'POST',
                 data: {
                     historySeq: historySeq,
-                    questionIndex: 1, // 단일 문제이므로 1 전송
+                    questionIndex: 1,
                     answerId: answerId
+                },
+                success: function() {
+                    executeSubmitQuiz();
+                },
+                error: function() {
+                    executeSubmitQuiz(); // 임시저장 실패해도 최종 제출은 진행
                 }
             });
-
-            // 1문항이므로 지연 후 즉시 제출 로직 호출
-            setTimeout(function() {
-                executeSubmitQuiz();
-            }, 700);
         }
 
         function executeSubmitQuiz() {
-            $('#loadingText').text('답안을 채점하고 있습니다...');
-            $('#loadingOverlay').show();
-
             $.ajax({
                 url: '/api/quiz/submit',
                 type: 'POST',

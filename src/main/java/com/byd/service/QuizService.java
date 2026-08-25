@@ -82,7 +82,7 @@ public class QuizService {
                 List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
 
                 result.put("success", true);
-                result.put("questions", sanitizeAnswers(questions)); // 클라이언트에 정답 유출 방지
+                result.put("questions", questions);
                 result.put("historySeq", todayHistory.getHistorySeq());
                 result.put("userSeq", savedUser.getUserSeq());
                 result.put("playDate", today);
@@ -115,7 +115,7 @@ public class QuizService {
         List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
 
         result.put("success", true);
-        result.put("questions", sanitizeAnswers(questions));
+        result.put("questions", questions);
         result.put("historySeq", newHistory.getHistorySeq());
         result.put("userSeq", savedUser.getUserSeq());
         result.put("playDate", today);
@@ -198,13 +198,6 @@ public class QuizService {
 
     public void toggleGiftStatus(int historySeq, String status) {
         quizMapper.updateGiftStatus(historySeq, status);
-    }
-
-    private List<QuizQuestionVO> sanitizeAnswers(List<QuizQuestionVO> list) {
-        for (QuizQuestionVO q : list) {
-            q.setCorrectAnswer(0); // 프론트엔드 단 전송 전 정답 필드 마스킹 (보안)
-        }
-        return list;
     }
 
     public List<QuizQuestionVO> getQuestionList() {
