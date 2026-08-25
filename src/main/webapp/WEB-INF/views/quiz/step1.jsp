@@ -145,6 +145,7 @@
                         $("#step1Form").submit();
                     } else {
                         alert(res.message);
+                        location.reload();
                     }
                 },
                 error: function() {

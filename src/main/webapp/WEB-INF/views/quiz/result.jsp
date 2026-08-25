@@ -64,7 +64,7 @@
                         <div class="desc">너무 아쉬워요!</div>
 
                         <div class="txt_box">
-                            <div class="desc">BYD 퀴즈 이벤트에 참여해 주셔서 감사합니다.</div>
+                            <div class="desc" style="line-height: unset; margin-bottom: unset;">BYD 퀴즈 이벤트에 참여해 주셔서 감사합니다.</div>
                         </div>
                     </div>
 
