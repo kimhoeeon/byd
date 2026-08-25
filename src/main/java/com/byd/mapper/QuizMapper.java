@@ -19,6 +19,8 @@ public interface QuizMapper {
 
     QuizUserVO getUserByNameAndPhone(@Param("name") String name, @Param("phone") String phone);
 
+    QuizUserVO getUserByPhone(String phone);
+
     // --- 2. 퀴즈 진행 이력 관련 ---
     QuizHistoryVO getTodayHistory(@Param("userSeq") int userSeq);
 

@@ -28,11 +28,6 @@
     <script src="/js/jquery.ui.touch-punch.min.js"></script>
     <script src="/js/script.js"></script>
     <style>
-        .timer_box .time {
-            color: #383838 !important; /* 화이트 테마에 맞게 어두운 색상 */
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            font-variant-numeric: tabular-nums;
-        }
         #loadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 9999;
@@ -72,6 +67,13 @@
                 <div class="tit">BYD 퀴즈 이벤트</div>
             </div>
 
+            <!-- 개별 10초 타이머 -->
+            <%--<div class="time_box mt-5">
+                <div class="timer_box">
+                    <div id="timer" class="time" style="font-size: 24px;"><span id="timer_label">05:00</span></div>
+                </div>
+            </div>--%>
+
             <!-- 퀴즈 영역 -->
             <div id="content">
                 <div class="ct_wrap quiz_wrap mt-4">
@@ -105,14 +107,19 @@
     </div>
 
     <script>
+
+        // BFCache (뒤로가기 시 캐시된 페이지 사용) 방지 및 강제 초기화
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                location.reload();
+            }
+        });
+
         let questionData = null;
         let historySeq = 0;
         let timer = 300; // 5분
         let countdownInterval;
         let isAnswered = false;
-
-        const soundTimerIng = new Audio('/audio/timer_ing.mp3');
-        const soundTimerEnd = new Audio('/audio/timer_end.mp3');
 
         $(document).ready(function () {
             const questionsStr = sessionStorage.getItem('quizQuestions');
@@ -126,7 +133,7 @@
 
             const parsedQuestions = JSON.parse(questionsStr);
             if (parsedQuestions.length > 0) {
-                questionData = parsedQuestions[0]; // 단일 문제 할당
+                questionData = parsedQuestions[0];
             }
             historySeq = hSeq;
 
@@ -144,36 +151,22 @@
             $('#label4').text(questionData.choice4);
 
             $('input[name="choice"]').prop('checked', false);
-            $('.btn_multi').removeClass('correct fail'); // 초기화
+            $('.btn_multi').removeClass('correct fail');
 
-            startTimer();
+            startTimer(); // 백그라운드 5분 제한시간 시작
         }
 
-        function updateTimerLabel() {
-            let minutes = Math.floor(timer / 60);
-            let seconds = timer % 60;
-            let formattedTime = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
-            $('#timer_label').text(formattedTime);
-        }
-
+        // 백그라운드 타이머 실행 로직
         function startTimer() {
             if (countdownInterval) clearInterval(countdownInterval);
 
-            timer = 300;
-            updateTimerLabel();
-
-            soundTimerIng.currentTime = 0;
-            soundTimerIng.play().catch(e => console.log('사운드 재생 에러:', e));
+            timer = 300; // 5분으로 초기화
 
             countdownInterval = setInterval(function () {
                 timer--;
-                updateTimerLabel();
 
                 if (timer <= 0) {
                     clearInterval(countdownInterval);
-                    soundTimerIng.pause();
-                    soundTimerEnd.currentTime = 0;
-                    soundTimerEnd.play().catch(e => console.log('사운드 에러:', e));
 
                     if (!isAnswered) {
                         isAnswered = true;
@@ -187,15 +180,14 @@
             if (isAnswered) return;
             isAnswered = true;
 
-            clearInterval(countdownInterval);
-            soundTimerIng.pause();
+            clearInterval(countdownInterval); // 답변 시 타이머 중지
 
             $('input[name="choice"]').eq(answerId - 1).prop('checked', true);
 
             applyResultEffect(answerId);
         }
 
-        // [신규 로직] 퍼블리셔 CSS(correct, fail)를 활용한 시각적 피드백
+        // 퍼블리셔 CSS(correct, fail)를 활용한 시각적 피드백
         function applyResultEffect(userAnswerId) {
             const correctId = questionData.correctAnswer; // 실제 정답 번호
 
@@ -234,7 +226,7 @@
                     executeSubmitQuiz();
                 },
                 error: function() {
-                    executeSubmitQuiz(); // 임시저장 실패해도 최종 제출은 진행
+                    executeSubmitQuiz();
                 }
             });
         }

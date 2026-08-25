@@ -21,6 +21,13 @@
         LIMIT 1
     </select>
 
+    <select id="getUserByPhone" resultType="com.byd.vo.QuizUserVO">
+        SELECT * FROM quiz_user
+        WHERE phone = #{phone}
+        ORDER BY user_seq DESC
+        LIMIT 1
+    </select>
+
     <!-- 2. 이력 및 진행 -->
     <select id="getTodayHistory" resultType="com.byd.vo.QuizHistoryVO">
         SELECT *

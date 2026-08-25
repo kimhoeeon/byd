@@ -79,13 +79,9 @@
 
             // 결과 화면에서 새로고침(F5) 시 세션이 비워져 있으므로 비정상 접근 처리 후 step1으로 이동
             if (scoreStr === null || scoreStr === "") {
-                alert("정상적인 접근이 아닙니다. 퀴즈를 다시 진행해 주세요.");
                 location.replace("/quiz/step1");
                 return;
             }
-
-            // 퀴즈를 완료했으므로 브라우저에 참여 완료 꼬리표 부착 (재접속 차단용)
-            localStorage.setItem('quizCompleted_BYD2026', 'Y');
 
             const score = parseInt(scoreStr);
 
