@@ -53,8 +53,7 @@
 
                         <div class="txt_box">
                             <img src="/img/ico_present_g.png" alt="선물">
-                            <div class="txt">기념품 수령 안내</div>
-                            <div class="desc">안내센터로 가서 기념품을 수령해 보세요.<br>기념품은 1인 1개만 수령 가능합니다.</div>
+                            <div class="desc" style="line-height: unset; margin-bottom: unset;">입력하신 연락처로 모바일 커피 쿠폰을 보내드립니다.</div>
                         </div>
                     </div>
 

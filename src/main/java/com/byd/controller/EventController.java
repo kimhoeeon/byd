@@ -99,9 +99,30 @@ public class EventController {
             return "redirect:/apply/step1";
         }
 
+        // 기본 정보 세팅
         participantVO.setName(temp.getName());
         participantVO.setPhone(temp.getPhone());
         participantVO.setPrivacyAgree(temp.getPrivacyAgree());
+
+        // 주요 데이터 누락 여부 확인 및 로깅
+        if (participantVO.getShopInfo() == null || participantVO.getShopInfo().trim().isEmpty()
+                || participantVO.getCarModel() == null || participantVO.getCarModel().trim().isEmpty()) {
+
+            String logShop = (participantVO.getShopInfo() != null) ? participantVO.getShopInfo() : "전시장없음";
+            String logCar = (participantVO.getCarModel() != null) ? participantVO.getCarModel() : "관심차종없음";
+
+            log.warn("▶ [일반이벤트 데이터 누락 발생] 이름: {}, 연락처: {}, 전시장: {}, 관심차종: {}",
+                    participantVO.getName(), participantVO.getPhone(), logShop, logCar);
+
+            // 아예 저장을 막고 에러 메시지와 함께 돌려보냄
+            redirectAttributes.addFlashAttribute("errorMsg", "필수 정보가 누락되었습니다. 다시 시도해 주세요.");
+            return "redirect:/apply/step2";
+        } else {
+            // 정상 유입 시 모든 수집 데이터 상세 로깅 (추후 데이터 틀어짐 대비)
+            log.info("▷ [일반이벤트 정상 유입 데이터] 이름: {}, 연락처: {}, 이메일: {}, 전시장: {}, 관심차종: {}, 마케팅동의: {}",
+                    participantVO.getName(), participantVO.getPhone(), participantVO.getEmail(),
+                    participantVO.getShopInfo(), participantVO.getCarModel(), participantVO.getMktAgree());
+        }
 
         try {
             eventService.insertParticipant(participantVO);

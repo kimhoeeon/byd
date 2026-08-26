@@ -53,28 +53,45 @@ public class QuizService {
     public Map<String, Object> startQuiz(QuizUserVO userVO) {
         Map<String, Object> result = new HashMap<>();
 
-        if (userVO == null || userVO.getPhone() == null || userVO.getPhone().trim().isEmpty()) {
-            log.warn("▶ [입장 거부] 필수 정보(연락처) 누락 접근 시도");
+        // 1. 필수값 백엔드 검증 (데이터 누락 로깅)
+        if (userVO == null || userVO.getPhone() == null || userVO.getPhone().trim().isEmpty()
+                || userVO.getShopInfo() == null || userVO.getShopInfo().trim().isEmpty()) {
+
+            String logName = (userVO != null && userVO.getName() != null) ? userVO.getName() : "이름없음";
+            String logPhone = (userVO != null && userVO.getPhone() != null) ? userVO.getPhone() : "연락처없음";
+            String logShop = (userVO != null && userVO.getShopInfo() != null) ? userVO.getShopInfo() : "전시장없음";
+            String logEmail = (userVO != null && userVO.getEmail() != null) ? userVO.getEmail() : "이메일없음";
+
+            log.warn("▶ [퀴즈 데이터 누락 발생] 이름: {}, 연락처: {}, 전시장: {}, 이메일: {}", logName, logPhone, logShop, logEmail);
+
             result.put("success", false);
-            result.put("message", "연락처 정보가 누락되었습니다. 정상적인 경로로 참여해 주세요.");
+            result.put("message", "필수 정보가 누락되었습니다. 정상적인 경로로 참여해 주세요.");
             return result;
         }
 
+        // 정상 진입 시 모든 수집 데이터를 상세 로깅 (추후 민원/데이터 추적용)
+        log.info("▷ [퀴즈 정상 유입 데이터] 이름: {}, 연락처: {}, 이메일: {}, 지역: {}, 전시장: {}, 관심차종코드: {}",
+                userVO.getName(), userVO.getPhone(), userVO.getEmail(), userVO.getRegion(), userVO.getShopInfo(), userVO.getCarModelCode());
+
         String today = getTodayString();
 
-        // 연락처 기준으로 기존 가입된 유저가 있는지 먼저 확인
+        // 2. 기존 유저 여부와 상관없이 무조건 insertUser 실행 (ON DUPLICATE KEY UPDATE)
+        quizMapper.insertUser(userVO);
+
+        // 3. 업데이트 또는 신규 등록된 유저 정보를 다시 조회하여 확정
         QuizUserVO savedUser = quizMapper.getUserByPhone(userVO.getPhone());
 
+        // savedUser가 null일 경우의 확실한 예외 처리(방어 로직)
         if (savedUser == null) {
-            // 완전히 새로운 연락처인 경우에만 insert
-            quizMapper.insertUser(userVO);
-            savedUser = quizMapper.getUserByPhone(userVO.getPhone());
-        } else {
-            // 이미 등록된 연락처라면 기존 정보(userSeq)를 그대로 사용 (동일인 식별)
-            log.info("▷ [기존 유저 접근] 연락처: {}", savedUser.getPhone());
+            log.error("▶ [유저 조회 실패] DB 등록 후 유저 정보를 찾을 수 없습니다. 연락처: {}", userVO.getPhone());
+            result.put("success", false);
+            result.put("message", "사용자 정보 처리 중 일시적인 오류가 발생했습니다. 다시 시도해 주세요.");
+            return result;
         }
 
-        // 오늘 이미 생성된 이력이 있는지 확인 (재접속 방어)
+        log.info("▷ [유저 정보 확정/업데이트 완료] 연락처: {}", savedUser.getPhone());
+
+        // 4. 오늘 이미 생성된 이력이 있는지 확인 (재접속 방어)
         QuizHistoryVO todayHistory = quizMapper.getTodayHistory(savedUser.getUserSeq());
         if (todayHistory != null) {
             if ("COMPLETED".equals(todayHistory.getStatus())) {
@@ -97,7 +114,7 @@ public class QuizService {
             }
         }
 
-        // 완전히 처음 참여하는 유저: 문제은행에서 무작위 1문제 추출
+        // 5. 완전히 처음 참여하는 유저: 문제은행에서 무작위 1문제 추출
         List<Integer> randomIds = quizMapper.getRandomQuestionIds(1);
         if (randomIds == null || randomIds.isEmpty()) {
             result.put("success", false);
@@ -109,7 +126,7 @@ public class QuizService {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 
-        // 신규 이력 생성 (답안 초기값 0)
+        // 6. 신규 이력 생성 (답안 초기값 0)
         QuizHistoryVO newHistory = new QuizHistoryVO();
         newHistory.setUserSeq(savedUser.getUserSeq());
         newHistory.setAssignedQuestions(assignedQuestionsStr);
@@ -122,7 +139,7 @@ public class QuizService {
         List<QuizQuestionVO> questions = quizMapper.getQuestionsByIds(qIds);
 
         result.put("success", true);
-        result.put("questions", questions); // 정답 마스킹 해제 유지됨
+        result.put("questions", questions);
         result.put("historySeq", newHistory.getHistorySeq());
         result.put("userSeq", savedUser.getUserSeq());
         result.put("playDate", today);
