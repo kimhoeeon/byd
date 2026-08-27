@@ -282,7 +282,8 @@ public class AdminMngController {
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"등록일시", "경품수령확인(QR)", "이름", "연락처", "이메일", "방문전시장", "관심차량", "마케팅동의"};
+        // 엑셀 헤더에 방문전시장코드, 관심차량코드 추가
+        String[] headers = {"등록일시", "경품수령확인(QR)", "이름", "연락처", "이메일", "방문전시장", "방문전시장코드", "관심차량", "관심차량코드", "마케팅동의"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -295,20 +296,86 @@ public class AdminMngController {
 
         for (ParticipantVO vo : list) {
             Row row = sheet.createRow(rowNum++);
+
+            // 방문전시장 코드 변환 로직
+            String shopCode = vo.getShopInfo();
+            if (shopCode != null) {
+                switch (shopCode) {
+                    case "BYD 동대문": shopCode = "APKR0001AW0020SW"; break;
+                    case "BYD 동탄": shopCode = "APKR0001AW0011SW"; break;
+                    case "BYD 부산 동래": shopCode = "APKR0001AW0010SW"; break;
+                    case "BYD 분당": shopCode = "APKR0001AW0003SW"; break;
+                    case "BYD 서초": shopCode = "APKR0001AW0002SW"; break;
+                    case "BYD 수영": shopCode = "APKR0001AW0005SW"; break;
+                    case "BYD 수원": shopCode = "APKR0001AW0001SW"; break;
+                    case "BYD 스타필드 명지": shopCode = "APKR0001AW0014SW"; break;
+                    case "BYD 스타필드 안성": shopCode = "APKR0001AW0016SW"; break;
+                    case "BYD 스타필드 운정": shopCode = "APKR0001AW0017SW"; break;
+                    case "BYD 스타필드 일산": shopCode = "APKR0001AW0013SW"; break;
+                    case "BYD 스타필드 하남": shopCode = "APKR0001AW0015SW"; break;
+                    case "BYD 용인": shopCode = "APKR0001AW0009SW"; break;
+                    case "BYD 일산": shopCode = "APKR0001AW0007SW"; break;
+                    case "BYD 창원": shopCode = "APKR0001AW0012SW"; break;
+                    case "BYD 강서": shopCode = "APKR0002AW0004SW"; break;
+                    case "BYD 김포": shopCode = "APKR0002AW0005SW"; break;
+                    case "BYD 마포": shopCode = "APKR0002AW0006SW"; break;
+                    case "BYD 용산": shopCode = "APKR0002AW0001SW"; break;
+                    case "BYD 의정부": shopCode = "APKR0002AW0010SW"; break;
+                    case "BYD 제주": shopCode = "APKR0002AW0002SW"; break;
+                    case "BYD 천안": shopCode = "APKR0002AW0008SW"; break;
+                    case "BYD 청주": shopCode = "APKR0002AW0009SW"; break;
+                    case "BYD 강동": shopCode = "APKR0003AW0010SW"; break;
+                    case "BYD 목동": shopCode = "APKR0003AW0002SW"; break;
+                    case "BYD 부천": shopCode = "APKR0003AW0007SW"; break;
+                    case "BYD 서해구": shopCode = "APKR0003AW0008SW"; break;
+                    case "BYD 송도": shopCode = "APKR0003AW0001SW"; break;
+                    case "BYD 송파": shopCode = "APKR0003AW0009SW"; break;
+                    case "BYD 안양": shopCode = "APKR0003AW0003SW"; break;
+                    case "BYD 대구": shopCode = "APKR0004AW0001SW"; break;
+                    case "BYD 포항": shopCode = "APKR0004AW0002SW"; break;
+                    case "BYD 원주": shopCode = "APKR0005AW0001SW"; break;
+                    case "BYD 광주": shopCode = "APKR0006AW0003SW"; break;
+                    case "BYD 대전": shopCode = "APKR0006AW0001SW"; break;
+                    case "BYD 전주": shopCode = "APKR0006AW0005SW"; break;
+                    default: shopCode = vo.getShopInfo(); break;
+                }
+            } else {
+                shopCode = "";
+            }
+
+            // 관심차량 코드 변환 로직
+            String carCode = vo.getCarModel();
+            if (carCode != null) {
+                switch (carCode) {
+                    case "BYD DOLPHIN": carCode = "BYD0004"; break;
+                    case "BYD ATTO 3": carCode = "BYD0001"; break;
+                    case "BYD SEAL": carCode = "BYD0005"; break;
+                    case "BYD SEALION 7": carCode = "BYD0019"; break;
+                    case "BYD SEALION 6": carCode = "BYD0012"; break;
+                    default: carCode = vo.getCarModel(); break;
+                }
+            } else {
+                carCode = "";
+            }
+
             row.createCell(0).setCellValue(vo.getRegDate() != null ? sdf.format(vo.getRegDate()) : "");
             row.createCell(1).setCellValue("Y".equals(vo.getGiftCheckYn()) ? "수령 완료" : "미수령");
             row.createCell(2).setCellValue(vo.getName());
             row.createCell(3).setCellValue(vo.getPhone());
             row.createCell(4).setCellValue(vo.getEmail() != null ? vo.getEmail() : "");
             row.createCell(5).setCellValue(vo.getShopInfo() != null ? vo.getShopInfo() : "");
-            row.createCell(6).setCellValue(vo.getCarModel() != null ? vo.getCarModel() : "");
-            row.createCell(7).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
+            row.createCell(6).setCellValue(shopCode);
+            row.createCell(7).setCellValue(vo.getCarModel() != null ? vo.getCarModel() : "");
+            row.createCell(8).setCellValue(carCode);
+            row.createCell(9).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
 
-            for (int i = 0; i < 8; i++) {
+            // 열 갯수 8개에서 10개로 증가
+            for (int i = 0; i < 10; i++) {
                 row.getCell(i).setCellStyle(dataStyle);
             }
         }
 
+        // 열 갯수 변경으로 인한 길이 조절 루프 증가
         for (int i = 0; i < headers.length; i++) {
             sheet.setColumnWidth(i, 4000);
         }
