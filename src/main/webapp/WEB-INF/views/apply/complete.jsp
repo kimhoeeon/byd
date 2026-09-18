@@ -15,12 +15,12 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
     <meta property="og:site_name" content="BYD">
-    <meta property="og:image" content="https://bydevtrend2026.kr/img/og_img.jpg?ver=20260824">
+    <meta property="og:image" content="https://bydsmrun26.co.kr/img/og_img.jpg?ver=20260918">
 
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
-    <link rel="stylesheet" href="/css/style.css?ver=20260824">
+    <link rel="stylesheet" href="/css/style.css?ver=20260918">
 
     <title>BYD</title>
 
@@ -49,13 +49,14 @@
 
                 <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
                 <div class="bd_tit" style="color: #bb0a0a;">
-                    신청 완료
+                    BYD SEALION 6 DM-I 증정 이벤트 응모 완료
                 </div>
 
                 <div class="bd_txt_w" style="margin-top: 20px;">
-                    <div class="big">이벤트 참여가 성공적으로 완료되었습니다.</div>
+                    <div class="big">무대에서 진행되는 경품 이벤트를 기대해주세요!</div>
                     <p style="color: #383838; line-height: 1.6; margin-top: 15px;">
-                        입력하신 연락처로 <span style="color: #383838; font-weight: bold;">모바일 티켓(QR) 링크</span>가 발송되었습니다.
+                        입력하신 연락처로 발송된 <span style="color: #383838; font-weight: bold;">모바일 티켓(QR) 링크</span>를 확인해주세요.<br/>
+                        인증 QR을 인포데스크에 보여주시면 기프트를 드립니다.
                     </p>
                 </div>
 

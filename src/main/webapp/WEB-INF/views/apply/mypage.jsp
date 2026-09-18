@@ -15,13 +15,13 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
     <meta property="og:site_name" content="BYD">
-    <meta property="og:image" content="https://bydevtrend2026.kr/img/og_img.jpg?ver=20260824">
+    <meta property="og:image" content="https://bydsmrun26.co.kr/img/og_img.jpg?ver=20260918">
 
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
-    <link rel="stylesheet" href="/css/style.css?ver=20260824">
+    <link rel="stylesheet" href="/css/style.css?ver=20260918">
 
     <title>BYD</title>
 

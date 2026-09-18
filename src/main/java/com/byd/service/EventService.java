@@ -52,11 +52,11 @@ public class EventService {
             String sender = "07089498065";           // 사전에 등록된 발신자 번호 (ex. 0212345678)
 
             // 일반 이벤트 참여자 전용 안내 문자
-            String title = "[EV TREND KOREA 2026 BYD 부스]\n\n";
+            String title = "[BYD X SMRUN 26]\n\n";
             String greeting = "신청이 완료되었습니다.";
             String message = title +
                     p.getName() + "님, " + greeting + "\n" +
-                    "현장 데스크에서 아래 링크의 모바일 티켓(QR)을 보여주세요.\n\n" +
+                    "인포 데스크에서 아래 링크의 모바일 티켓(QR)을 보여주세요.\n\n" +
                     "▶ 모바일 티켓 보기:\n" + ticketUrl;
 
             // 알리고 요청 파라미터 세팅

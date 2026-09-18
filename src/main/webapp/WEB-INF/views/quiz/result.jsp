@@ -12,14 +12,14 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
     <meta property="og:site_name" content="BYD">
-    <meta property="og:image" content="https://bydevtrend2026.kr/img/og_img.jpg?ver=20260824">
+    <meta property="og:image" content="https://bydsmrun26.co.kr/img/og_img.jpg?ver=20260918">
 
     <title>BYD 퀴즈 이벤트</title>
 
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
     <link href="/css/reset.css" rel="stylesheet">
     <link href="/css/font.css" rel="stylesheet">
-    <link href="/css/style.css?ver=20260824" rel="stylesheet">
+    <link href="/css/style.css?ver=20260918" rel="stylesheet">
 
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <script src="/js/jquery-1.9.1.min.js"></script>
