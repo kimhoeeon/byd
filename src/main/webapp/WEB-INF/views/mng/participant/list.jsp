@@ -117,20 +117,22 @@
                         <div class="card-body pt-0" style="overflow-x: auto;">
                             <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable" style="min-width: 1200px;">
                                 <thead>
-                                    <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center min-w-100px">등록일자</th>
-                                        <th class="text-center min-w-100px">경품 수령 확인</th>
-                                        <th class="text-center min-w-100px">이름</th>
-                                        <th class="text-center min-w-150px">연락처</th>
-                                        <th class="text-center min-w-200px">이메일</th>
-                                        <th class="text-center min-w-150px">방문 전시장</th>
-                                        <th class="text-center min-w-150px">관심차량</th>
-                                        <th class="text-center">개인정보<br>수집동의</th>
-                                        <th class="text-center">제3자<br>제공동의</th>
-                                        <th class="text-center">처리위탁<br>동의</th>
-                                        <th class="text-center">마케팅<br>동의</th>
-                                        <th class="text-center min-w-80px">관리</th>
-                                    </tr>
+                                <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                    <th class="text-center min-w-100px">등록일자</th>
+                                    <th class="text-center min-w-100px">경품 수령 확인</th>
+                                    <th class="text-center min-w-80px">배번호</th>
+                                    <th class="text-center min-w-100px">이름</th>
+                                    <th class="text-center min-w-150px">연락처</th>
+                                    <th class="text-center min-w-100px">생년월일</th>
+                                    <th class="text-center min-w-200px">이메일</th>
+                                    <th class="text-center min-w-150px">방문 전시장</th>
+                                    <th class="text-center min-w-150px">관심차량</th>
+                                    <th class="text-center">개인정보<br>수집동의</th>
+                                    <th class="text-center">제3자<br>제공동의</th>
+                                    <th class="text-center">처리위탁<br>동의</th>
+                                    <th class="text-center">마케팅<br>동의</th>
+                                    <th class="text-center min-w-80px">관리</th>
+                                </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach items="${list}" var="item">
@@ -191,8 +193,10 @@
                                                     <span class="slider"></span>
                                                 </label>
                                             </td>
+                                            <td class="fw-bold text-danger">${empty item.bibNumber ? '-' : item.bibNumber}</td>
                                             <td><a href="/mng/participant/detail?seq=${item.seq}&pageNum=${cri.pageNum}&searchType=${cri.searchType}&keyword=${cri.keyword}" class="link-name">${item.name}</a></td>
                                             <td>${item.phone}</td>
+                                            <td>${empty item.birthDate ? '-' : item.birthDate}</td>
                                             <td>${empty item.email ? '-' : item.email}</td>
                                             <td class="code-text" title="${item.shopInfo}">${empty item.shopInfo ? '-' : shopCode}</td>
                                             <td class="code-text" title="${item.carModel}">${empty item.carModel ? '-' : carCode}</td>

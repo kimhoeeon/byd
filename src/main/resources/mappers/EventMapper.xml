@@ -2,6 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.byd.mapper.EventMapper">
 
+    <select id="getParticipantByBibNumber" parameterType="string" resultType="com.byd.vo.ParticipantVO">
+        SELECT * FROM event_participant
+        WHERE bib_number = #{bibNumber}
+        LIMIT 1
+    </select>
+
     <select id="getParticipantByPhone" parameterType="string" resultType="com.byd.vo.ParticipantVO">
         SELECT * FROM event_participant
         WHERE phone = #{phone}
@@ -23,11 +29,11 @@
 
     <insert id="insertParticipant" parameterType="com.byd.vo.ParticipantVO" useGeneratedKeys="true" keyProperty="seq">
         INSERT INTO event_participant (
-            name, phone, email, shop_info, car_model,
+            bib_number, birth_date, name, phone, email, shop_info, car_model,
             privacy_agree, third_party_agree, entrust_agree, mkt_agree, provide_agree,
             drive_check_yn, sms_check_yn, qr_check_yn, reg_date
         ) VALUES (
-                     #{name}, #{phone}, #{email}, #{shopInfo}, #{carModel},
+                     #{bibNumber}, #{birthDate}, #{name}, #{phone}, #{email}, #{shopInfo}, #{carModel},
                      #{privacyAgree}, #{thirdPartyAgree}, #{entrustAgree}, #{mktAgree}, #{provideAgree},
                      'N', 'N', 'N', NOW()
                  )

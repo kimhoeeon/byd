@@ -95,6 +95,12 @@
                                     <td colspan="3"><fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${data.regDate}"/></td>
                                 </tr>
                                 <tr>
+                                    <th class="bg-light fw-bold text-danger">배번호</th>
+                                    <td class="fw-bold text-danger">${empty data.bibNumber ? '-' : data.bibNumber}</td>
+                                    <th class="bg-light fw-bold">생년월일</th>
+                                    <td>${empty data.birthDate ? '-' : data.birthDate}</td>
+                                </tr>
+                                <tr>
                                     <th class="bg-light fw-bold">이름</th>
                                     <td>${data.name}</td>
                                     <th class="bg-light fw-bold">연락처</th>

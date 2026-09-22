@@ -37,7 +37,7 @@
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
-                        <img src="/img/logo_g.png" alt="logo">
+                        <img src="/img/logo_g.png?ver=20260921" alt="logo">
                     </div>
                 </div>
             </div>

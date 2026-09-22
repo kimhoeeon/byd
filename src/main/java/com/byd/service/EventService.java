@@ -24,6 +24,10 @@ public class EventService {
 
     private final EventMapper eventMapper;
 
+    public ParticipantVO getParticipantByBibNumber(String bibNumber) {
+        return eventMapper.getParticipantByBibNumber(bibNumber);
+    }
+
     public ParticipantVO getParticipantByPhone(String phone) {
         return eventMapper.getParticipantByPhone(phone);
     }
@@ -103,7 +107,8 @@ public class EventService {
                 log.error("▶ [알리고 에러] HTTP 응답 코드 오류: {}", responseCode);
             }
         } catch (Exception e) {
-            log.error("▶ [알리고 예외 발생] 문자 발송 실패: {}", e.getMessage());
+            // 어느 연락처(p.getPhone())로 보내려다 실패했는지 명확히 기록
+            log.error("▶ [알리고 예외 발생] 문자 발송 실패. 수신자: {}, 에러: {}", p.getPhone(), e.getMessage());
         }
     }
 

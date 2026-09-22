@@ -25,8 +25,7 @@
         .summary-card:hover { transform: translateY(-3px); }
         .bg-card-1 { background-color: #009ef7; }
         .bg-card-2 { background-color: #50cd89; }
-        .bg-card-3 { background-color: #7239ea; }
-        .bg-card-4 { background-color: #f1416c; }
+        /*.bg-card-3 { background-color: #7239ea; }*/
         .bg-card-5 { background-color: #f6c23e; }
 
         .summary-card .progress { height: 6px; background-color: rgba(255,255,255,0.25); border-radius: 4px; margin-top: 5px; }
@@ -42,12 +41,12 @@
 
 <c:set var="totalCnt" value="${stats.totalCnt != null ? stats.totalCnt : 0}" />
 <c:set var="todayCnt" value="${stats.todayCnt != null ? stats.todayCnt : 0}" />
-<c:set var="quizTotalCnt" value="${stats.challengeCnt != null ? stats.challengeCnt : 0}" />
-<c:set var="quizPerfectCnt" value="${stats.quizPerfectCount != null ? stats.quizPerfectCount : 0}" />
 <c:set var="giftCnt" value="${stats.giftCnt != null ? stats.giftCnt : 0}" />
-
-<c:set var="quizPct" value="${quizTotalCnt > 0 ? (quizPerfectCnt * 100.0 / quizTotalCnt) : 0}" />
 <c:set var="giftPct" value="${totalCnt > 0 ? (giftCnt * 100.0 / totalCnt) : 0}" />
+
+<%--<c:set var="quizTotalCnt" value="${stats.challengeCnt != null ? stats.challengeCnt : 0}" />
+<c:set var="quizPerfectCnt" value="${stats.quizPerfectCount != null ? stats.quizPerfectCount : 0}" />
+<c:set var="giftCnt" value="${stats.giftCnt != null ? stats.giftCnt : 0}" />--%>
 
 <!-- 레이아웃 붕괴 방지를 위해 id 필수 적용 (kt_app_root) -->
 <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
@@ -69,7 +68,7 @@
                 <div class="d-flex flex-column flex-column-fluid p-10">
 
                     <!-- 최상단 요약 카드 -->
-                    <div class="row g-5 mb-7 row-cols-1 row-cols-md-2 row-cols-xl-4">
+                    <div class="row g-5 mb-7 row-cols-1 row-cols-md-3 row-cols-xl-3">
 
                         <div class="col">
                             <div class="card summary-card bg-card-1 p-6 h-100 d-flex flex-column justify-content-between">
@@ -107,7 +106,7 @@
                             </div>
                         </div>
 
-                        <div class="col">
+                        <%--<div class="col">
                             <div class="card summary-card bg-card-3 p-6 h-100 d-flex flex-column justify-content-between">
                                 <div>
                                     <div class="fw-bold fs-6 opacity-75">퀴즈 정답 현황</div>
@@ -123,7 +122,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>--%>
 
                         <div class="col">
                             <div class="card summary-card bg-card-5 p-6 h-100 d-flex flex-column justify-content-between">
@@ -198,16 +197,13 @@
 <script src="/assets/plugins/global/plugins.bundle.js"></script>
 <script src="/assets/js/scripts.bundle.js"></script>
 <script>
-    // 공통 컬러 팔레트
     const palette = ['#009ef7', '#50cd89', '#ffc700', '#7239ea', '#f1416c', '#43b1e5', '#ff9800', '#20c997', '#e83e8c', '#6f42c1'];
 
-    // 데이터 파싱 헬퍼 함수
     const extractValues = (dataArr) => ({
         labels: dataArr.map(d => d.label),
         data: dataArr.map(d => d.cnt)
     });
 
-    // 1. 일별 신청 추이 (라인 차트)
     const dailyLabels = [<c:forEach items="${chartData.dailyLabels}" var="label" varStatus="st">'${label}'${!st.last ? ',' : ''}</c:forEach>];
     const dailyData = [<c:forEach items="${chartData.dailyData}" var="d" varStatus="st">${d}${!st.last ? ',' : ''}</c:forEach>];
 
@@ -222,7 +218,6 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
-    // 2. 기념품 수령 비율 (도넛 차트 - 시승 비율 대신 경품 비율로 데이터 변경)
     const giftGiven = parseInt("${giftCnt}") || 0;
     const giftWaiting = (parseInt("${totalCnt}") || 0) - giftGiven;
 
@@ -235,7 +230,6 @@
         options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom' } } }
     });
 
-    // 3. 관심 차종 분포 (도넛 차트)
     const carArr = [<c:forEach items="${chartData.carStats}" var="item" varStatus="st">{label:'${item.label}', cnt:${item.cnt}}${!st.last?',' : ''}</c:forEach>];
     const carExt = extractValues(carArr);
     new Chart(document.getElementById('carChart'), {
@@ -247,7 +241,6 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
 
-    // 4. 시간대별 신청 현황 (바 차트)
     const rawTimeStatsDump = [
         <c:forEach items="${chartData.timeStats}" var="item" varStatus="st">
         {
@@ -271,7 +264,6 @@
         };
     }).filter(d => d.date !== '' && d.time !== '');
 
-    // 백엔드에서 내려주는 시간 포맷이 유동적일 수 있으므로 동적으로 x축 라벨 추출
     const uniqueTimes = [...new Set(normalizedStats.map(d => d.time))].sort();
     const uniqueDates = [...new Set(normalizedStats.map(d => d.date))].sort();
 
@@ -315,7 +307,6 @@
         }
     });
 
-    // 5. 전시장별 TOP 10 (가로 바 차트)
     const shopArr = [<c:forEach items="${chartData.shopStats}" var="item" varStatus="st">{label:'${item.label}', cnt:${item.cnt}}${!st.last?',' : ''}</c:forEach>];
     const shopExt = extractValues(shopArr);
     new Chart(document.getElementById('shopChart'), {

@@ -36,7 +36,8 @@ public class EventController {
     // 1단계 이름/연락처 검증 및 중복 참여 체크 API
     @PostMapping("/checkParticipant")
     @ResponseBody
-    public Map<String, Object> checkParticipant(@RequestParam("name") String name,
+    public Map<String, Object> checkParticipant(@RequestParam("bibNumber") String bibNumber,
+                                                @RequestParam("name") String name,
                                                 @RequestParam("phone") String phone,
                                                 @RequestParam("privacyAgree") String privacyAgree,
                                                 HttpServletRequest request,
@@ -45,6 +46,16 @@ public class EventController {
         String cleanPhone = phone.replaceAll("[^0-9]", "");
 
         try {
+            // 1. 배번호 중복 선제 검증
+            ParticipantVO existingBib = eventService.getParticipantByBibNumber(bibNumber);
+            if (existingBib != null) {
+                result.put("error", false);
+                result.put("bibDuplicate", true);
+                result.put("message", "이미 등록된 배번호입니다.");
+                return result;
+            }
+
+            // 2. 연락처(오늘 신청 여부) 중복 검증
             ParticipantVO existing = eventService.getParticipantByPhoneToday(cleanPhone);
             if (existing != null) {
                 // 이미 오늘 참여 완료한 유저는 마이페이지 티켓 확인 주소 발행
@@ -54,15 +65,19 @@ public class EventController {
                 String redirectUrl = baseUrl + "/apply/ticket?token=" + URLEncoder.encode(encryptedSeq, "UTF-8");
 
                 result.put("exists", true);
+                result.put("bibDuplicate", false);
                 result.put("redirectUrl", redirectUrl);
             } else {
                 // 신규 유저는 임시 세션 생성 후 2단계 허용
                 ParticipantVO temp = new ParticipantVO();
+                temp.setBibNumber(bibNumber);
                 temp.setName(name);
                 temp.setPhone(cleanPhone);
                 temp.setPrivacyAgree(privacyAgree);
                 session.setAttribute("tempInfo", temp);
+
                 result.put("exists", false);
+                result.put("bibDuplicate", false);
             }
             result.put("error", false);
         } catch (Exception e) {
@@ -142,9 +157,13 @@ public class EventController {
             return "redirect:/apply/complete";
 
         } catch (DuplicateKeyException de) {
-            redirectAttributes.addFlashAttribute("errorMsg", "이미 오늘 날짜로 신청 완료된 연락처입니다.");
+            log.error("▶ [데이터 중복 에러] {}", de.getMessage());
+            // 에러 메시지 분석을 통해 배번호 중복인지 연락처 중복인지 구분 가능 (DB 설정에 따라 다름)
+            // 연락처 중복은 이미 1단계에서 걸러지므로, 여기까지 넘어왔다면 대부분 배번호 동시성 중복 이슈일 확률이 높음
+            redirectAttributes.addFlashAttribute("errorMsg", "이미 등록된 정보(연락처 또는 배번호)입니다. 처음부터 다시 진행해 주세요.");
             redirectAttributes.addFlashAttribute("retainedData", participantVO);
-            return "redirect:/apply/step2";
+            // 2단계에서 배번호 중복 에러가 났으므로 1단계로 돌려보내는 것도 고려해볼 만합니다.
+            return "redirect:/apply/step1";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "등록 중 에러가 발생했습니다. 다시 시도해 주세요.");
             redirectAttributes.addFlashAttribute("retainedData", participantVO);

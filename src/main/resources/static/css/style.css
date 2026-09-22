@@ -131,7 +131,7 @@ label:last-child {margin-right: 0;}
 .top_tit .tit .big {font-size: 2.9rem; line-height: 3.5rem;}
 .top_tit .tit .small {font-size: 2rem; line-height: 2.6rem;}
 .top_tit .tit .small .th {font-size: 1.4rem; display: inline-block; vertical-align: top;}
-.top_tit .tit img{max-width: 120px;}
+.top_tit .tit img{max-width: 280px;}
 .top_tit .txt {margin-top: 30px;}
 .top_tit .txt .kor {font-size: 1.6rem; line-height: 2.2rem;}
 .top_tit .txt .eng {font-size: 1.6rem; line-height: 2.2rem; margin-top: 20px; color: #CBCBCA}

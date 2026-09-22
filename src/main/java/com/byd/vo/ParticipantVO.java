@@ -10,6 +10,8 @@ public class ParticipantVO {
     private String entryType;           // 신청 구분
     private String name;                // 이름 (AES128 암호화/복호화 적용 대상)
     private String phone;               // 연락처 (AES128 암호화/복호화 적용 대상)
+    private String bibNumber;  // 배번호
+    private String birthDate;  // 생년월일
     private String email;               // 이메일 (기존 address 대체)
     private String shopInfo;            // 방문 가능 전시장
     private String carModel;            // 관심차량 선택 정보

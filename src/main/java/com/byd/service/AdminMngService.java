@@ -50,16 +50,16 @@ public class AdminMngService {
         int todayParticipants = adminMngMapper.getTodayParticipantsCount();
         int todayGifts = adminMngMapper.getTodayGiftsCount();
 
-        int todayQuizCount = adminMngMapper.getTodayQuizCount();
+        /*int todayQuizCount = adminMngMapper.getTodayQuizCount();
         int quizPerfectCount = adminMngMapper.getQuizPerfectCount();
-        int quizFailCount = adminMngMapper.getQuizFailCount();
+        int quizFailCount = adminMngMapper.getQuizFailCount();*/
 
         stats.put("totalCnt", totalParticipants);
         stats.put("todayCnt", todayParticipants);
         stats.put("giftCnt", todayGifts);
-        stats.put("challengeCnt", todayQuizCount);
+        /*stats.put("challengeCnt", todayQuizCount);
         stats.put("quizPerfectCount", quizPerfectCount);
-        stats.put("quizFailCount", quizFailCount == 0 && quizPerfectCount == 0 ? 1 : quizFailCount);
+        stats.put("quizFailCount", quizFailCount == 0 && quizPerfectCount == 0 ? 1 : quizFailCount);*/
 
         return stats;
     }

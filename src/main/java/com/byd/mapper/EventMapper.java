@@ -10,6 +10,9 @@ import java.util.Map;
 @Mapper
 public interface EventMapper {
 
+    // 배번호로 기존 신청 내역 조회 (중복 검사용)
+    ParticipantVO getParticipantByBibNumber(String bibNumber);
+
     // 휴대폰 번호로 기존 신청 내역 조회
     ParticipantVO getParticipantByPhone(String phone);
 

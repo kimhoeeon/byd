@@ -283,7 +283,7 @@ public class AdminMngController {
 
         Row headerRow = sheet.createRow(0);
         // 엑셀 헤더에 방문전시장코드, 관심차량코드 추가
-        String[] headers = {"등록일시", "경품수령확인(QR)", "이름", "연락처", "이메일", "방문전시장", "방문전시장코드", "관심차량", "관심차량코드", "마케팅동의"};
+        String[] headers = {"등록일시", "경품수령확인(QR)", "배번호", "이름", "연락처", "생년월일", "이메일", "방문전시장", "방문전시장코드", "관심차량", "관심차량코드", "마케팅동의"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -360,17 +360,19 @@ public class AdminMngController {
 
             row.createCell(0).setCellValue(vo.getRegDate() != null ? sdf.format(vo.getRegDate()) : "");
             row.createCell(1).setCellValue("Y".equals(vo.getGiftCheckYn()) ? "수령 완료" : "미수령");
-            row.createCell(2).setCellValue(vo.getName());
-            row.createCell(3).setCellValue(vo.getPhone());
-            row.createCell(4).setCellValue(vo.getEmail() != null ? vo.getEmail() : "");
-            row.createCell(5).setCellValue(vo.getShopInfo() != null ? vo.getShopInfo() : "");
-            row.createCell(6).setCellValue(shopCode);
-            row.createCell(7).setCellValue(vo.getCarModel() != null ? vo.getCarModel() : "");
-            row.createCell(8).setCellValue(carCode);
-            row.createCell(9).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
+            row.createCell(2).setCellValue(vo.getBibNumber() != null ? vo.getBibNumber() : "");
+            row.createCell(3).setCellValue(vo.getName());
+            row.createCell(4).setCellValue(vo.getPhone());
+            row.createCell(5).setCellValue(vo.getBirthDate() != null ? vo.getBirthDate() : "");
+            row.createCell(6).setCellValue(vo.getEmail() != null ? vo.getEmail() : "");
+            row.createCell(7).setCellValue(vo.getShopInfo() != null ? vo.getShopInfo() : "");
+            row.createCell(8).setCellValue(shopCode);
+            row.createCell(9).setCellValue(vo.getCarModel() != null ? vo.getCarModel() : "");
+            row.createCell(10).setCellValue(carCode);
+            row.createCell(11).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
 
-            // 열 갯수 8개에서 10개로 증가
-            for (int i = 0; i < 10; i++) {
+            // 셀 스타일 루프
+            for (int i = 0; i < 12; i++) {
                 row.getCell(i).setCellStyle(dataStyle);
             }
         }
@@ -382,7 +384,7 @@ public class AdminMngController {
 
         SimpleDateFormat fileDateFmt = new SimpleDateFormat("yyyyMMdd");
         String today = fileDateFmt.format(new Date());
-        String fileName = "BYD_이벤트참여목록_" + today + ".xlsx";
+        String fileName = "BYD_행사참여목록_" + today + ".xlsx";
         fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

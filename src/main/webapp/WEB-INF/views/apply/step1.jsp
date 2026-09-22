@@ -23,6 +23,9 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/style.css?ver=20260918">
 
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <title>BYD</title>
 
 </head>
@@ -39,7 +42,7 @@
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
-                        <img src="/img/logo_g.png" alt="logo">
+                        <img src="/img/logo_g.png?ver=20260921" alt="logo">
                     </div>
                 </div>
             </div>
@@ -62,13 +65,19 @@
                                 </div>
                             </li>
                             <li>
+                                <div class="gubun">배번호</div>
+                                <div class="input">
+                                    <input type="text" id="bibNumber" name="bibNumber" placeholder="배번호가 경품 응모 번호이므로, 정확하게 기입해 주세요." maxlength="5" required>
+                                </div>
+                            </li>
+                            <li>
                                 <div class="terms-check">
                                     <label>
                                         <input type="checkbox" id="privacyAgree" value="Y" required>
                                         <span class="terms-check_box" aria-hidden="true"></span>
                                         <span class="terms-check_label">(필수) 개인정보 수집·이용 동의</span>
                                     </label>
-                                    <textarea style="line-height: 20px;" readonly>BYD코리아는 이벤트 신청 및 고객 상담 서비스 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다.&#10;&#10;수집 항목: 이름, 휴대폰 번호, 이메일 주소&#10;수집 및 이용 목적: 이벤트 신청 접수, 이벤트 안내, 본인 확인, 문의 응대&#10;보유 및 이용 기간: 본 이벤트 종료 후 6개월까지 또는 귀하의 동의 철회 시까지&#10;&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부할 경우 이벤트 신청 및 상담 서비스 이용이 제한될 수 있습니다.&#10;&#10;개인정보 수집 및 이용 동의&#10;&#10;이벤트 참여를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다.&#10;내용을 확인하신 후 동의 여부를 결정하여 주시기 바랍니다.&#10;&#10;1. 수집항목&#10;필수항목 : 이름, 연락처, 이메일, 관심 전시장, 관심 차종&#10;2. 수집 및 이용목적&#10;이벤트 참가자 확인 및 본인 식별&#10;이벤트 진행 및 결과 확인&#10;경품·쿠폰 지급 대상 확인 및 안내&#10;3. 보유 및 이용기간&#10;수집일로부터 6개월간 보관 후 지체 없이 파기&#10;4. 동의 거부 권리 및 불이익&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다.&#10;다만, 필수항목 수집에 대한 동의를 거부할 경우 이벤트 참여가 제한될 수 있습니다.&#10;5.개인정보 처리 위탁&#10;회사는 원활한 행사를 위하여 아래와 같이 개인정보 처리 업무를 위탁하고 있습니다.&#10;&#10;수탁자 : (주)컴투스엔&#10;위탁업무 : 이벤트 운영 및 참가자 정보 수집·관리</textarea>
+                                    <textarea style="line-height: 20px;" readonly>BYD코리아는 이벤트 신청 및 고객 상담 서비스 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다.&#10;&#10;수집 항목: 이름, 휴대폰 번호, 이메일 주소, 생년월일, 배번호&#10;수집 및 이용 목적: 이벤트 신청 접수, 이벤트 안내, 본인 확인, 경품 추첨 및 발송, 문의 응대&#10;보유 및 이용 기간: 본 이벤트 종료 후 6개월까지 또는 귀하의 동의 철회 시까지&#10;&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부할 경우 이벤트 신청 및 상담 서비스 이용이 제한될 수 있습니다.&#10;&#10;개인정보 수집 및 이용 동의&#10;&#10;이벤트 참여를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다.&#10;내용을 확인하신 후 동의 여부를 결정하여 주시기 바랍니다.&#10;&#10;1. 수집항목&#10;필수항목 : 이름, 연락처, 이메일, 생년월일, 배번호, 관심 전시장, 관심 차종&#10;2. 수집 및 이용목적&#10;이벤트 참가자 확인 및 본인 식별&#10;이벤트 진행 및 결과 확인&#10;경품·쿠폰 지급 대상 확인 및 안내&#10;3. 보유 및 이용기간&#10;수집일로부터 6개월간 보관 후 지체 없이 파기&#10;4. 동의 거부 권리 및 불이익&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다.&#10;다만, 필수항목 수집에 대한 동의를 거부할 경우 이벤트 참여가 제한될 수 있습니다.&#10;5.개인정보 처리 위탁&#10;회사는 원활한 행사를 위하여 아래와 같이 개인정보 처리 업무를 위탁하고 있습니다.&#10;&#10;수탁자 : (주)컴투스엔&#10;위탁업무 : 이벤트 운영 및 참가자 정보 수집·관리</textarea>
                                 </div>
                             </li>
                             <li>
@@ -77,7 +86,7 @@
                                         <input type="checkbox" id="provideAgree" name="provideAgree" value="Y" required>
                                         <span class="terms-check_box" aria-hidden="true"></span>
                                         <span class="terms-check_label" style="line-height: 20px;">
-                                            (필수) 행사의 운영 및 참가자 통계 데이터 분석을 위하여 참가자의 개인정보(이름, 연락처, 이메일, 관심 전시장, 관심 차종)를 제공하는 데 동의합니다.
+                                            (필수) 행사의 운영 및 참가자 통계 데이터 분석을 위하여 참가자의 개인정보(이름, 연락처, 이메일, 생년월일, 배번호, 관심 전시장, 관심 차종)를 제공하는 데 동의합니다.
                                         </span>
                                     </label>
                                 </div>
@@ -113,6 +122,12 @@
                 $(this).val(val);
             });
 
+            // 배번호 입력 시 숫자만 허용 & 공백 제거
+            $('#bibNumber').on('input', function() {
+                var val = $(this).val().replace(/[^0-9]/g, '');
+                $(this).val(val);
+            });
+
             // 연락처 입력 시 자동 하이픈 및 숫자 이외의 문자 입력 방지
             $('#phone').on('input', function() {
                 // 입력된 값에서 숫자 이외의 문자 모두 제거
@@ -142,6 +157,7 @@
         function submitStep1() {
             var name = document.getElementById("name").value.trim();
             var phone = document.getElementById("phone").value.trim();
+            var bibNumber = document.getElementById("bibNumber").value.trim();
 
             if (name === "") {
                 alert("이름을 입력해 주세요.");
@@ -163,6 +179,13 @@
                 return false;
             }
 
+            // 배번호 5자리 유효성 검사
+            if (bibNumber === "" || bibNumber.length !== 5) {
+                alert("배번호 5자리를 정확하게 기입해 주세요.");
+                document.getElementById("bibNumber").focus();
+                return false;
+            }
+
             if (!$('#privacyAgree').is(':checked')) {
                 alert("개인정보 수집·이용 동의에 체크해 주세요.");
                 return false;
@@ -173,35 +196,67 @@
                 return false;
             }
 
-            var privacyAgree = "Y";
+            // SweetAlert2 팝업으로 사용자 최종 확인
+            Swal.fire({
+                title: '입력하신 정보가 맞습니까?',
+                html: '<div style="text-align:left; font-size:16px; margin-top:10px; padding:15px; background:#f8f9fa; border-radius:8px; color:#383838; border:1px solid #ddd;">' +
+                    '<strong>이름:</strong> ' + name + '<br>' +
+                    '<strong style="margin-top:5px; display:inline-block;">연락처:</strong> ' + phone + '<br>' +
+                    '<strong style="margin-top:5px; display:inline-block;">배번호:</strong> <span style="color:#d32f2f; font-weight:bold;">' + bibNumber + '</span>' +
+                    '</div>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#383838',
+                cancelButtonColor: '#888',
+                confirmButtonText: '네, 맞습니다',
+                cancelButtonText: '수정할래요'
+            }).then((result) => {
+                if (result.isConfirmed) {
 
-            // 폼 서밋 대신 AJAX 통신으로 서버에 확인
-            $.ajax({
-                type: "POST",
-                url: "/apply/checkParticipant",
-                data: {
-                    name: name,
-                    phone: phone,
-                    privacyAgree: privacyAgree
-                },
-                dataType: "json",
-                success: function(response) {
-                    if(response.error) {
-                        alert("처리 중 서버 오류가 발생했습니다.");
-                        return;
-                    }
+                    var privacyAgree = "Y";
 
-                    if(response.exists) {
-                        // 기존 신청자일 경우 Alert 띄우고 전달받은 URL로 이동
-                        alert("이미 이벤트 참여 신청이 완료된 고객입니다.\n모바일 티켓 화면으로 이동합니다.");
-                        location.href = response.redirectUrl;
-                    } else {
-                        // 신규 신청자일 경우 step2 페이지로 이동
-                        location.href = "/apply/step2";
-                    }
-                },
-                error: function() {
-                    alert("서버와의 통신에 실패했습니다. 다시 시도해 주세요.");
+                    // 폼 서밋 대신 AJAX 통신으로 서버에 확인
+                    $.ajax({
+                        type: "POST",
+                        url: "/apply/checkParticipant",
+                        data: {
+                            bibNumber: bibNumber, // 백엔드로 배번호 함께 전송
+                            name: name,
+                            phone: phone,
+                            privacyAgree: privacyAgree
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if(response.error) {
+                                alert("처리 중 서버 오류가 발생했습니다.");
+                                return;
+                            }
+
+                            // [추가] 배번호 중복 에러 처리
+                            if(response.bibDuplicate) {
+                                Swal.fire({
+                                    title: '배번호 등록 오류',
+                                    text: response.message,
+                                    icon: 'error',
+                                    confirmButtonColor: '#383838'
+                                });
+                                document.getElementById("bibNumber").focus();
+                                return;
+                            }
+
+                            if(response.exists) {
+                                // 기존 신청자일 경우 Alert 띄우고 전달받은 URL로 이동
+                                alert("이미 이벤트 참여 신청이 완료된 고객입니다.\n모바일 티켓 화면으로 이동합니다.");
+                                location.href = response.redirectUrl;
+                            } else {
+                                // 신규 신청자일 경우 step2 페이지로 이동
+                                location.href = "/apply/step2";
+                            }
+                        },
+                        error: function() {
+                            alert("서버와의 통신에 실패했습니다. 다시 시도해 주세요.");
+                        }
+                    });
                 }
             });
         }

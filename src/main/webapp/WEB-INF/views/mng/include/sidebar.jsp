@@ -87,7 +87,7 @@
                     </a>
                 </div>--%>
 
-                <div class="menu-item">
+                <%--<div class="menu-item">
                     <a class="menu-link ${fn:contains(currentUrl, '/mng/quiz') ? 'active' : ''}" href="/mng/quiz/list">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-question fs-2">
@@ -98,7 +98,7 @@
                         </span>
                         <span class="menu-title">퀴즈 관리</span>
                     </a>
-                </div>
+                </div>--%>
 
             </div>
         </div>

@@ -23,6 +23,9 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/style.css?ver=20260918">
 
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <title>BYD</title>
 
     <%-- 비정상 접근 시 화면 렌더링 전 강제 튕겨내기 --%>
@@ -51,7 +54,7 @@
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
-                        <img src="/img/logo_g.png" alt="logo">
+                        <img src="/img/logo_g.png?ver=20260921" alt="logo">
                     </div>
                 </div>
             </div>
@@ -70,17 +73,30 @@
                     <c:set var="savedEmailDomain" value="" />
                     <c:set var="isCustomDomain" value="false" />
 
-                    <c:if test="${not empty retainedData.email}">
-                        <c:set var="emailParts" value="${fn:split(retainedData.email, '@')}" />
-                        <c:set var="savedEmailId" value="${emailParts[0]}" />
-                        <c:set var="savedEmailDomain" value="${fn:length(emailParts) > 1 ? emailParts[1] : ''}" />
-                        <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'gmail.com' and savedEmailDomain ne 'daum.net' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
+                    <%-- 생년월일 복구 세팅 --%>
+                    <c:set var="retainedYear" value="" />
+                    <c:set var="retainedMonth" value="" />
+                    <c:set var="retainedDay" value="" />
+
+                    <c:if test="${not empty retainedData}">
+                        <c:if test="${not empty retainedData.email}">
+                            <c:set var="emailParts" value="${fn:split(retainedData.email, '@')}" />
+                            <c:set var="savedEmailId" value="${emailParts[0]}" />
+                            <c:set var="savedEmailDomain" value="${fn:length(emailParts) > 1 ? emailParts[1] : ''}" />
+                            <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'gmail.com' and savedEmailDomain ne 'daum.net' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
+                        </c:if>
+                        <c:if test="${not empty retainedData.birthDate and fn:length(retainedData.birthDate) eq 8}">
+                            <c:set var="retainedYear" value="${fn:substring(retainedData.birthDate, 0, 4)}" />
+                            <c:set var="retainedMonth" value="${fn:substring(retainedData.birthDate, 4, 6)}" />
+                            <c:set var="retainedDay" value="${fn:substring(retainedData.birthDate, 6, 8)}" />
+                        </c:if>
                     </c:if>
 
                     <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="return validateForm();">
 
                         <!-- 서버 전송용 히든 필드 -->
                         <input type="hidden" name="email" id="fullEmail">
+                        <input type="hidden" name="birthDate" id="hiddenBirthDate">
                         <input type="hidden" name="privacyAgree" id="hiddenPrivacy" value="N">
                         <input type="hidden" name="thirdPartyAgree" id="hiddenThirdParty" value="N">
                         <input type="hidden" name="entrustAgree" id="hiddenEntrust" value="N">
@@ -88,6 +104,26 @@
                         <input type="hidden" name="mktAgree" id="hiddenMkt" value="N">
 
                         <ul class="form_box">
+                            <li>
+                                <div class="gubun">생년월일</div>
+                                <div class="row">
+                                    <div class="input" style="flex: 1;">
+                                        <select id="birthYear" required>
+                                            <option value="">년도</option>
+                                        </select>
+                                    </div>
+                                    <div class="input" style="flex: 1;">
+                                        <select id="birthMonth" required>
+                                            <option value="">월</option>
+                                        </select>
+                                    </div>
+                                    <div class="input" style="flex: 1;">
+                                        <select id="birthDay" required>
+                                            <option value="">일</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </li>
                             <li>
                                 <div class="gubun">이메일</div>
                                 <div class="row email">
@@ -167,7 +203,7 @@
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(선택) 마케팅 정보 수신 동의</span>
                             </label>
-                            <textarea readonly>BYD코리아는 고객에게 차량, 프로모션 및 이벤트 관련 혜택 정보를 제공하기 위하여&#10;아래와 같이 개인정보를 활용하고 광고성 정보를 발송할 수 있습니다.&#10;&#10;수집 항목: 이름, 전화번호, 이메일 주소, 관심 차량 정보&#10;수집 및 이용 목적: 구매 혜택, 서비스, 뉴스 안내&#10;보유 및 이용 기간: 처리 목적 달성 시 또는 고객의 동의 철회 시까지&#10;&#10;※ 고객은 마케팅 활용 및 광고성 정보 수신에 대한 동의를 거부할 권리가 있으며,&#10;거부하더라도 기본 서비스 이용에는 제한이 없습니다.</textarea>
+                            <textarea readonly>BYD코리아는 고객에게 차량, 프로모션 및 이벤트 관련 혜택 정보를 제공하기 위하여&#10;아래와 같이 개인정보를 활용하고 광고성 정보를 발송할 수 있습니다.&#10;&#10;수집 항목: 이름, 전화번호, 이메일 주소, 생년월일, 관심 차량 정보&#10;수집 및 이용 목적: 구매 혜택, 서비스, 뉴스 안내&#10;보유 및 이용 기간: 처리 목적 달성 시 또는 고객의 동의 철회 시까지&#10;&#10;※ 고객은 마케팅 활용 및 광고성 정보 수신에 대한 동의를 거부할 권리가 있으며,&#10;거부하더라도 기본 서비스 이용에는 제한이 없습니다.</textarea>
                         </div>
                         <div class="btn_box">
                             <button type="submit" class="btn_st01">제출</button>
@@ -183,7 +219,7 @@
     </div>
     <!-- //container -->
 
-    <div class="testdrive_popup" id="testdrivePopup">
+    <%--<div class="testdrive_popup" id="testdrivePopup">
         <div class="testdrive_dim"></div>
 
         <div class="testdrive_box">
@@ -197,7 +233,7 @@
 
             <button type="button" class="popup_btn">확인</button>
         </div>
-    </div>
+    </div>--%>
 
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
     <script src="/js/jquery-1.9.1.min.js"></script>
@@ -222,6 +258,53 @@
         const retainedShopInfo = "${retainedData.shopInfo}";
 
         $(document).ready(function() {
+
+            // 생년월일 셀렉트 박스 동적 생성
+            const yearSelect = document.getElementById("birthYear");
+            const monthSelect = document.getElementById("birthMonth");
+            const daySelect = document.getElementById("birthDay");
+
+            const currentYear = new Date().getFullYear();
+            // 1920년부터 현재 연도까지 년도 옵션 생성
+            for (let i = currentYear; i >= 1920; i--) {
+                yearSelect.options.add(new Option(i + "년", i));
+            }
+            // 1월부터 12월까지 월 옵션 생성
+            for (let i = 1; i <= 12; i++) {
+                let m = i < 10 ? "0" + i : i;
+                monthSelect.options.add(new Option(m + "월", m));
+            }
+
+            // 월/년도 변경 시 일(Day) 옵션 동적 계산
+            function updateDays() {
+                const y = yearSelect.value;
+                const m = monthSelect.value;
+                daySelect.length = 1; // "일" 옵션 초기화
+
+                if(y && m) {
+                    // 해당 년도, 월의 마지막 날짜 구하기 (윤년 계산 포함)
+                    const daysInMonth = new Date(y, m, 0).getDate();
+                    for(let i = 1; i <= daysInMonth; i++) {
+                        let d = i < 10 ? "0" + i : i;
+                        daySelect.options.add(new Option(d + "일", d));
+                    }
+                }
+            }
+
+            $("#birthYear, #birthMonth").on("change", updateDays);
+
+            // [서버 튕김 방지] 생년월일 기존 선택값 복구 로직
+            const retainedYear = "${retainedYear}";
+            const retainedMonth = "${retainedMonth}";
+            const retainedDay = "${retainedDay}";
+
+            if(retainedYear && retainedMonth && retainedDay) {
+                $("#birthYear").val(retainedYear);
+                $("#birthMonth").val(retainedMonth);
+                updateDays(); // 일을 세팅하기 전 날짜 목록부터 생성
+                $("#birthDay").val(retainedDay);
+            }
+
             // [서버 튕김 방지] 기존에 선택했던 지점 정보가 있다면 복구
             if (retainedShopInfo) {
                 for (const region in shopData) {
@@ -280,6 +363,22 @@
 
         // 폼 제출 시 유효성 검사
         function validateForm() {
+
+            const bYear = $("#birthYear").val();
+            const bMonth = $("#birthMonth").val();
+            const bDay = $("#birthDay").val();
+
+            if(!bYear || !bMonth || !bDay) {
+                alert("생년월일을 정확히 선택해 주세요.");
+                if(!bYear) $("#birthYear").focus();
+                else if(!bMonth) $("#birthMonth").focus();
+                else $("#birthDay").focus();
+                return;
+            }
+
+            $("#hiddenBirthDate").val(bYear + bMonth + bDay);
+            const birthDateStr = bYear + "년 " + bMonth + "월 " + bDay + "일";
+
             const emailId = $("#emailId").val().trim();
             const emailDomainSelect = $("#emailDomain").val();
             const customDomain = $("#customDomain").val().trim();
@@ -287,7 +386,7 @@
             if(emailId === "") {
                 alert("이메일 아이디를 입력해 주세요.");
                 $("#emailId").focus();
-                return false;
+                return;
             }
 
             if(customDomain === "") {
@@ -297,22 +396,26 @@
                 } else {
                     $("#emailDomain").focus();
                 }
-                return false;
+                return;
             }
 
-            // 도메인 유효성 검사 로직
             const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if(!domainRegex.test(customDomain)) {
                 alert("유효한 이메일 도메인 형식이 아닙니다.\n(예: example.com)");
                 $("#customDomain").focus();
-                return false;
+                return;
             }
 
             $("#fullEmail").val(emailId + "@" + customDomain);
+            const fullEmailStr = emailId + "@" + customDomain;
 
-            if($("#regionSelect").val() === "") { alert("지역을 선택해 주세요."); return false; }
-            if($("#shopSelect").val() === "") { alert("방문 가능 전시장을 선택해 주세요."); return false; }
-            if($("select[name='carModel']").val() === "") { alert("관심차량 정보를 선택해 주세요."); return false; }
+            const regionVal = $("#regionSelect").val();
+            const shopVal = $("#shopSelect").val();
+            const carVal = $("select[name='carModel']").val();
+
+            if(regionVal === "") { alert("지역을 선택해 주세요."); return; }
+            if(shopVal === "") { alert("방문 가능 전시장을 선택해 주세요."); return; }
+            if(carVal === "") { alert("관심차량 정보를 선택해 주세요."); return; }
 
             $("#hiddenThirdParty").val($("#thirdPartyAgree").is(":checked") ? "Y" : "N");
             $("#hiddenEntrust").val($("#entrustAgree").is(":checked") ? "Y" : "N");
@@ -320,10 +423,30 @@
 
             if (!$("#thirdPartyAgree").is(":checked") || !$("#entrustAgree").is(":checked")) {
                 alert("필수 약관에 모두 동의해 주세요.");
-                return false;
+                return;
             }
 
-            return true;
+            // SweetAlert2 팝업창 띄우기
+            Swal.fire({
+                title: '입력하신 정보가 맞습니까?',
+                html: '<div style="text-align:left; font-size:15px; margin-top:10px; padding:15px; background:#f8f9fa; border-radius:8px; color:#383838; border:1px solid #ddd; line-height:1.6;">' +
+                    '<strong>생년월일:</strong> ' + birthDateStr + '<br>' +
+                    '<strong>이메일:</strong> ' + fullEmailStr + '<br>' +
+                    '<strong>방문 전시장:</strong> [' + regionVal + '] ' + shopVal + '<br>' +
+                    '<strong>관심차량:</strong> <span style="color:#d32f2f; font-weight:bold;">' + carVal + '</span>' +
+                    '</div>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#383838',
+                cancelButtonColor: '#888',
+                confirmButtonText: '네, 제출합니다',
+                cancelButtonText: '수정할래요'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // 확인 완료 시 폼 수동 제출
+                    document.getElementById('applyForm2').submit();
+                }
+            });
         }
     </script>
 </body>

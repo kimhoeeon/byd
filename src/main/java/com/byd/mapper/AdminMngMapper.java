@@ -28,9 +28,9 @@ public interface AdminMngMapper {
     int getTotalParticipantsCount();
     int getTodayParticipantsCount();
     int getTodayGiftsCount();
-    int getTodayQuizCount();
+    /*int getTodayQuizCount();
     int getQuizPerfectCount();
-    int getQuizFailCount();
+    int getQuizFailCount();*/
     List<Map<String, Object>> getShopDistributionStats();
     List<Map<String, Object>> getHourlyCheckinStats();
 

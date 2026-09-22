@@ -92,7 +92,7 @@
         WHERE qr_check_yn = 'Y' AND DATE(reg_date) = CURDATE()
     </select>
 
-    <select id="getTodayQuizCount" resultType="int">
+    <!--<select id="getTodayQuizCount" resultType="int">
         SELECT COUNT(*) FROM quiz_history WHERE DATE(reg_date) = CURDATE()
     </select>
 
@@ -102,7 +102,7 @@
 
     <select id="getQuizFailCount" resultType="int">
         SELECT COUNT(*) FROM quiz_history WHERE score &lt; 1 AND status = 'COMPLETED'
-    </select>
+    </select>-->
 
     <select id="getShopDistributionStats" resultType="map">
         SELECT IFNULL(NULLIF(shop_info, ''), '미지정') AS SHOP_INFO, COUNT(*) AS CNT

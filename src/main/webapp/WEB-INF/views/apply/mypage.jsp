@@ -43,7 +43,7 @@
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
-                        <img src="/img/logo_g.png" alt="logo">
+                        <img src="/img/logo_g.png?ver=20260921" alt="logo">
                     </div>
                 </div>
             </div>
@@ -75,6 +75,22 @@
                         <c:set var="savedEmailDomain" value="${fn:length(emailParts) > 1 ? emailParts[1] : ''}" />
                         <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'gmail.com' and savedEmailDomain ne 'daum.net' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
 
+                        <!-- 생년월일 포맷 변환 (YYYYMMDD -> YYYY년 MM월 DD일) -->
+                        <c:choose>
+                            <c:when test="${not empty data.birthDate and fn:length(data.birthDate) eq 8}">
+                                <%-- 정상 8자리 (19900505) 일 경우 --%>
+                                <c:set var="formattedBirth" value="${fn:substring(data.birthDate, 0, 4)}년 ${fn:substring(data.birthDate, 4, 6)}월 ${fn:substring(data.birthDate, 6, 8)}일" />
+                            </c:when>
+                            <c:when test="${not empty data.birthDate and fn:length(data.birthDate) eq 10}">
+                                <%-- 관리자가 DB에 수동으로 1990-05-05, 1990.05.05 등 10자리 형태로 넣었을 경우를 완벽 대비 --%>
+                                <c:set var="formattedBirth" value="${fn:substring(data.birthDate, 0, 4)}년 ${fn:substring(data.birthDate, 5, 7)}월 ${fn:substring(data.birthDate, 8, 10)}일" />
+                            </c:when>
+                            <c:otherwise>
+                                <%-- 예외적인 데이터가 들어왔거나 비어있을 경우 파싱 에러(500) 방지 --%>
+                                <c:set var="formattedBirth" value="${empty data.birthDate ? '-' : data.birthDate}" />
+                            </c:otherwise>
+                        </c:choose>
+
                         <input type="hidden" name="email" id="fullEmail" value="${data.email}">
                         <input type="hidden" name="mktAgree" id="hiddenMkt" value="${data.mktAgree}">
 
@@ -87,6 +103,18 @@
                                 <div class="gubun">연락처</div>
                                 <div class="input">
                                     <input type="text" id="phone" name="phone" value="${data.phone}" readonly style="color: #888;"></div>
+                            </li>
+                            <li>
+                                <div class="gubun">배번호</div>
+                                <div class="input">
+                                    <input type="text" id="bibNumber" value="${empty data.bibNumber ? '-' : data.bibNumber}" readonly style="color: #888;">
+                                </div>
+                            </li>
+                            <li>
+                                <div class="gubun">생년월일</div>
+                                <div class="input">
+                                    <input type="text" id="birthDate" value="${empty formattedBirth ? '-' : formattedBirth}" readonly style="color: #888;">
+                                </div>
                             </li>
                             <li>
                                 <div class="gubun">이메일</div>
@@ -151,7 +179,7 @@
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(필수) 개인정보 수집·이용 동의</span>
                             </label>
-                            <textarea readonly>BYD코리아는 이벤트 신청 및 고객 상담 서비스 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다.&#10;&#10;수집 항목: 이름, 휴대폰 번호, 이메일 주소&#10;수집 및 이용 목적: 이벤트 신청 접수, 이벤트 안내, 본인 확인, 문의 응대&#10;보유 및 이용 기간: 본 이벤트 종료 후 6개월까지 또는 귀하의 동의 철회 시까지&#10;&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부할 경우 이벤트 신청 및 상담 서비스 이용이 제한될 수 있습니다.&#10;&#10;개인정보 수집 및 이용 동의&#10;&#10;이벤트 참여를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다.&#10;내용을 확인하신 후 동의 여부를 결정하여 주시기 바랍니다.&#10;&#10;1. 수집항목&#10;필수항목 : 이름, 연락처, 이메일, 관심 전시장, 관심 차종&#10;2. 수집 및 이용목적&#10;이벤트 참가자 확인 및 본인 식별&#10;이벤트 진행 및 결과 확인&#10;경품·쿠폰 지급 대상 확인 및 안내&#10;3. 보유 및 이용기간&#10;수집일로부터 6개월간 보관 후 지체 없이 파기&#10;4. 동의 거부 권리 및 불이익&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다.&#10;다만, 필수항목 수집에 대한 동의를 거부할 경우 이벤트 참여가 제한될 수 있습니다.&#10;5.개인정보 처리 위탁&#10;회사는 원활한 행사를 위하여 아래와 같이 개인정보 처리 업무를 위탁하고 있습니다.&#10;&#10;수탁자 : (주)컴투스엔&#10;위탁업무 : 이벤트 운영 및 참가자 정보 수집·관리</textarea>
+                            <textarea readonly>BYD코리아는 이벤트 신청 및 고객 상담 서비스 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다.&#10;&#10;수집 항목: 이름, 휴대폰 번호, 이메일 주소, 생년월일, 배번호&#10;수집 및 이용 목적: 이벤트 신청 접수, 이벤트 안내, 본인 확인, 경품 추첨 및 발송, 문의 응대&#10;보유 및 이용 기간: 본 이벤트 종료 후 6개월까지 또는 귀하의 동의 철회 시까지&#10;&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부할 경우 이벤트 신청 및 상담 서비스 이용이 제한될 수 있습니다.&#10;&#10;개인정보 수집 및 이용 동의&#10;&#10;이벤트 참여를 위해 아래와 같이 개인정보를 수집·이용하고자 합니다.&#10;내용을 확인하신 후 동의 여부를 결정하여 주시기 바랍니다.&#10;&#10;1. 수집항목&#10;필수항목 : 이름, 연락처, 이메일, 생년월일, 배번호, 관심 전시장, 관심 차종&#10;2. 수집 및 이용목적&#10;이벤트 참가자 확인 및 본인 식별&#10;이벤트 진행 및 결과 확인&#10;경품·쿠폰 지급 대상 확인 및 안내&#10;3. 보유 및 이용기간&#10;수집일로부터 6개월간 보관 후 지체 없이 파기&#10;4. 동의 거부 권리 및 불이익&#10;귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다.&#10;다만, 필수항목 수집에 대한 동의를 거부할 경우 이벤트 참여가 제한될 수 있습니다.&#10;5.개인정보 처리 위탁&#10;회사는 원활한 행사를 위하여 아래와 같이 개인정보 처리 업무를 위탁하고 있습니다.&#10;&#10;수탁자 : (주)컴투스엔&#10;위탁업무 : 이벤트 운영 및 참가자 정보 수집·관리</textarea>
                         </div>
                         <div class="terms-check">
                             <label>
@@ -174,7 +202,7 @@
                                 <input type="checkbox" checked disabled>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label" style="line-height: 20px;">
-                                    (필수) 행사의 운영 및 참가자 통계 데이터 분석을 위하여 참가자의 개인정보(이름, 연락처, 이메일, 관심 전시장, 관심 차종)를 제공하는 데 동의합니다.
+                                    (필수) 행사의 운영 및 참가자 통계 데이터 분석을 위하여 참가자의 개인정보(이름, 연락처, 이메일, 생년월일, 배번호, 관심 전시장, 관심 차종)를 제공하는 데 동의합니다.
                                 </span>
                             </label>
                         </div>
@@ -184,7 +212,7 @@
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(선택) 마케팅 정보 수신 동의</span>
                             </label>
-                            <textarea readonly>BYD코리아는 고객에게 차량, 프로모션 및 이벤트 관련 혜택 정보를 제공하기 위하여 아래와 같이 개인정보를 활용하고 광고성 정보를 발송할 수 있습니다.&#10;&#10;수집 항목: 이름, 휴대폰 번호, 이메일 주소, 이벤트 신청 정보, 관심 차량 정보&#10;수집 및 이용 목적: 차량 구매 혜택, 프로모션 및 이벤트 안내, 서비스 및 브랜드 뉴스 안내, 고객 맞춤형 마케팅 정보 제공&#10;보유 및 이용 기간: 마케팅 활용 동의일로부터 2년 또는 고객의 동의 철회 시까지&#10;&#10;※ 고객은 마케팅 활용 및 광고성 정보 수신에 대한 동의를 거부할 권리가 있으며, 거부하더라도 이벤트 신청 및 기본 서비스 이용에는 제한이 없습니다.</textarea>
+                            <textarea readonly>BYD코리아는 고객에게 차량, 프로모션 및 이벤트 관련 혜택 정보를 제공하기 위하여 아래와 같이 개인정보를 활용하고 광고성 정보를 발송할 수 있습니다.&#10;&#10;수집 항목: 이름, 전화번호, 이메일 주소, 생년월일, 관심 차량 정보&#10;수집 및 이용 목적: 구매 혜택, 서비스, 뉴스 안내&#10;보유 및 이용 기간: 처리 목적 달성 시 또는 고객의 동의 철회 시까지&#10;&#10;※ 고객은 마케팅 활용 및 광고성 정보 수신에 대한 동의를 거부할 권리가 있으며, 거부하더라도 기본 서비스 이용에는 제한이 없습니다.</textarea>
                         </div>
                     </form>
                     <div class="btn_box">
