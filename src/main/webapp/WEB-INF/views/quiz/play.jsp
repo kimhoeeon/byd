@@ -56,7 +56,7 @@
                     </div>
                     <div class="tit">
                         <a href="/quiz/step1">
-                            <img src="/img/logo_g.png?ver=20260921" alt="logo">
+                            <img src="/img/logo_w.png?ver=20260921" alt="logo">
                         </a>
                     </div>
                 </div>

@@ -38,7 +38,7 @@
     <header id="header">
         <div class="inner">
             <a href="/apply/step1" class="logo">
-                <img src="/img/logo_g.png?ver=20260921" alt="BYD">
+                <img src="/img/logo_w.png?ver=20260921" alt="logo">
             </a>
         </div>
     </header>
