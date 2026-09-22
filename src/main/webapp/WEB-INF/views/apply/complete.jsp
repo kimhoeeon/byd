@@ -43,24 +43,33 @@
         </div>
     </header>
 
-    <div id="container" style="padding-top: 60px;">
+    <div id="container">
+        <!-- //title -->
         <div class="info_box padding_tb h-100" style="color: #fff;">
             <div class="inner" style="text-align: center;">
 
-                <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
-                <div class="bd_tit" style="color: #bb0a0a;">
-                    BYD SEALION 6 DM-I 증정 이벤트 응모 완료
+                <!-- title -->
+                <div class="top_tit padding_tb mx-320">
+                    <div class="inner">
+                        <div class="tit">
+                            <img src="/img/logo_w_com.png" alt="logo">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size: 60px;margin-top: 60px; margin-bottom: 20px;">🎉</div>
+                <div class="bd_tit" style="color: #fff;">
+                    BYD SEALION 6 DM-I 증정 <br/>이벤트 응모 완료
                 </div>
 
                 <div class="bd_txt_w" style="margin-top: 20px;">
                     <div class="big">무대에서 진행되는 경품 이벤트를 기대해주세요!</div>
-                    <p style="color: #383838; line-height: 1.6; margin-top: 15px;">
-                        입력하신 연락처로 발송된 <span style="color: #383838; font-weight: bold;">모바일 티켓(QR) 링크</span>를 확인해주세요.<br/>
-                        인증 QR을 인포데스크에 보여주시면 기프트를 드립니다.
+                    <p style="color: #fff; line-height: 1.6; margin-top: 15px;">
+                        입력하신 연락처로 발송된 <br/><span style="color: #fff; font-weight: bold;">모바일 티켓(QR) 링크</span>를 확인해주세요. <br/>인증 QR을 인포데스크에 보여주시면 기프트를 드립니다.
                     </p>
                 </div>
 
-                <div class="nt_box" style="text-align: left; background-color: #202020; padding: 25px 20px; border-radius: 10px;">
+                <div class="nt_box" style="text-align: center; background-color: #333333; padding: 25px 20px; border-radius: 10px;margin-top:30px">
                     <div class="txt">
                         <p>문자를 받지 못하셨다면 스팸 메일함을 확인해 주세요.</p>
                     </div>

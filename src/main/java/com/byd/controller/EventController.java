@@ -118,6 +118,7 @@ public class EventController {
         participantVO.setName(temp.getName());
         participantVO.setPhone(temp.getPhone());
         participantVO.setPrivacyAgree(temp.getPrivacyAgree());
+        participantVO.setBibNumber(temp.getBibNumber());
 
         // 주요 데이터 누락 여부 확인 및 로깅
         if (participantVO.getShopInfo() == null || participantVO.getShopInfo().trim().isEmpty()

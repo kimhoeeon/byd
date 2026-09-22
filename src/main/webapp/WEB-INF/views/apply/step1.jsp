@@ -81,7 +81,7 @@
                                 </div>
                             </li>
                             <li>
-                                <div class="terms-check" style="margin-top: 15px;">
+                                <div class="terms-check">
                                     <label>
                                         <input type="checkbox" id="provideAgree" name="provideAgree" value="Y" required>
                                         <span class="terms-check_box" aria-hidden="true"></span>
@@ -200,9 +200,9 @@
             Swal.fire({
                 title: '입력하신 정보가 맞습니까?',
                 html: '<div style="text-align:left; font-size:16px; margin-top:10px; padding:15px; background:#f8f9fa; border-radius:8px; color:#383838; border:1px solid #ddd;">' +
-                    '<strong>이름:</strong> ' + name + '<br>' +
-                    '<strong style="margin-top:5px; display:inline-block;">연락처:</strong> ' + phone + '<br>' +
-                    '<strong style="margin-top:5px; display:inline-block;">배번호:</strong> <span style="color:#d32f2f; font-weight:bold;">' + bibNumber + '</span>' +
+                    '<strong>이름 :</strong> ' + name + '<br>' +
+                    '<strong style="margin-top:5px; display:inline-block;">연락처 :</strong> ' + phone + '<br>' +
+                    '<strong style="margin-top:5px; display:inline-block;">배번호 :</strong> <span style="color:#d32f2f; font-weight:bold;">' + bibNumber + '</span>' +
                     '</div>',
                 icon: 'question',
                 showCancelButton: true,

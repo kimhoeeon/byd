@@ -92,7 +92,7 @@
                         </c:if>
                     </c:if>
 
-                    <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="return validateForm();">
+                    <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="event.preventDefault(); validateForm();">
 
                         <!-- 서버 전송용 히든 필드 -->
                         <input type="hidden" name="email" id="fullEmail">
@@ -107,17 +107,17 @@
                             <li>
                                 <div class="gubun">생년월일</div>
                                 <div class="row">
-                                    <div class="input" style="flex: 1;">
+                                    <div class="input">
                                         <select id="birthYear" required>
                                             <option value="">년도</option>
                                         </select>
                                     </div>
-                                    <div class="input" style="flex: 1;">
+                                    <div class="input">
                                         <select id="birthMonth" required>
                                             <option value="">월</option>
                                         </select>
                                     </div>
-                                    <div class="input" style="flex: 1;">
+                                    <div class="input">
                                         <select id="birthDay" required>
                                             <option value="">일</option>
                                         </select>
@@ -373,7 +373,7 @@
                 if(!bYear) $("#birthYear").focus();
                 else if(!bMonth) $("#birthMonth").focus();
                 else $("#birthDay").focus();
-                return;
+                return false;
             }
 
             $("#hiddenBirthDate").val(bYear + bMonth + bDay);
@@ -386,7 +386,7 @@
             if(emailId === "") {
                 alert("이메일 아이디를 입력해 주세요.");
                 $("#emailId").focus();
-                return;
+                return false;
             }
 
             if(customDomain === "") {
@@ -396,14 +396,14 @@
                 } else {
                     $("#emailDomain").focus();
                 }
-                return;
+                return false;
             }
 
             const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if(!domainRegex.test(customDomain)) {
                 alert("유효한 이메일 도메인 형식이 아닙니다.\n(예: example.com)");
                 $("#customDomain").focus();
-                return;
+                return false;
             }
 
             $("#fullEmail").val(emailId + "@" + customDomain);
@@ -423,17 +423,17 @@
 
             if (!$("#thirdPartyAgree").is(":checked") || !$("#entrustAgree").is(":checked")) {
                 alert("필수 약관에 모두 동의해 주세요.");
-                return;
+                return false;
             }
 
             // SweetAlert2 팝업창 띄우기
             Swal.fire({
                 title: '입력하신 정보가 맞습니까?',
                 html: '<div style="text-align:left; font-size:15px; margin-top:10px; padding:15px; background:#f8f9fa; border-radius:8px; color:#383838; border:1px solid #ddd; line-height:1.6;">' +
-                    '<strong>생년월일:</strong> ' + birthDateStr + '<br>' +
-                    '<strong>이메일:</strong> ' + fullEmailStr + '<br>' +
-                    '<strong>방문 전시장:</strong> [' + regionVal + '] ' + shopVal + '<br>' +
-                    '<strong>관심차량:</strong> <span style="color:#d32f2f; font-weight:bold;">' + carVal + '</span>' +
+                    '<strong>생년월일 :</strong> ' + birthDateStr + '<br>' +
+                    '<strong>이메일 :</strong> ' + fullEmailStr + '<br>' +
+                    '<strong>방문 전시장 :</strong> [' + regionVal + '] ' + shopVal + '<br>' +
+                    '<strong>관심차량 :</strong> <span style="color:#d32f2f; font-weight:bold;">' + carVal + '</span>' +
                     '</div>',
                 icon: 'question',
                 showCancelButton: true,
@@ -443,7 +443,7 @@
                 cancelButtonText: '수정할래요'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // 확인 완료 시 폼 수동 제출
+                    // 사용자가 '네, 제출합니다'를 눌렀을 때만 폼을 수동으로 제출합니다.
                     document.getElementById('applyForm2').submit();
                 }
             });
