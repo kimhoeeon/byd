@@ -299,7 +299,6 @@ label:last-child {margin-right: 0;}
 .success .nt_box {margin-top: 60px; color: #CBCBCA; font-size: 1.4rem; line-height: 2rem;}
 .success .nt_box .eng {margin-top: 30px; display: none;}
 .success .nt_box .txt p {margin: 5px 0; padding-left: 12px; position: relative;}
-.success .nt_box .txt p:before {display: block; content:""; position: absolute; left: 0;}
 .enterCode .btn {display: flex; justify-content: space-between}
 .enterCode .btn a {width: calc(50% - 10px);}
 
@@ -618,9 +617,11 @@ body.host_w .btn_multi label.correct {background: #383838;border-color: #383838;
 .apply_w .btn_st01{width: 100%;padding: 17px 0; display: flex; align-items: center; justify-content: center; gap: 8px; background: #DE3481; border: none; cursor: pointer; border-radius: 15px;}
 .apply_w .popup_btn{width:100%;height:50px;margin-top:25px;border:0;border-radius:8px;background:#383838;color:#fff;font-size:16px;font-weight:700;cursor:pointer;}
 .apply_w .form_box .gubun{font-weight: 500;}
-.apply_w .ck-in .info_box .tel .phone-cert{background: #383838;color: #fff; border: 0;border-radius: 10px; padding: 0 15px;}
+.apply_w .ck-in .info_box .tel .phone-cert{background: #222225;color: #fff; border: 0;border-radius: 10px; padding: 0 15px;}
 .apply_w .terms-check p{color: #383838;}
 .apply_w .bd_txt_w .big{color: #fff;}
+.apply_w .ck-in .info_box::before{content: '';background: #222225; position: absolute; inset: 0;backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); z-index: 0;}
+
 
 .info_box.h-100{height: 100vh;}
 
