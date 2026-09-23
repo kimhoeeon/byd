@@ -51,7 +51,7 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
-                    <form id="applyForm" onsubmit="event.preventDefault(); submitStep1();">
+                    <form id="applyForm">
 
                         <ul class="form_box">
                             <li>
@@ -93,7 +93,7 @@
                             </li>
                         </ul>
                         <div class="btn_box">
-                            <button type="button" class="btn_st01" onclick="submitStep1();">다음</button>
+                            <button type="submit" class="btn_st01">다음</button>
                         </div>
                     </form>
                 </div>
@@ -115,6 +115,15 @@
     <script>
 
         $(document).ready(function() {
+
+            <c:if test="${not empty errorMsg}">
+                alert("${errorMsg}");
+            </c:if>
+
+            $('#applyForm').on('submit', function(e) {
+                e.preventDefault();
+                submitStep1();
+            });
 
             // 이름 입력 시 띄어쓰기(공백) 실시간 자동 제거
             $('#name').on('input', function() {

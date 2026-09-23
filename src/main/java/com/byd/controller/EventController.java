@@ -112,6 +112,8 @@ public class EventController {
                                     RedirectAttributes redirectAttributes) {
         ParticipantVO temp = (ParticipantVO) session.getAttribute("tempInfo");
         if (temp == null) {
+            // 세션 만료 시 명확한 안내 추가
+            redirectAttributes.addFlashAttribute("errorMsg", "시간이 초과되었거나 비정상적인 접근입니다. 다시 진행해 주세요.");
             return "redirect:/apply/step1";
         }
 
@@ -160,14 +162,13 @@ public class EventController {
 
         } catch (DuplicateKeyException de) {
             log.error("▶ [데이터 중복 에러] {}", de.getMessage());
-            // 에러 메시지 분석을 통해 배번호 중복인지 연락처 중복인지 구분 가능 (DB 설정에 따라 다름)
-            // 연락처 중복은 이미 1단계에서 걸러지므로, 여기까지 넘어왔다면 대부분 배번호 동시성 중복 이슈일 확률이 높음
             redirectAttributes.addFlashAttribute("errorMsg", "이미 등록된 정보(연락처 또는 배번호)입니다. 처음부터 다시 진행해 주세요.");
             redirectAttributes.addFlashAttribute("retainedData", participantVO);
-            // 2단계에서 배번호 중복 에러가 났으므로 1단계로 돌려보내는 것도 고려해볼 만합니다.
             return "redirect:/apply/step1";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMsg", "등록 중 에러가 발생했습니다. 다시 시도해 주세요.");
+            // DB 등록 중 발생하는 에러를 서버 콘솔에 구체적으로 출력하여 트래킹 지원
+            log.error("▶ [데이터 등록 DB 에러] {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMsg", "등록 중 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.");
             redirectAttributes.addFlashAttribute("retainedData", participantVO);
             return "redirect:/apply/step2";
         }

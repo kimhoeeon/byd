@@ -92,7 +92,7 @@
                         </c:if>
                     </c:if>
 
-                    <form action="/apply/applyProcess" method="post" id="applyForm2" onsubmit="event.preventDefault(); validateForm();">
+                    <form action="/apply/applyProcess" method="post" id="applyForm2">
 
                         <!-- 서버 전송용 히든 필드 -->
                         <input type="hidden" name="email" id="fullEmail">
@@ -271,6 +271,16 @@
 
         $(document).ready(function() {
 
+            // 백엔드 유효성 검사 실패 시 에러 메시지 출력
+            <c:if test="${not empty errorMsg}">
+                alert("${errorMsg}");
+            </c:if>
+
+            $('#applyForm2').on('submit', function(e) {
+                e.preventDefault();
+                validateForm();
+            });
+
             // 생년월일 셀렉트 박스 동적 생성
             const yearSelect = document.getElementById("birthYear");
             const monthSelect = document.getElementById("birthMonth");
@@ -328,11 +338,6 @@
                     }
                 }
             }
-
-            // 백엔드 유효성 검사 실패 시 에러 메시지 출력
-            <c:if test="${not empty errorMsg}">
-                alert("${errorMsg}");
-            </c:if>
 
             // 이메일 아이디 전체 입력 방지
             $("#emailId").on("input", function() {
@@ -461,7 +466,11 @@
                 cancelButtonText: '수정할래요'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // 사용자가 '네, 제출합니다'를 눌렀을 때만 폼을 수동으로 제출합니다.
+                    // 제출 중복 방지 (사용자가 연타하지 못하게 방어)
+                    Swal.showLoading();
+                    const submitBtn = document.querySelector('.btn_st01');
+                    if(submitBtn) submitBtn.disabled = true;
+
                     document.getElementById('applyForm2').submit();
                 }
             });
