@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -82,6 +83,15 @@
                                 <c:when test="${data.carModel eq 'BYD SEALION 6'}"><c:set var="carCode" value="BYD0012"/></c:when>
                             </c:choose>
 
+                            <c:set var="isMinor" value="N"/>
+                            <c:set var="cleanBirth" value="${fn:replace(fn:replace(fn:replace(data.birthDate, '-', ''), '.', ''), '/', '')}" />
+                            <c:if test="${not empty cleanBirth and fn:length(cleanBirth) >= 6}">
+                                <c:set var="birthYM" value="${fn:substring(cleanBirth, 0, 6)}" />
+                                <c:if test="${birthYM >= '200710'}">
+                                    <c:set var="isMinor" value="Y"/>
+                                </c:if>
+                            </c:if>
+
                             <table class="table table-bordered align-middle gs-7 gy-4">
                                 <colgroup>
                                     <col width="20%">
@@ -97,8 +107,11 @@
                                 <tr>
                                     <th class="bg-light fw-bold text-danger">배번호</th>
                                     <td class="fw-bold text-danger">${empty data.bibNumber ? '-' : data.bibNumber}</td>
-                                    <th class="bg-light fw-bold">생년월일</th>
-                                    <td>${empty data.birthDate ? '-' : data.birthDate}</td>
+                                    <th class="bg-light fw-bold">생년월일 (미성년 여부)</th>
+                                    <td>
+                                        ${empty data.birthDate ? '-' : data.birthDate}
+                                        <span class="badge ${isMinor eq 'Y' ? 'badge-danger' : 'badge-primary'} ms-2">${isMinor eq 'Y' ? '미성년자' : '성인'}</span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th class="bg-light fw-bold">이름</th>
@@ -118,14 +131,8 @@
                                 </tr>
 
                                 <tr>
-                                    <th class="bg-light fw-bold">개인정보 수집·이용 동의</th>
-                                    <td><span class="badge badge-primary">${empty data.privacyAgree ? 'N' : data.privacyAgree}</span></td>
-                                    <th class="bg-light fw-bold">개인정보 제3자 제공 동의</th>
-                                    <td colspan="3"><span class="badge badge-primary">${empty data.thirdPartyAgree ? 'N' : data.thirdPartyAgree}</span></td>
-                                </tr>
-                                <tr>
-                                    <th class="bg-light fw-bold">개인정보 처리 위탁 안내 동의</th>
-                                    <td><span class="badge badge-primary">${empty data.entrustAgree ? 'N' : data.entrustAgree}</span></td>
+                                    <th class="bg-light fw-bold">상담 및 방문 신청</th>
+                                    <td><span class="badge ${data.consultYn eq 'Y' ? 'badge-primary' : 'badge-secondary'}">${empty data.consultYn ? 'N' : data.consultYn}</span></td>
                                     <th class="bg-light fw-bold">마케팅 정보 수신 동의</th>
                                     <td>
                                         <span class="badge <c:choose><c:when test="${data.mktAgree eq 'Y'}">badge-primary</c:when><c:otherwise>badge-danger</c:otherwise></c:choose>">${empty data.mktAgree ? 'N' : data.mktAgree}</span>
@@ -133,6 +140,17 @@
                                 </tr>
 
                                 <tr>
+                                    <th class="bg-light fw-bold">개인정보 수집·이용 동의</th>
+                                    <td><span class="badge badge-primary">${empty data.privacyAgree ? 'N' : data.privacyAgree}</span></td>
+                                    <th class="bg-light fw-bold">개인정보 제3자 제공 동의</th>
+                                    <td colspan="3"><span class="badge badge-primary">${empty data.thirdPartyAgree ? 'N' : data.thirdPartyAgree}</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light fw-bold">개인정보 처리 위탁 안내 동의</th>
+                                    <td colspan="3"><span class="badge badge-primary">${empty data.entrustAgree ? 'N' : data.entrustAgree}</span></td>
+                                </tr>
+
+                                <%--<tr>
                                     <th class="bg-light fw-bold text-primary">현장 기념품 수령 현황</th>
                                     <td colspan="3">
                                         <c:choose>
@@ -144,7 +162,7 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                </tr>
+                                </tr>--%>
                                 </tbody>
                             </table>
                         </div>

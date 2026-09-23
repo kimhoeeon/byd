@@ -14,6 +14,7 @@ public class Criteria {
     private String testDriveTime; // 시승시간
     private String sortColumn; // 정렬할 컬럼명 (예: testDriveTime)
     private String sortDir;    // 정렬 방향 (ASC 또는 DESC)
+    private String consultYn;
 
     public Criteria() {
         this.pageNum = 1;

@@ -26,8 +26,11 @@
     <title>BYD</title>
 
     <style>
-        /* readonly 인풋 박스 스타일링 (비활성화 느낌 부여) */
         input[readonly] { background-color: #2a2a2a !important; color: #888 !important; outline: none; }
+        /* 라디오 버튼 스타일 정리 */
+        .radio-group { display: flex; gap: 30px; align-items: center; padding: 15px 0; }
+        .radio-group label { color: #fff; display: flex; align-items: center; font-size: 1.6rem; cursor: pointer; }
+        .radio-group input[type="radio"] { margin-right: 8px; width: 22px; height: 22px; margin-top: 0; }
     </style>
 </head>
 
@@ -53,7 +56,7 @@
             <div class="info_box padding_b">
                 <div class="inner">
 
-                    <h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">이벤트 참여 티켓</h2>
+                    <%--<h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">이벤트 참여 티켓</h2>
 
                     <!-- QR 코드 영역 및 1회 참여 조건 문구 -->
                     <div style="text-align: center; background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
@@ -65,7 +68,9 @@
                         <p style="color: #333; font-size: 14px; margin-top: 10px; font-weight:bold; line-height: 1.4;">
                             ▶ 이벤트 신청일 : <fmt:formatDate value="${data.regDate}" pattern="yyyy.MM.dd" />
                         </p>
-                    </div>
+                    </div>--%>
+
+                    <h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">이벤트 참여 신청 정보</h2>
 
                     <form id="updateForm">
                         <input type="hidden" name="seq" value="${data.seq}">
@@ -92,6 +97,7 @@
                         </c:choose>
 
                         <input type="hidden" name="email" id="fullEmail" value="${data.email}">
+                        <input type="hidden" name="consultYn" id="consultYn" value="${empty data.consultYn ? 'N' : data.consultYn}">
                         <input type="hidden" name="mktAgree" id="hiddenMkt" value="${data.mktAgree}">
 
                         <ul class="form_box">
@@ -170,6 +176,17 @@
                                         <option value="BYD SEALION 7" <c:if test="${data.carModel == 'BYD SEALION 7'}">selected</c:if>>BYD SEALION 7</option>
                                         <option value="BYD SEALION 6" <c:if test="${data.carModel == 'BYD SEALION 6'}">selected</c:if>>BYD SEALION 6</option>
                                     </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="gubun">향후 구매 상담 또는 시승 신청을 원합니다.</div>
+                                <div class="input radio-group">
+                                    <label style="color: #383838;">
+                                        <input type="radio" name="consultYnRadio" value="Y" <c:if test="${data.consultYn == 'Y'}">checked</c:if>> 예
+                                    </label>
+                                    <label style="color: #383838;">
+                                        <input type="radio" name="consultYnRadio" value="N" <c:if test="${data.consultYn != 'Y'}">checked</c:if>> 아니오
+                                    </label>
                                 </div>
                             </li>
                         </ul>
@@ -256,7 +273,7 @@
 
         $(document).ready(function() {
             // 1. QR 코드 클라이언트 렌더링
-            var qrUrl = "${qrCodeUrl}";
+            /*var qrUrl = "${qrCodeUrl}";
             if(qrUrl) {
                 new QRCode(document.getElementById("qrcode"), {
                     text: qrUrl,
@@ -266,7 +283,7 @@
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.H
                 });
-            }
+            }*/
 
             // 2. 기존 데이터에 맞춰 지역 및 전시장 초기화
             initRegionAndShop();
@@ -383,6 +400,10 @@
             if($("#regionSelect").val() === "") { alert("지역을 선택해 주세요."); return false; }
             if($("#shopSelect").val() === "") { alert("방문 가능 전시장을 선택해 주세요."); return false; }
             if($("select[name='carModel']").val() === "") { alert("관심차량을 선택해 주세요."); return false; }
+
+            const $consultRadio = $("input[name='consultYnRadio']:checked");
+            const consultVal = $consultRadio.length > 0 ? $consultRadio.val() : 'N';
+            $("#consultYn").val(consultVal);
 
             $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");
 

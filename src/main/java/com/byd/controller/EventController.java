@@ -59,14 +59,15 @@ public class EventController {
             ParticipantVO existing = eventService.getParticipantByPhoneToday(cleanPhone);
             if (existing != null) {
                 // 이미 오늘 참여 완료한 유저는 마이페이지 티켓 확인 주소 발행
-                AES128 aes128 = new AES128(SECRET_KEY);
+                /*AES128 aes128 = new AES128(SECRET_KEY);
                 String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
                 String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
-                String redirectUrl = baseUrl + "/apply/ticket?token=" + URLEncoder.encode(encryptedSeq, "UTF-8");
+                String redirectUrl = baseUrl + "/apply/ticket?token=" + URLEncoder.encode(encryptedSeq, "UTF-8");*/
 
                 result.put("exists", true);
                 result.put("bibDuplicate", false);
-                result.put("redirectUrl", redirectUrl);
+                /*result.put("redirectUrl", redirectUrl);*/
+                result.put("redirectUrl", "/apply/step1");
             } else {
                 // 신규 유저는 임시 세션 생성 후 2단계 허용
                 ParticipantVO temp = new ParticipantVO();
@@ -135,9 +136,9 @@ public class EventController {
             return "redirect:/apply/step2";
         } else {
             // 정상 유입 시 모든 수집 데이터 상세 로깅 (추후 데이터 틀어짐 대비)
-            log.info("▷ [일반이벤트 정상 유입 데이터] 이름: {}, 연락처: {}, 이메일: {}, 전시장: {}, 관심차종: {}, 마케팅동의: {}",
-                    participantVO.getName(), participantVO.getPhone(), participantVO.getEmail(),
-                    participantVO.getShopInfo(), participantVO.getCarModel(), participantVO.getMktAgree());
+            log.info("▷ [일반이벤트 정상 유입 데이터] 이름: {}, 연락처: {}, 생년월일: {}, 배번호: {}, 이메일: {}, 전시장: {}, 관심차종: {}, 상담여부: {}, 마케팅동의: {}",
+                    participantVO.getName(), participantVO.getPhone(), participantVO.getBirthDate(), participantVO.getBibNumber(), participantVO.getEmail(),
+                    participantVO.getShopInfo(), participantVO.getCarModel(), participantVO.getConsultYn(), participantVO.getMktAgree());
         }
 
         try {
@@ -145,14 +146,14 @@ public class EventController {
             session.removeAttribute("tempInfo");
 
             // 고유 식별용 암호화 토큰 링크 발행
-            AES128 aes128 = new AES128(SECRET_KEY);
+            /*AES128 aes128 = new AES128(SECRET_KEY);
             String encryptedSeq = aes128.encrypt(String.valueOf(participantVO.getSeq()));
 
             String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
             String ticketUrl = baseUrl + "/apply/ticket?token=" + URLEncoder.encode(encryptedSeq, "UTF-8");
 
             // 알리고 문자 자동 발송
-            eventService.sendNotificationSms(participantVO, ticketUrl);
+            eventService.sendNotificationSms(participantVO, ticketUrl);*/
 
             redirectAttributes.addFlashAttribute("applyCompleteFlag", true);
             return "redirect:/apply/complete";
@@ -236,6 +237,7 @@ public class EventController {
             existing.setEmail(participantVO.getEmail());
             existing.setShopInfo(participantVO.getShopInfo());
             existing.setCarModel(participantVO.getCarModel());
+            existing.setConsultYn(participantVO.getConsultYn());
             existing.setMktAgree(participantVO.getMktAgree());
 
             eventService.updateParticipant(existing, false);

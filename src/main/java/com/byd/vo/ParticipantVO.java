@@ -15,6 +15,7 @@ public class ParticipantVO {
     private String email;               // 이메일 (기존 address 대체)
     private String shopInfo;            // 방문 가능 전시장
     private String carModel;            // 관심차량 선택 정보
+    private String consultYn;
     private String testDriveTime;       // 시승 신청 시간
     private String privacyAgree;        // 개인정보 수집·이용 동의
     private String thirdPartyAgree;     // 개인정보 제3자 제공 동의

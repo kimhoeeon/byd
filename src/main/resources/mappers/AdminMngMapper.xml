@@ -10,11 +10,17 @@
         <if test="searchType == 'phone' and keyword != null and keyword != ''">
             AND REPLACE(phone, '-', '') LIKE CONCAT('%', REPLACE(#{keyword}, '-', ''), '%')
         </if>
+        <if test="searchType == 'bibNumber' and keyword != null and keyword != ''">
+            AND bib_number LIKE CONCAT('%', #{keyword}, '%')
+        </if>
         <if test="startDate != null and startDate != ''">
             AND reg_date <![CDATA[>=]]> CONCAT(#{startDate}, ' 00:00:00')
         </if>
         <if test="endDate != null and endDate != ''">
             AND reg_date <![CDATA[<=]]> CONCAT(#{endDate}, ' 23:59:59')
+        </if>
+        <if test="consultYn != null and consultYn == 'Y'.toString()">
+            AND consult_yn = 'Y'
         </if>
     </sql>
 

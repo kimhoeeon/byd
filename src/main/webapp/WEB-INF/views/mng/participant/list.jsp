@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -63,6 +64,7 @@
                                         <select name="searchType" class="form-select form-select-solid w-150px">
                                             <option value="name" ${cri.searchType == 'name' ? 'selected' : ''}>이름</option>
                                             <option value="phone" ${cri.searchType == 'phone' ? 'selected' : ''}>연락처</option>
+                                            <option value="bibNumber" ${cri.searchType == 'bibNumber' ? 'selected' : ''}>배번호</option>
                                         </select>
                                         <input type="text" name="keyword" value="${cri.keyword}" class="form-control form-control-solid w-250px" placeholder="검색어를 입력해 주세요.">
                                         <button type="button" class="btn btn-dark" onclick="searchData()">검색</button>
@@ -83,6 +85,23 @@
                                         </div>
                                         <div class="text-muted fs-7 ms-2">
                                             * 시작일과 종료일이 모두 지정되면 자동 조회됩니다.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-12 d-flex align-items-center gap-3">
+                                        <div class="w-150px fw-bold text-gray-700 ps-2">
+                                            <i class="ki-duotone ki-messages fs-4 me-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
+                                            상담/방문 여부
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="form-check form-check-custom form-check-solid">
+                                                <input class="form-check-input" type="checkbox" name="consultYn" id="consultYn" value="Y" ${cri.consultYn eq 'Y' ? 'checked' : ''} onchange="searchData()"/>
+                                                <label class="form-check-label fw-bold text-gray-700 cursor-pointer" for="consultYn">
+                                                    상담 및 시승 신청자만 조회
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -115,22 +134,21 @@
                             </div>
                         </div>
                         <div class="card-body pt-0" style="overflow-x: auto;">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable" style="min-width: 1200px;">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable" style="min-width: 1400px;">
                                 <thead>
                                 <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                                     <th class="text-center min-w-100px">등록일자</th>
-                                    <th class="text-center min-w-100px">경품 수령 확인</th>
-                                    <th class="text-center min-w-80px">배번호</th>
-                                    <th class="text-center min-w-100px">이름</th>
+                                    <th class="text-center min-w-150px">이름 (배번호)</th>
                                     <th class="text-center min-w-150px">연락처</th>
                                     <th class="text-center min-w-100px">생년월일</th>
+                                    <th class="text-center min-w-100px">미성년자여부</th>
                                     <th class="text-center min-w-200px">이메일</th>
                                     <th class="text-center min-w-150px">방문 전시장</th>
+                                    <th class="text-center min-w-150px">방문전시장코드</th>
                                     <th class="text-center min-w-150px">관심차량</th>
-                                    <th class="text-center">개인정보<br>수집동의</th>
-                                    <th class="text-center">제3자<br>제공동의</th>
-                                    <th class="text-center">처리위탁<br>동의</th>
-                                    <th class="text-center">마케팅<br>동의</th>
+                                    <th class="text-center min-w-150px">관심차량코드</th>
+                                    <th class="text-center min-w-150px">상담 및 방문 신청</th>
+                                    <th class="text-center min-w-80px">마케팅동의</th>
                                     <th class="text-center min-w-80px">관리</th>
                                 </tr>
                                 </thead>
@@ -185,27 +203,33 @@
                                             <c:when test="${item.carModel eq 'BYD SEALION 6'}"><c:set var="carCode" value="BYD0012"/></c:when>
                                         </c:choose>
 
+                                        <c:set var="isMinor" value="N"/>
+                                        <c:set var="cleanBirth" value="${fn:replace(fn:replace(fn:replace(item.birthDate, '-', ''), '.', ''), '/', '')}" />
+                                        <c:if test="${not empty cleanBirth and fn:length(cleanBirth) >= 6}">
+                                            <c:set var="birthYM" value="${fn:substring(cleanBirth, 0, 6)}" />
+                                            <c:if test="${birthYM >= '200710'}">
+                                                <c:set var="isMinor" value="Y"/>
+                                            </c:if>
+                                        </c:if>
+
                                         <tr class="text-center">
                                             <td><fmt:formatDate value="${item.regDate}" pattern="yyyy.MM.dd HH:mm"/></td>
+
                                             <td>
-                                                <label class="toggle-switch">
-                                                    <input type="checkbox" class="arrival-toggle" data-seq="${item.seq}" data-type="gift" ${item.giftCheckYn eq 'Y' ? 'checked' : ''}>
-                                                    <span class="slider"></span>
-                                                </label>
+                                                <a href="/mng/participant/detail?seq=${item.seq}&pageNum=${cri.pageNum}&searchType=${cri.searchType}&keyword=${cri.keyword}" class="link-name">${item.name}</a>
+                                                <span class="text-danger fw-bold ms-1">(${empty item.bibNumber ? '-' : item.bibNumber})</span>
                                             </td>
-                                            <td class="fw-bold text-danger">${empty item.bibNumber ? '-' : item.bibNumber}</td>
-                                            <td><a href="/mng/participant/detail?seq=${item.seq}&pageNum=${cri.pageNum}&searchType=${cri.searchType}&keyword=${cri.keyword}" class="link-name">${item.name}</a></td>
+
                                             <td>${item.phone}</td>
                                             <td>${empty item.birthDate ? '-' : item.birthDate}</td>
+                                            <td><span class="badge ${isMinor eq 'Y' ? 'badge-light-danger' : 'badge-light-primary'}">${isMinor}</span></td>
                                             <td>${empty item.email ? '-' : item.email}</td>
-                                            <td class="code-text" title="${item.shopInfo}">${empty item.shopInfo ? '-' : shopCode}</td>
-                                            <td class="code-text" title="${item.carModel}">${empty item.carModel ? '-' : carCode}</td>
-                                            <td><span class="badge badge-light-primary">${item.privacyAgree}</span></td>
-                                            <td><span class="badge badge-light-primary">${item.thirdPartyAgree}</span></td>
-                                            <td><span class="badge badge-light-primary">${item.entrustAgree}</span></td>
-                                            <td>
-                                                <span class="badge <c:choose><c:when test="${item.mktAgree eq 'Y'}">badge-light-primary</c:when><c:otherwise>badge-light-danger</c:otherwise></c:choose>">${item.mktAgree}</span>
-                                            </td>
+                                            <td class="code-text" title="${item.shopInfo}">${empty item.shopInfo ? '-' : item.shopInfo}</td>
+                                            <td class="code-text">${empty item.shopInfo ? '-' : shopCode}</td>
+                                            <td class="code-text" title="${item.carModel}">${empty item.carModel ? '-' : item.carModel}</td>
+                                            <td class="code-text">${empty item.carModel ? '-' : carCode}</td>
+                                            <td><span class="badge ${item.consultYn eq 'Y' ? 'badge-light-primary' : 'badge-light-secondary'}">${empty item.consultYn ? 'N' : item.consultYn}</span></td>
+                                            <td><span class="badge ${item.mktAgree eq 'Y' ? 'badge-light-primary' : 'badge-light-danger'}">${item.mktAgree}</span></td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-light-danger fw-bold" onclick="deleteParticipant(${item.seq})">삭제</button>
                                             </td>
@@ -252,7 +276,7 @@
             "language": { "emptyTable": "검색된 신청 내역이 없습니다." }
         });
 
-        $(document).on('change', '.arrival-toggle', function () {
+        /*$(document).on('change', '.arrival-toggle', function () {
             let seq = $(this).data('seq');
             let type = $(this).data('type');
             let isChecked = $(this).is(':checked');
@@ -272,7 +296,7 @@
                     $(this).prop('checked', !isChecked);
                 }.bind(this)
             });
-        });
+        });*/
 
         var $startDate = $('#startDate');
         var $endDate = $('#endDate');

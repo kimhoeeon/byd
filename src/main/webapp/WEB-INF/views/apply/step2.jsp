@@ -39,6 +39,10 @@
     <style>
         .notice-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; margin-top: 10px; font-size: 14px; color: #e50000; font-weight: bold; text-align: center; line-height: 1.4; border: 1px solid #ffcccc; }
         input[readonly] { background-color: #2a2a2a !important; color: #888 !important; outline: none; }
+        /* 라디오 버튼 스타일 정리 */
+        .radio-group { display: flex; gap: 30px; align-items: center; padding: 15px 0; }
+        .radio-group label { color: #888; display: flex; align-items: center; font-size: 1.6rem; cursor: pointer; }
+        .radio-group input[type="radio"] { margin-right: 8px; width: 22px; height: 22px; margin-top: 0; }
     </style>
 </head>
 
@@ -63,10 +67,6 @@
             <!-- info -->
             <div class="info_box padding_b">
                 <div class="inner">
-
-                    <div class="notice-box">
-                        ※ 기념품 수령은 행사 기간 중<br>1회에 한하여 참여 가능합니다.
-                    </div>
 
                     <%-- 서버 튕김 방지용 데이터 복구 세팅 --%>
                     <c:set var="savedEmailId" value="" />
@@ -97,6 +97,7 @@
                         <!-- 서버 전송용 히든 필드 -->
                         <input type="hidden" name="email" id="fullEmail">
                         <input type="hidden" name="birthDate" id="hiddenBirthDate">
+                        <input type="hidden" name="consultYn" id="consultYn" value="N">
                         <input type="hidden" name="privacyAgree" id="hiddenPrivacy" value="N">
                         <input type="hidden" name="thirdPartyAgree" id="hiddenThirdParty" value="N">
                         <input type="hidden" name="entrustAgree" id="hiddenEntrust" value="N">
@@ -178,6 +179,17 @@
                                         <option value="BYD SEALION 7" <c:if test="${retainedData.carModel == 'BYD SEALION 7'}">selected</c:if>>BYD SEALION 7</option>
                                         <option value="BYD SEALION 6" <c:if test="${retainedData.carModel == 'BYD SEALION 6'}">selected</c:if>>BYD SEALION 6</option>
                                     </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="gubun">향후 구매 상담 또는 시승 신청을 원합니다.</div>
+                                <div class="input radio-group">
+                                    <label>
+                                        <input type="radio" name="consultYnRadio" value="Y"> 예
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="consultYnRadio" value="N" checked> 아니오
+                                    </label>
                                 </div>
                             </li>
                         </ul>
@@ -413,6 +425,11 @@
             const shopVal = $("#shopSelect").val();
             const carVal = $("select[name='carModel']").val();
 
+            const $consultRadio = $("input[name='consultYnRadio']:checked");
+            const consultVal = $consultRadio.length > 0 ? $consultRadio.val() : 'N';
+            $("#consultYn").val(consultVal);
+            const consultText = consultVal === 'Y' ? '예' : '아니오';
+
             if(regionVal === "") { alert("지역을 선택해 주세요."); return; }
             if(shopVal === "") { alert("방문 가능 전시장을 선택해 주세요."); return; }
             if(carVal === "") { alert("관심차량 정보를 선택해 주세요."); return; }
@@ -433,7 +450,8 @@
                     '<strong>생년월일 :</strong> ' + birthDateStr + '<br>' +
                     '<strong>이메일 :</strong> ' + fullEmailStr + '<br>' +
                     '<strong>방문 전시장 :</strong> [' + regionVal + '] ' + shopVal + '<br>' +
-                    '<strong>관심차량 :</strong> <span style="color:#d32f2f; font-weight:bold;">' + carVal + '</span>' +
+                    '<strong>관심차량 :</strong> <span style="color:#d32f2f; font-weight:bold;">' + carVal + '</span><br>' +
+                    '<strong>상담 및 시승 :</strong> <span style="color:#009ef7; font-weight:bold;">' + consultText + '</span>' +
                     '</div>',
                 icon: 'question',
                 showCancelButton: true,

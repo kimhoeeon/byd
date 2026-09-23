@@ -282,8 +282,8 @@ public class AdminMngController {
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         Row headerRow = sheet.createRow(0);
-        // 엑셀 헤더에 방문전시장코드, 관심차량코드 추가
-        String[] headers = {"등록일시", "경품수령확인(QR)", "배번호", "이름", "연락처", "생년월일", "이메일", "방문전시장", "방문전시장코드", "관심차량", "관심차량코드", "마케팅동의"};
+        // 엑셀 헤더
+        String[] headers = {"등록일시", "배번호", "이름", "연락처", "생년월일", "미성년자여부", "이메일", "방문전시장", "방문전시장코드", "관심차량", "관심차량코드", "상담 및 방문 신청", "마케팅동의"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -359,20 +359,37 @@ public class AdminMngController {
             }
 
             row.createCell(0).setCellValue(vo.getRegDate() != null ? sdf.format(vo.getRegDate()) : "");
-            row.createCell(1).setCellValue("Y".equals(vo.getGiftCheckYn()) ? "수령 완료" : "미수령");
-            row.createCell(2).setCellValue(vo.getBibNumber() != null ? vo.getBibNumber() : "");
-            row.createCell(3).setCellValue(vo.getName());
-            row.createCell(4).setCellValue(vo.getPhone());
-            row.createCell(5).setCellValue(vo.getBirthDate() != null ? vo.getBirthDate() : "");
+            row.createCell(1).setCellValue(vo.getBibNumber() != null ? vo.getBibNumber() : "");
+            row.createCell(2).setCellValue(vo.getName());
+            row.createCell(3).setCellValue(vo.getPhone());
+            row.createCell(4).setCellValue(vo.getBirthDate() != null ? vo.getBirthDate() : "");
+
+            // 미성년자 여부 계산 (2007년 10월 포함, 이후 출생자는 미성년자로 분류)
+            String isMinor = "N";
+            if (vo.getBirthDate() != null && !vo.getBirthDate().trim().isEmpty()) {
+                try {
+                    // 기호 모두 제거하고 첫 6자리(YYYYMM) 추출 후 정수 비교
+                    String cleanDate = vo.getBirthDate().replaceAll("[^0-9]", "");
+                    if (cleanDate.length() >= 6) {
+                        int ym = Integer.parseInt(cleanDate.substring(0, 6));
+                        if (ym >= 200710) isMinor = "Y";
+                    }
+                } catch (Exception e) {
+                    log.warn("미성년자 계산 오류 - Seq: {}", vo.getSeq());
+                }
+            }
+            row.createCell(5).setCellValue(isMinor);
+
             row.createCell(6).setCellValue(vo.getEmail() != null ? vo.getEmail() : "");
             row.createCell(7).setCellValue(vo.getShopInfo() != null ? vo.getShopInfo() : "");
             row.createCell(8).setCellValue(shopCode);
             row.createCell(9).setCellValue(vo.getCarModel() != null ? vo.getCarModel() : "");
             row.createCell(10).setCellValue(carCode);
-            row.createCell(11).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
+            row.createCell(11).setCellValue("Y".equals(vo.getConsultYn()) ? "Y" : "N");
+            row.createCell(12).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
 
             // 셀 스타일 루프
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < 13; i++) {
                 row.getCell(i).setCellStyle(dataStyle);
             }
         }

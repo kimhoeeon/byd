@@ -64,15 +64,6 @@
 
                 <div class="bd_txt_w" style="margin-top: 20px;">
                     <div class="big">무대에서 진행되는 경품 이벤트를 기대해주세요!</div>
-                    <p style="color: #fff; line-height: 1.6; margin-top: 15px;">
-                        입력하신 연락처로 발송된 <br/><span style="color: #fff; font-weight: bold;">모바일 티켓(QR) 링크</span>를 확인해주세요. <br/>인증 QR을 인포데스크에 보여주시면 기프트를 드립니다.
-                    </p>
-                </div>
-
-                <div class="nt_box" style="text-align: center; background-color: #333333; padding: 25px 20px; border-radius: 10px;margin-top:30px">
-                    <div class="txt">
-                        <p>문자를 받지 못하셨다면 스팸 메일함을 확인해 주세요.</p>
-                    </div>
                 </div>
 
                 <div class="btn_box" style="margin-top: 40px;">

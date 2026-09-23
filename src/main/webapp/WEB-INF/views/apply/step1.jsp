@@ -232,7 +232,7 @@
                                 return;
                             }
 
-                            // [추가] 배번호 중복 에러 처리
+                            // 배번호 중복 에러 처리
                             if(response.bibDuplicate) {
                                 Swal.fire({
                                     title: '배번호 등록 오류',
