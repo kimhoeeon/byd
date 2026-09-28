@@ -125,9 +125,9 @@
                             <li>
                                 <div class="gubun">이메일</div>
                                 <div class="row email">
-                                    <input type="text" id="emailId" value="${savedEmailId}" placeholder="이메일 주소">
+                                    <input type="text" id="emailId" value="${savedEmailId}" placeholder="이메일 아이디" autocapitalize="off" autocomplete="off" spellcheck="false">
                                     <span>@</span>
-                                    <input type="text" id="customDomain" value="${savedEmailDomain}" placeholder="도메인 입력" ${isCustomDomain ? '' : 'readonly'}>
+                                    <input type="text" id="customDomain" value="${savedEmailDomain}" placeholder="도메인 입력" ${isCustomDomain ? '' : 'readonly'} autocapitalize="off" autocomplete="off" spellcheck="false">
                                     <div class="input">
                                         <select id="emailDomain">
                                             <option value="">이메일 선택</option>
@@ -287,10 +287,26 @@
 
             // 이메일 아이디 입력 (공백 방지)
             $("#emailId").on("input", function() {
-                let val = $(this).val().replace(/\s/g, '');
-                if(val.includes('@')) {
-                    val = val.split('@')[0];
-                }
+                let val = $(this).val().replace(/[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/g, '');
+                val = val.replace(/\s/g, '');
+                if(val.includes('@')) { val = val.split('@')[0]; }
+                val = val.replace(/[^a-zA-Z0-9._-]/g, '');
+                $(this).val(val);
+            });
+            $("#emailId").on("blur", function() {
+                let val = $(this).val().replace(/[^a-zA-Z0-9._-]/g, '');
+                $(this).val(val);
+            });
+
+            // [수정] 도메인 입력 제한 (한글 차단)
+            $("#customDomain").on("input", function() {
+                let val = $(this).val().replace(/[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/g, '');
+                val = val.replace(/\s/g, '');
+                val = val.replace(/[^a-zA-Z0-9.-]/g, '');
+                $(this).val(val);
+            });
+            $("#customDomain").on("blur", function() {
+                let val = $(this).val().replace(/[^a-zA-Z0-9.-]/g, '');
                 $(this).val(val);
             });
 
@@ -378,6 +394,13 @@
             const customDomain = $("#customDomain").val().trim();
 
             if(emailId === "") { alert("이메일 아이디를 입력해 주세요."); $("#emailId").focus(); return false; }
+
+            const idRegex = /^[a-zA-Z0-9._-]+$/;
+            if(!idRegex.test(emailId)) {
+                alert("이메일 아이디는 영문, 숫자, 특수문자(., _, -)만 입력 가능합니다.");
+                $("#emailId").focus();
+                return false;
+            }
 
             if(customDomain === "") {
                 alert("이메일 도메인을 선택하거나 입력해 주세요.");

@@ -129,9 +129,9 @@
                             <li>
                                 <div class="gubun">이메일</div>
                                 <div class="row email">
-                                    <input type="text" id="emailId" value="${savedEmailId}" placeholder="이메일 주소">
+                                    <input type="text" id="emailId" value="${savedEmailId}" placeholder="이메일 아이디" autocapitalize="off" autocomplete="off" spellcheck="false">
                                     <span>@</span>
-                                    <input type="text" id="customDomain" value="${savedEmailDomain}" placeholder="도메인 입력" ${isCustomDomain ? '' : 'readonly'}>
+                                    <input type="text" id="customDomain" value="${savedEmailDomain}" placeholder="도메인 입력" ${isCustomDomain ? '' : 'readonly'} autocapitalize="off" autocomplete="off" spellcheck="false">
                                     <div class="input">
                                         <select id="emailDomain">
                                             <option value="">이메일 선택</option>
@@ -339,17 +339,31 @@
 
             // 이메일 아이디 전체 입력 방지
             $("#emailId").on("input", function() {
-                let val = $(this).val().replace(/\s/g, '');
-                if(val.includes('@')) {
-                    val = val.split('@')[0];
-                }
+                let val = $(this).val().replace(/[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/g, ''); // 한글(자음, 모음, 완성형) 제거
+                val = val.replace(/\s/g, ''); // 공백 제거
+                if(val.includes('@')) { val = val.split('@')[0]; } // @가 포함되면 앞부분만 유지
+                val = val.replace(/[^a-zA-Z0-9._-]/g, ''); // 최종적으로 허용된 문자 외 모두 제거
+                $(this).val(val);
+            });
+            // 모바일 키보드 잔상 제거용 blur 이벤트
+            $("#emailId").on("blur", function() {
+                let val = $(this).val().replace(/[^a-zA-Z0-9._-]/g, '');
                 $(this).val(val);
             });
 
-            // 셀렉트 박스 변경 시 도메인 인풋 처리 로직
+            $("#customDomain").on("input", function() {
+                let val = $(this).val().replace(/[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/g, '');
+                val = val.replace(/\s/g, '');
+                val = val.replace(/[^a-zA-Z0-9.-]/g, '');
+                $(this).val(val);
+            });
+            $("#customDomain").on("blur", function() {
+                let val = $(this).val().replace(/[^a-zA-Z0-9.-]/g, '');
+                $(this).val(val);
+            });
+
             $("#emailDomain").on("change", function() {
                 var selectedVal = $(this).val();
-
                 if(selectedVal === "direct") {
                     $("#customDomain").val("").prop("readonly", false).focus();
                 } else if(selectedVal === "") {
@@ -403,13 +417,17 @@
                 return false;
             }
 
+            // 이메일 아이디 최종 유효성 검사 (안드로이드 등 특수 자판 대응)
+            const idRegex = /^[a-zA-Z0-9._-]+$/;
+            if(!idRegex.test(emailId)) {
+                alert("이메일 아이디는 영문, 숫자, 특수문자(., _, -)만 입력 가능합니다.");
+                $("#emailId").focus();
+                return false;
+            }
+
             if(customDomain === "") {
                 alert("이메일 도메인을 선택하거나 입력해 주세요.");
-                if(emailDomainSelect === "direct") {
-                    $("#customDomain").focus();
-                } else {
-                    $("#emailDomain").focus();
-                }
+                if(emailDomainSelect === "direct") { $("#customDomain").focus(); } else { $("#emailDomain").focus(); }
                 return false;
             }
 
