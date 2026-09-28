@@ -178,17 +178,6 @@
                                     </select>
                                 </div>
                             </li>
-                            <li>
-                                <div class="gubun">향후 구매 상담 또는 시승 신청을 원합니다.</div>
-                                <div class="input radio-group">
-                                    <label style="color: #383838;">
-                                        <input type="radio" name="consultYnRadio" value="Y" <c:if test="${data.consultYn == 'Y'}">checked</c:if>> 예
-                                    </label>
-                                    <label style="color: #383838;">
-                                        <input type="radio" name="consultYnRadio" value="N" <c:if test="${data.consultYn != 'Y'}">checked</c:if>> 아니오
-                                    </label>
-                                </div>
-                            </li>
                         </ul>
                         <div class="terms-check">
                             <label>
@@ -336,7 +325,7 @@
                                     location.reload(); // 성공 시 새로고침
                                 } else {
                                     alert(response.message); // 에러 메시지
-                                    // [추가] 치명적 에러(존재하지 않거나 세션만료) 시 첫 화면으로 강제 이동
+                                    // 치명적 에러(존재하지 않거나 세션만료) 시 첫 화면으로 강제 이동
                                     if(response.redirect) {
                                         location.href = "/apply/step1";
                                     }
@@ -413,11 +402,6 @@
             if($("#shopSelect").val() === "") { alert("방문 가능 전시장을 선택해 주세요."); return false; }
             if($("select[name='carModel']").val() === "") { alert("관심차량을 선택해 주세요."); return false; }
 
-            const $consultRadio = $("input[name='consultYnRadio']:checked");
-            const consultVal = $consultRadio.length > 0 ? $consultRadio.val() : 'N';
-            $("#consultYn").val(consultVal);
-
-            $("#hiddenConsultAgree").val($("#consultAgree").is(":checked") ? "Y" : "N");
             $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");
 
             return true;

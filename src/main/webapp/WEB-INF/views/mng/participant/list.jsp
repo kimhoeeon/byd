@@ -89,7 +89,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-2">
+                                <%--<div class="row mb-2">
                                     <div class="col-12 d-flex align-items-center gap-3">
                                         <div class="w-150px fw-bold text-gray-700 ps-2">
                                             <i class="ki-duotone ki-messages fs-4 me-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
@@ -104,7 +104,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div>--%>
                             </form>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                                     <th class="text-center min-w-150px">방문전시장코드</th>
                                     <th class="text-center min-w-150px">관심차량</th>
                                     <th class="text-center min-w-150px">관심차량코드</th>
-                                    <th class="text-center min-w-150px">상담 및 방문 신청</th>
+                                    <%--<th class="text-center min-w-150px">상담 및 방문 신청</th>--%>
                                     <th class="text-center min-w-80px">마케팅동의</th>
                                     <th class="text-center min-w-80px">관리</th>
                                 </tr>
@@ -228,7 +228,7 @@
                                             <td class="code-text">${empty item.shopInfo ? '-' : shopCode}</td>
                                             <td class="code-text" title="${item.carModel}">${empty item.carModel ? '-' : item.carModel}</td>
                                             <td class="code-text">${empty item.carModel ? '-' : carCode}</td>
-                                            <td><span class="badge ${item.consultYn eq 'Y' ? 'badge-light-primary' : 'badge-light-secondary'}">${empty item.consultYn ? 'N' : item.consultYn}</span></td>
+                                            <%--<td><span class="badge ${item.consultYn eq 'Y' ? 'badge-light-primary' : 'badge-light-secondary'}">${empty item.consultYn ? 'N' : item.consultYn}</span></td>--%>
                                             <td><span class="badge ${item.mktAgree eq 'Y' ? 'badge-light-primary' : 'badge-light-danger'}">${item.mktAgree}</span></td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-light-danger fw-bold" onclick="deleteParticipant(${item.seq})">삭제</button>

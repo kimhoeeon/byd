@@ -256,7 +256,6 @@ public class EventController {
             existing.setEmail(participantVO.getEmail());
             existing.setShopInfo(participantVO.getShopInfo());
             existing.setCarModel(participantVO.getCarModel());
-            existing.setConsultYn(participantVO.getConsultYn()); // 상담 라디오 버튼
             existing.setMktAgree(participantVO.getMktAgree()); // 마케팅 선택 동의
 
             eventService.updateParticipant(existing, false);

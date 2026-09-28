@@ -182,25 +182,12 @@
                                     </select>
                                 </div>
                             </li>
-                            <li>
-                                <div class="gubun">향후 구매 상담 또는 시승 신청을 원합니다.</div>
-                                <div class="input radio-group">
-                                    <label>
-                                        <input type="radio" name="consultYnRadio" value="Y"> 예
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="consultYnRadio" value="N" checked> 아니오
-                                    </label>
-                                </div>
-                            </li>
                         </ul>
                         <div class="terms-check">
                             <label>
                                 <input type="checkbox" id="consultAgree" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
-                                <span class="terms-check_label">
-                                (필수) 향후 구매 상담 또는 시승 신청을 원합니다.
-                            </span>
+                                <span class="terms-check_label">(필수) 향후 구매 상담 또는 시승 신청을 원합니다.</span>
                             </label>
                             <textarea readonly>귀하는 구매 상담 신청 혹은 시승 신청을 하지 않을 권리가 있습니다. &#10;하지만 동의를 거부할 경우 이벤트 응모가 불가능합니다.</textarea>
                         </div>
@@ -391,7 +378,6 @@
 
         // 폼 제출 시 유효성 검사
         function validateForm() {
-
             const bYear = $("#birthYear").val();
             const bMonth = $("#birthMonth").val();
             const bDay = $("#birthDay").val();
@@ -441,21 +427,18 @@
             const shopVal = $("#shopSelect").val();
             const carVal = $("select[name='carModel']").val();
 
-            const $consultRadio = $("input[name='consultYnRadio']:checked");
-            const consultVal = $consultRadio.length > 0 ? $consultRadio.val() : 'N';
-            $("#consultYn").val(consultVal);
-            const consultText = consultVal === 'Y' ? '예' : '아니오';
-
             if(regionVal === "") { alert("지역을 선택해 주세요."); return; }
             if(shopVal === "") { alert("방문 가능 전시장을 선택해 주세요."); return; }
             if(carVal === "") { alert("관심차량 정보를 선택해 주세요."); return; }
 
             $("#hiddenConsultAgree").val($("#consultAgree").is(":checked") ? "Y" : "N");
+            $("#consultYn").val($("#consultAgree").is(":checked") ? "Y" : "N");
+
             $("#hiddenThirdParty").val($("#thirdPartyAgree").is(":checked") ? "Y" : "N");
             $("#hiddenEntrust").val($("#entrustAgree").is(":checked") ? "Y" : "N");
             $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");
 
-            if (!$("#thirdPartyAgree").is(":checked") || !$("#entrustAgree").is(":checked")) {
+            if (!$("#consultAgree").is(":checked") || !$("#thirdPartyAgree").is(":checked") || !$("#entrustAgree").is(":checked")) {
                 alert("필수 약관에 모두 동의해 주세요.");
                 return false;
             }
@@ -468,7 +451,6 @@
                     '<strong>이메일 :</strong> ' + fullEmailStr + '<br>' +
                     '<strong>방문 전시장 :</strong> [' + regionVal + '] ' + shopVal + '<br>' +
                     '<strong>관심차량 :</strong> <span style="color:#d32f2f; font-weight:bold;">' + carVal + '</span><br>' +
-                    '<strong>상담 및 시승 :</strong> <span style="color:#009ef7; font-weight:bold;">' + consultText + '</span>' +
                     '</div>',
                 icon: 'question',
                 showCancelButton: true,
