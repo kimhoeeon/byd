@@ -133,10 +133,8 @@
                                 <tr>
                                     <th class="bg-light fw-bold">상담 및 방문 신청</th>
                                     <td><span class="badge ${data.consultYn eq 'Y' ? 'badge-primary' : 'badge-secondary'}">${empty data.consultYn ? 'N' : data.consultYn}</span></td>
-                                    <th class="bg-light fw-bold">마케팅 정보 수신 동의</th>
-                                    <td>
-                                        <span class="badge <c:choose><c:when test="${data.mktAgree eq 'Y'}">badge-primary</c:when><c:otherwise>badge-danger</c:otherwise></c:choose>">${empty data.mktAgree ? 'N' : data.mktAgree}</span>
-                                    </td>
+                                    <th class="bg-light fw-bold">구매 상담 및 시승 신청 동의</th>
+                                    <td><span class="badge badge-primary">${empty data.consultAgree ? 'N' : data.consultAgree}</span></td>
                                 </tr>
 
                                 <tr>
@@ -148,8 +146,8 @@
                                 <tr>
                                     <th class="bg-light fw-bold">개인정보 처리 위탁 안내 동의</th>
                                     <td><span class="badge badge-primary">${empty data.entrustAgree ? 'N' : data.entrustAgree}</span></td>
-                                    <th class="bg-light fw-bold">구매 상담 및 시승 신청 동의</th>
-                                    <td><span class="badge badge-primary">${empty data.consultAgree ? 'N' : data.consultAgree}</span></td>
+                                    <th class="bg-light fw-bold">마케팅 정보 수신 동의</th>
+                                    <td><span class="badge <c:choose><c:when test="${data.mktAgree eq 'Y'}">badge-primary</c:when><c:otherwise>badge-danger</c:otherwise></c:choose>">${empty data.mktAgree ? 'N' : data.mktAgree}</span></td>
                                 </tr>
 
                                 <%--<tr>

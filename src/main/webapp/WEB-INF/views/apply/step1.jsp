@@ -255,7 +255,7 @@
 
                             if(response.exists) {
                                 // 기존 신청자일 경우 Alert 띄우고 전달받은 URL로 이동
-                                alert("이미 이벤트 참여 신청이 완료된 고객입니다.");
+                                alert("이미 이벤트 참여 신청이 완료된 고객입니다.\n신청 정보 확인 화면으로 이동합니다.");
                                 location.href = response.redirectUrl;
                             } else {
                                 // 신규 신청자일 경우 step2 페이지로 이동

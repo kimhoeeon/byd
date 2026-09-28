@@ -46,41 +46,52 @@ public class EventController {
         String cleanPhone = phone.replaceAll("[^0-9]", "");
 
         try {
-            // 1. 배번호 중복 선제 검증
+
+            // [보안 패치 1] 연락처로 먼저 가입 여부 확인
+            ParticipantVO existingPhone = eventService.getParticipantByPhoneToday(cleanPhone);
+
+            if (existingPhone != null) {
+                // 이미 가입된 연락처라면 -> 이름과 배번호가 정확히 일치해야만 본인으로 인정!
+                if (existingPhone.getName().equals(name) && existingPhone.getBibNumber().equals(bibNumber)) {
+                    AES128 aes128 = new AES128(SECRET_KEY);
+                    String encryptedSeq = aes128.encrypt(String.valueOf(existingPhone.getSeq()));
+                    String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+                    String redirectUrl = baseUrl + "/apply/ticket?token=" + URLEncoder.encode(encryptedSeq, "UTF-8");
+
+                    result.put("exists", true);
+                    result.put("bibDuplicate", false);
+                    result.put("redirectUrl", redirectUrl);
+                    return result;
+                } else {
+                    // 연락처는 맞는데 이름이나 배번호가 틀리다면 타인의 접근으로 간주하여 차단
+                    result.put("error", false);
+                    result.put("bibDuplicate", true); // 얼럿창 재활용
+                    result.put("message", "입력하신 연락처로 이미 가입된 내역이 있으나, 이름 또는 배번호가 일치하지 않습니다.");
+                    return result;
+                }
+            }
+
+            // 신규 연락처일 경우 -> 배번호가 남이 쓰고 있는 건지 확인
             ParticipantVO existingBib = eventService.getParticipantByBibNumber(bibNumber);
             if (existingBib != null) {
                 result.put("error", false);
                 result.put("bibDuplicate", true);
-                result.put("message", "이미 등록된 배번호입니다.");
+                result.put("message", "이미 다른 사람이 등록한 배번호입니다.");
                 return result;
             }
 
-            // 2. 연락처(오늘 신청 여부) 중복 검증
-            ParticipantVO existing = eventService.getParticipantByPhoneToday(cleanPhone);
-            if (existing != null) {
-                // 이미 오늘 참여 완료한 유저는 마이페이지 티켓 확인 주소 발행
-                /*AES128 aes128 = new AES128(SECRET_KEY);
-                String encryptedSeq = aes128.encrypt(String.valueOf(existing.getSeq()));
-                String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
-                String redirectUrl = baseUrl + "/apply/ticket?token=" + URLEncoder.encode(encryptedSeq, "UTF-8");*/
+            // 모든 검증 통과 (신규 가입자)
+            ParticipantVO temp = new ParticipantVO();
+            temp.setBibNumber(bibNumber);
+            temp.setName(name);
+            temp.setPhone(cleanPhone);
+            temp.setPrivacyAgree(privacyAgree);
+            session.setAttribute("tempInfo", temp);
 
-                result.put("exists", true);
-                result.put("bibDuplicate", false);
-                /*result.put("redirectUrl", redirectUrl);*/
-                result.put("redirectUrl", "/apply/step1");
-            } else {
-                // 신규 유저는 임시 세션 생성 후 2단계 허용
-                ParticipantVO temp = new ParticipantVO();
-                temp.setBibNumber(bibNumber);
-                temp.setName(name);
-                temp.setPhone(cleanPhone);
-                temp.setPrivacyAgree(privacyAgree);
-                session.setAttribute("tempInfo", temp);
-
-                result.put("exists", false);
-                result.put("bibDuplicate", false);
-            }
+            result.put("exists", false);
+            result.put("bibDuplicate", false);
             result.put("error", false);
+
         } catch (Exception e) {
             result.put("error", true);
         }
@@ -224,13 +235,19 @@ public class EventController {
     // mypage.jsp 내부 비동기 정보 수정 처리 핸들러 (시승 시간 검증부 제외)
     @PostMapping("/updateAjax")
     @ResponseBody
-    public Map<String, Object> updateAjax(@ModelAttribute ParticipantVO participantVO) {
+    public Map<String, Object> updateAjax(@RequestParam("token") String token,
+                                          @ModelAttribute ParticipantVO participantVO) {
         Map<String, Object> result = new HashMap<>();
         try {
-            ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
+            // 토큰 복호화
+            AES128 aes128 = new AES128(SECRET_KEY);
+            String decryptedSeqStr = aes128.decrypt(token);
+            int seq = Integer.parseInt(decryptedSeqStr);
+
+            ParticipantVO existing = eventService.getParticipantBySeq(seq);
             if (existing == null) {
                 result.put("success", false);
-                result.put("message", "시간이 초과되었거나 존재하지 않는 참여자 정보입니다. 다시 인증해 주세요.");
+                result.put("message", "존재하지 않는 참여자 정보입니다. 다시 인증해 주세요.");
                 result.put("redirect", true);
                 return result;
             }
@@ -249,8 +266,8 @@ public class EventController {
         } catch (Exception e) {
             log.error("▶ [정보 수정 에러] {}", e.getMessage());
             result.put("success", false);
-            result.put("message", "정보 수정 중 오류가 발생했습니다.");
-            result.put("redirect", false);
+            result.put("message", "비정상적인 접근이거나 정보 수정 중 오류가 발생했습니다.");
+            result.put("redirect", true); // 토큰 오류 시에도 쫓아냄
         }
         return result;
     }

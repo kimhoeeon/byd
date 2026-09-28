@@ -73,7 +73,7 @@
                     <h2 style="color:#fff; font-size:20px; margin-bottom:20px; text-align:center;">이벤트 참여 신청 정보</h2>
 
                     <form id="updateForm">
-                        <input type="hidden" name="seq" value="${data.seq}">
+                        <input type="hidden" name="token" value="${qrCodeUrl}">
 
                         <c:set var="emailParts" value="${fn:split(data.email, '@')}" />
                         <c:set var="savedEmailId" value="${emailParts[0]}" />
