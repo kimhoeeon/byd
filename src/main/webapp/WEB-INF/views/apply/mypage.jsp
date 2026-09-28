@@ -192,7 +192,7 @@
                         </ul>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" checked disabled>
+                                <input type="checkbox" <c:if test="${data.privacyAgree == 'Y'}">checked</c:if> disabled>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(필수) 개인정보 수집·이용 동의</span>
                             </label>
@@ -200,7 +200,15 @@
                         </div>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" checked disabled>
+                                <input type="checkbox" <c:if test="${data.consultAgree == 'Y'}">checked</c:if> disabled>
+                                <span class="terms-check_box" aria-hidden="true"></span>
+                                <span class="terms-check_label">(필수) 향후 구매 상담 또는 시승 신청을 원합니다.</span>
+                            </label>
+                            <textarea readonly>귀하는 구매 상담 신청 혹은 시승 신청을 하지 않을 권리가 있습니다. &#10;하지만 동의를 거부할 경우 이벤트 응모가 불가능합니다.</textarea>
+                        </div>
+                        <div class="terms-check">
+                            <label>
+                                <input type="checkbox" <c:if test="${data.thirdPartyAgree == 'Y'}">checked</c:if> disabled>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(필수) 개인정보 제3자 제공 동의</span>
                             </label>
@@ -208,7 +216,7 @@
                         </div>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" checked disabled>
+                                <input type="checkbox" <c:if test="${data.entrustAgree == 'Y'}">checked</c:if> disabled>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(필수) 개인정보 처리 위탁 안내 및 동의서</span>
                             </label>
@@ -216,7 +224,7 @@
                         </div>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" checked disabled>
+                                <input type="checkbox" <c:if test="${data.provideAgree == 'Y'}">checked</c:if> disabled>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label" style="line-height: 20px;">
                                     (필수) 행사의 운영 및 참가자 통계 데이터 분석을 위하여 참가자의 개인정보(이름, 연락처, 이메일, 생년월일, 배번호, 관심 전시장, 관심 차종)를 제공하는 데 동의합니다.
@@ -225,7 +233,7 @@
                         </div>
                         <div class="terms-check">
                             <label>
-                                <input type="checkbox" id="mktAgree" <c:if test="${data.mktAgree eq 'Y'}">checked</c:if>>
+                                <input type="checkbox" id="mktAgree" <c:if test="${data.mktAgree == 'Y'}">checked</c:if>>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(선택) 마케팅 정보 수신 동의</span>
                             </label>
@@ -328,6 +336,10 @@
                                     location.reload(); // 성공 시 새로고침
                                 } else {
                                     alert(response.message); // 에러 메시지
+                                    // [추가] 치명적 에러(존재하지 않거나 세션만료) 시 첫 화면으로 강제 이동
+                                    if(response.redirect) {
+                                        location.href = "/apply/step1";
+                                    }
                                 }
                             },
                             error: function(xhr, status, error) {
@@ -405,6 +417,7 @@
             const consultVal = $consultRadio.length > 0 ? $consultRadio.val() : 'N';
             $("#consultYn").val(consultVal);
 
+            $("#hiddenConsultAgree").val($("#consultAgree").is(":checked") ? "Y" : "N");
             $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");
 
             return true;

@@ -283,7 +283,7 @@ public class AdminMngController {
 
         Row headerRow = sheet.createRow(0);
         // 엑셀 헤더
-        String[] headers = {"등록일시", "배번호", "이름", "연락처", "생년월일", "미성년자여부", "이메일", "방문전시장", "방문전시장코드", "관심차량", "관심차량코드", "상담 및 방문 신청", "마케팅동의"};
+        String[] headers = {"등록일시", "배번호", "이름", "연락처", "생년월일", "미성년자여부", "이메일", "방문전시장", "방문전시장코드", "관심차량", "관심차량코드", "상담 및 방문 신청", "구매상담/시승신청 동의", "마케팅동의"};
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -386,10 +386,11 @@ public class AdminMngController {
             row.createCell(9).setCellValue(vo.getCarModel() != null ? vo.getCarModel() : "");
             row.createCell(10).setCellValue(carCode);
             row.createCell(11).setCellValue("Y".equals(vo.getConsultYn()) ? "Y" : "N");
-            row.createCell(12).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
+            row.createCell(12).setCellValue("Y".equals(vo.getConsultAgree()) ? "Y" : "N");
+            row.createCell(13).setCellValue(vo.getMktAgree() != null ? vo.getMktAgree() : "N");
 
             // 셀 스타일 루프
-            for (int i = 0; i < 13; i++) {
+            for (int i = 0; i < 14; i++) {
                 row.getCell(i).setCellStyle(dataStyle);
             }
         }

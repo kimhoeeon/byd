@@ -138,9 +138,9 @@ public class EventController {
             return "redirect:/apply/step2";
         } else {
             // 정상 유입 시 모든 수집 데이터 상세 로깅 (추후 데이터 틀어짐 대비)
-            log.info("▷ [일반이벤트 정상 유입 데이터] 이름: {}, 연락처: {}, 생년월일: {}, 배번호: {}, 이메일: {}, 전시장: {}, 관심차종: {}, 상담여부: {}, 마케팅동의: {}",
+            log.info("▷ [일반이벤트 정상 유입 데이터] 이름: {}, 연락처: {}, 생년월일: {}, 배번호: {}, 이메일: {}, 전시장: {}, 관심차종: {}, 상담여부: {}, 상담동의(필수): {}, 마케팅동의: {}",
                     participantVO.getName(), participantVO.getPhone(), participantVO.getBirthDate(), participantVO.getBibNumber(), participantVO.getEmail(),
-                    participantVO.getShopInfo(), participantVO.getCarModel(), participantVO.getConsultYn(), participantVO.getMktAgree());
+                    participantVO.getShopInfo(), participantVO.getCarModel(), participantVO.getConsultYn(), participantVO.getConsultAgree(), participantVO.getMktAgree());
         }
 
         try {
@@ -230,7 +230,8 @@ public class EventController {
             ParticipantVO existing = eventService.getParticipantBySeq(participantVO.getSeq());
             if (existing == null) {
                 result.put("success", false);
-                result.put("message", "존재하지 않는 참여자 정보입니다.");
+                result.put("message", "시간이 초과되었거나 존재하지 않는 참여자 정보입니다. 다시 인증해 주세요.");
+                result.put("redirect", true);
                 return result;
             }
 
@@ -238,16 +239,18 @@ public class EventController {
             existing.setEmail(participantVO.getEmail());
             existing.setShopInfo(participantVO.getShopInfo());
             existing.setCarModel(participantVO.getCarModel());
-            existing.setConsultYn(participantVO.getConsultYn());
-            existing.setMktAgree(participantVO.getMktAgree());
+            existing.setConsultYn(participantVO.getConsultYn()); // 상담 라디오 버튼
+            existing.setMktAgree(participantVO.getMktAgree()); // 마케팅 선택 동의
 
             eventService.updateParticipant(existing, false);
 
             result.put("success", true);
             result.put("message", "이벤트 참여 정보가 성공적으로 수정되었습니다.");
         } catch (Exception e) {
+            log.error("▶ [정보 수정 에러] {}", e.getMessage());
             result.put("success", false);
             result.put("message", "정보 수정 중 오류가 발생했습니다.");
+            result.put("redirect", false);
         }
         return result;
     }

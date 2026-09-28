@@ -17,6 +17,7 @@ public class ParticipantVO {
     private String carModel;            // 관심차량 선택 정보
     private String consultYn;
     private String testDriveTime;       // 시승 신청 시간
+    private String consultAgree;
     private String privacyAgree;        // 개인정보 수집·이용 동의
     private String thirdPartyAgree;     // 개인정보 제3자 제공 동의
     private String entrustAgree;        // 개인정보 처리 위탁 안내 및 동의

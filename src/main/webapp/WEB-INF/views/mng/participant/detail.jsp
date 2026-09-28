@@ -143,11 +143,13 @@
                                     <th class="bg-light fw-bold">개인정보 수집·이용 동의</th>
                                     <td><span class="badge badge-primary">${empty data.privacyAgree ? 'N' : data.privacyAgree}</span></td>
                                     <th class="bg-light fw-bold">개인정보 제3자 제공 동의</th>
-                                    <td colspan="3"><span class="badge badge-primary">${empty data.thirdPartyAgree ? 'N' : data.thirdPartyAgree}</span></td>
+                                    <td><span class="badge badge-primary">${empty data.thirdPartyAgree ? 'N' : data.thirdPartyAgree}</span></td>
                                 </tr>
                                 <tr>
                                     <th class="bg-light fw-bold">개인정보 처리 위탁 안내 동의</th>
-                                    <td colspan="3"><span class="badge badge-primary">${empty data.entrustAgree ? 'N' : data.entrustAgree}</span></td>
+                                    <td><span class="badge badge-primary">${empty data.entrustAgree ? 'N' : data.entrustAgree}</span></td>
+                                    <th class="bg-light fw-bold">구매 상담 및 시승 신청 동의</th>
+                                    <td><span class="badge badge-primary">${empty data.consultAgree ? 'N' : data.consultAgree}</span></td>
                                 </tr>
 
                                 <%--<tr>

@@ -98,6 +98,7 @@
                         <input type="hidden" name="email" id="fullEmail">
                         <input type="hidden" name="birthDate" id="hiddenBirthDate">
                         <input type="hidden" name="consultYn" id="consultYn" value="N">
+                        <input type="hidden" name="consultAgree" id="hiddenConsultAgree" value="N">
                         <input type="hidden" name="privacyAgree" id="hiddenPrivacy" value="N">
                         <input type="hidden" name="thirdPartyAgree" id="hiddenThirdParty" value="N">
                         <input type="hidden" name="entrustAgree" id="hiddenEntrust" value="N">
@@ -195,10 +196,20 @@
                         </ul>
                         <div class="terms-check">
                             <label>
+                                <input type="checkbox" id="consultAgree" required>
+                                <span class="terms-check_box" aria-hidden="true"></span>
+                                <span class="terms-check_label">
+                                (필수) 향후 구매 상담 또는 시승 신청을 원합니다.
+                            </span>
+                            </label>
+                            <textarea readonly>귀하는 구매 상담 신청 혹은 시승 신청을 하지 않을 권리가 있습니다. &#10;하지만 동의를 거부할 경우 이벤트 응모가 불가능합니다.</textarea>
+                        </div>
+                        <div class="terms-check">
+                            <label>
                                 <input type="checkbox" id="thirdPartyAgree" required>
                                 <span class="terms-check_box" aria-hidden="true"></span>
                                 <span class="terms-check_label">(필수) 개인정보 제3자 제공 동의</span>
-                            </label>&#10;
+                            </label>
                             <textarea readonly>BYD코리아는 고객 상담, 차량 판매 연계를 위하여 아래와 같이 개인정보를 제3자에게 제공할 수 있습니다.&#10;&#10;제공받는 자: 비와이디코리아 유한회사의 공식 딜러사 중 구매 상담 신청 전시장이 속한 딜러사(디티네트웍스㈜,㈜삼천리이브이)&#10;수집하는 개인정보: 이름, 휴대폰 번호, 이메일, 관심 차종, 시승 신청 전시장&#10;수집 및 이용 목적: 차량 상담 및 문의 응대, 견적 제공, 고객정보 관리 및 통계작성 등 분석&#10;보유 및 이용기간: 처리 목적 달성 시 또는 고객의 동의 철회 시까지&#10;&#10;고객은 개인정보 제3자 제공에 대한 동의를 거부할 권리가 있습니다.&#10;다만, 동의하지 않을 경우 시승 예약 운영 및 딜러 상담 연결이 제한될 수 있습니다.</textarea>
                         </div>
                         <div class="terms-check">
@@ -439,6 +450,7 @@
             if(shopVal === "") { alert("방문 가능 전시장을 선택해 주세요."); return; }
             if(carVal === "") { alert("관심차량 정보를 선택해 주세요."); return; }
 
+            $("#hiddenConsultAgree").val($("#consultAgree").is(":checked") ? "Y" : "N");
             $("#hiddenThirdParty").val($("#thirdPartyAgree").is(":checked") ? "Y" : "N");
             $("#hiddenEntrust").val($("#entrustAgree").is(":checked") ? "Y" : "N");
             $("#hiddenMkt").val($("#mktAgree").is(":checked") ? "Y" : "N");
