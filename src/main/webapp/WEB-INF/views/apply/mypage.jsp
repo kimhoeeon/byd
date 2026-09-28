@@ -285,35 +285,34 @@
             // 2. 기존 데이터에 맞춰 지역 및 전시장 초기화
             initRegionAndShop();
 
-            // 이메일 아이디 입력 (공백 방지)
+            // 1. 이메일 아이디 (실시간 타이핑 중에는 공백과 @기호만 제어하여 한글 입력기 끊김 방지)
             $("#emailId").on("input", function() {
-                let val = $(this).val().replace(/[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/g, '');
-                val = val.replace(/\s/g, '');
-                if(val.includes('@')) { val = val.split('@')[0]; }
-                val = val.replace(/[^a-zA-Z0-9._-]/g, '');
+                let val = $(this).val().replace(/\s/g, ''); // 공백 실시간 제거
+                if(val.includes('@')) { val = val.split('@')[0]; } // @ 기호 입력 차단
                 $(this).val(val);
             });
+
+            // 2. 이메일 아이디 포커스 아웃 (사용자가 입력을 마치고 밖을 터치하는 순간 일괄 청소)
             $("#emailId").on("blur", function() {
-                let val = $(this).val().replace(/[^a-zA-Z0-9._-]/g, '');
+                let val = $(this).val().replace(/[^a-zA-Z0-9._-]/g, ''); // 영문, 숫자, 특수문자(._-) 외 싹 지움
                 $(this).val(val);
             });
 
-            // [수정] 도메인 입력 제한 (한글 차단)
+            // 3. 도메인 (실시간 타이핑 중에는 공백만 제어)
             $("#customDomain").on("input", function() {
-                let val = $(this).val().replace(/[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/g, '');
-                val = val.replace(/\s/g, '');
-                val = val.replace(/[^a-zA-Z0-9.-]/g, '');
-                $(this).val(val);
-            });
-            $("#customDomain").on("blur", function() {
-                let val = $(this).val().replace(/[^a-zA-Z0-9.-]/g, '');
+                let val = $(this).val().replace(/\s/g, ''); // 공백 실시간 제거
                 $(this).val(val);
             });
 
-            // 셀렉트 박스 변경 시 도메인 인풋 처리
+            // 4. 도메인 포커스 아웃 (입력을 마치고 밖을 터치하는 순간 일괄 청소)
+            $("#customDomain").on("blur", function() {
+                let val = $(this).val().replace(/[^a-zA-Z0-9.-]/g, ''); // 영문, 숫자, 특수문자(.-) 외 싹 지움
+                $(this).val(val);
+            });
+
+            // 5. 셀렉트 박스 도메인 선택 제어 (기존과 동일)
             $("#emailDomain").on("change", function() {
                 var selectedVal = $(this).val();
-
                 if(selectedVal === "direct") {
                     $("#customDomain").val("").prop("readonly", false).focus();
                 } else if(selectedVal === "") {
