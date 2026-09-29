@@ -46,7 +46,9 @@
             <div class="top_tit padding_tb">
                 <div class="inner">
                     <div class="tit">
-                        <img src="/img/logo_w.png?ver=20260929" alt="logo">
+                        <a href="/apply/intro">
+                            <img src="/img/logo_w.png?ver=20260929" alt="logo">
+                        </a>
                     </div>
                 </div>
             </div>
@@ -230,6 +232,7 @@
                     </form>
                     <div class="btn_box">
                         <button type="button" id="btnUpdate" class="btn_st01">정보 수정하기</button>
+                        <button type="button" class="btn_st01" style="margin-top: 10px; background-color: #555; color: #fff; border: 1px solid #555;" onclick="location.href='/apply/intro'">처음으로 돌아가기</button>
                     </div>
                 </div>
             </div>
