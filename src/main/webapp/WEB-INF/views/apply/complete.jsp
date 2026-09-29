@@ -37,8 +37,8 @@
 
     <header id="header">
         <div class="inner">
-            <a href="/apply/step1" class="logo">
-                <img src="/img/logo_w.png?ver=20260921" alt="logo">
+            <a href="/apply/intro" class="logo">
+                <img src="/img/logo_w.png?ver=20260929" alt="logo">
             </a>
         </div>
     </header>
@@ -67,7 +67,7 @@
                 </div>
 
                 <div class="btn_box" style="margin-top: 40px;">
-                    <a href="/apply/step1" class="btn_st01">메인 페이지로 이동</a>
+                    <a href="/apply/intro" class="btn_st01">메인 페이지로 이동</a>
                 </div>
 
             </div>

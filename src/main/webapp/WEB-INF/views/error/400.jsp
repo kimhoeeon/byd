@@ -44,7 +44,7 @@
             <h1>400</h1>
             <h2>잘못된 접근입니다.</h2>
             <p>유효하지 않은 티켓 링크이거나<br>잘못된 경로로 접근하셨습니다.</p>
-            <a href="/apply/step1" class="btn-home">이벤트 신청 홈으로</a>
+            <a href="/apply/intro" class="btn-home">이벤트 신청 홈으로</a>
         </div>
     </div>
 </body>

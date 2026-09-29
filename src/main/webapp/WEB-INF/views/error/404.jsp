@@ -44,7 +44,7 @@
             <h1>404</h1>
             <p>페이지를 찾을 수 없습니다.</p>
             <p>존재하지 않는 페이지이거나,<br>신청 내역을 찾을 수 없습니다.</p>
-            <a href="/apply/step1" class="btn-home">이벤트 신청 홈으로</a>
+            <a href="/apply/intro" class="btn-home">이벤트 신청 홈으로</a>
         </div>
     </div>
 </body>
