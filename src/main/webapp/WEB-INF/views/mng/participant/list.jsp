@@ -134,14 +134,15 @@
                             </div>
                         </div>
                         <div class="card-body pt-0" style="overflow-x: auto;">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable" style="min-width: 1400px;">
+                            <%--<table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable" style="min-width: 1400px;">--%>
+                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable" style="min-width: 1100px;">
                                 <thead>
                                 <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                                     <th class="text-center min-w-100px">등록일자</th>
                                     <th class="text-center min-w-150px">이름 (배번호)</th>
                                     <th class="text-center min-w-150px">연락처</th>
-                                    <th class="text-center min-w-100px">생년월일</th>
-                                    <th class="text-center min-w-100px">미성년자여부</th>
+                                    <%--<th class="text-center min-w-100px">생년월일</th>
+                                    <th class="text-center min-w-100px">미성년자여부</th>--%>
                                     <th class="text-center min-w-200px">이메일</th>
                                     <th class="text-center min-w-150px">방문 전시장</th>
                                     <th class="text-center min-w-150px">방문전시장코드</th>
@@ -203,14 +204,14 @@
                                             <c:when test="${item.carModel eq 'BYD SEALION 6'}"><c:set var="carCode" value="BYD0012"/></c:when>
                                         </c:choose>
 
-                                        <c:set var="isMinor" value="N"/>
+                                        <%--<c:set var="isMinor" value="N"/>
                                         <c:set var="cleanBirth" value="${fn:replace(fn:replace(fn:replace(item.birthDate, '-', ''), '.', ''), '/', '')}" />
                                         <c:if test="${not empty cleanBirth and fn:length(cleanBirth) >= 6}">
                                             <c:set var="birthYM" value="${fn:substring(cleanBirth, 0, 6)}" />
                                             <c:if test="${birthYM >= '200710'}">
                                                 <c:set var="isMinor" value="Y"/>
                                             </c:if>
-                                        </c:if>
+                                        </c:if>--%>
 
                                         <tr class="text-center">
                                             <td><fmt:formatDate value="${item.regDate}" pattern="yyyy.MM.dd HH:mm"/></td>
@@ -221,8 +222,8 @@
                                             </td>
 
                                             <td>${item.phone}</td>
-                                            <td>${empty item.birthDate ? '-' : item.birthDate}</td>
-                                            <td><span class="badge ${isMinor eq 'Y' ? 'badge-light-danger' : 'badge-light-primary'}">${isMinor}</span></td>
+                                            <%--<td>${empty item.birthDate ? '-' : item.birthDate}</td>
+                                            <td><span class="badge ${isMinor eq 'Y' ? 'badge-light-danger' : 'badge-light-primary'}">${isMinor}</span></td>--%>
                                             <td>${empty item.email ? '-' : item.email}</td>
                                             <td class="code-text" title="${item.shopInfo}">${empty item.shopInfo ? '-' : item.shopInfo}</td>
                                             <td class="code-text">${empty item.shopInfo ? '-' : shopCode}</td>

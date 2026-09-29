@@ -83,14 +83,14 @@
                                 <c:when test="${data.carModel eq 'BYD SEALION 6'}"><c:set var="carCode" value="BYD0012"/></c:when>
                             </c:choose>
 
-                            <c:set var="isMinor" value="N"/>
+                            <%--<c:set var="isMinor" value="N"/>
                             <c:set var="cleanBirth" value="${fn:replace(fn:replace(fn:replace(data.birthDate, '-', ''), '.', ''), '/', '')}" />
                             <c:if test="${not empty cleanBirth and fn:length(cleanBirth) >= 6}">
                                 <c:set var="birthYM" value="${fn:substring(cleanBirth, 0, 6)}" />
                                 <c:if test="${birthYM >= '200710'}">
                                     <c:set var="isMinor" value="Y"/>
                                 </c:if>
-                            </c:if>
+                            </c:if>--%>
 
                             <table class="table table-bordered align-middle gs-7 gy-4">
                                 <colgroup>
@@ -106,12 +106,12 @@
                                 </tr>
                                 <tr>
                                     <th class="bg-light fw-bold text-danger">배번호</th>
-                                    <td class="fw-bold text-danger">${empty data.bibNumber ? '-' : data.bibNumber}</td>
-                                    <th class="bg-light fw-bold">생년월일 (미성년 여부)</th>
+                                    <td colspan="3" class="fw-bold text-danger">${empty data.bibNumber ? '-' : data.bibNumber}</td>
+                                    <%--<th class="bg-light fw-bold">생년월일 (미성년 여부)</th>
                                     <td>
                                         ${empty data.birthDate ? '-' : data.birthDate}
                                         <span class="badge ${isMinor eq 'Y' ? 'badge-danger' : 'badge-primary'} ms-2">${isMinor eq 'Y' ? '미성년자' : '성인'}</span>
-                                    </td>
+                                    </td>--%>
                                 </tr>
                                 <tr>
                                     <th class="bg-light fw-bold">이름</th>

@@ -27,6 +27,14 @@ public class EventController {
     private final EventService eventService;
     private static final String SECRET_KEY = "bydEventTokenKey";
 
+    // 인트로 페이지 진입 라우팅
+    @GetMapping({"", "/", "/intro"})
+    public String intro(HttpSession session) {
+        // 인트로 진입 시 기존 세션 초기화
+        session.removeAttribute("tempInfo");
+        return "apply/intro";
+    }
+
     @GetMapping("/step1")
     public String step1(HttpSession session) {
         session.removeAttribute("tempInfo");
@@ -102,7 +110,7 @@ public class EventController {
     public String step2(HttpServletRequest request, HttpSession session, Model model) {
         ParticipantVO temp = (ParticipantVO) session.getAttribute("tempInfo");
         if (temp == null) {
-            return "redirect:/apply/step1";
+            return "redirect:/apply/intro";
         }
 
         // 에러로 인해 튕겨져 돌아온 경우 Flash 속성으로 받아온 retainedData를 모델에 세팅
@@ -125,7 +133,7 @@ public class EventController {
         if (temp == null) {
             // 세션 만료 시 명확한 안내 추가
             redirectAttributes.addFlashAttribute("errorMsg", "시간이 초과되었거나 비정상적인 접근입니다. 다시 진행해 주세요.");
-            return "redirect:/apply/step1";
+            return "redirect:/apply/intro";
         }
 
         // 기본 정보 세팅
@@ -175,7 +183,7 @@ public class EventController {
             log.error("▶ [데이터 중복 에러] {}", de.getMessage());
             redirectAttributes.addFlashAttribute("errorMsg", "이미 등록된 정보(연락처 또는 배번호)입니다. 처음부터 다시 진행해 주세요.");
             redirectAttributes.addFlashAttribute("retainedData", participantVO);
-            return "redirect:/apply/step1";
+            return "redirect:/apply/intro";
         } catch (Exception e) {
             // DB 등록 중 발생하는 에러를 서버 콘솔에 구체적으로 출력하여 트래킹 지원
             log.error("▶ [데이터 등록 DB 에러] {}", e.getMessage(), e);
@@ -189,7 +197,7 @@ public class EventController {
     public String complete(HttpServletRequest request, Model model) {
         Map<String, ?> flashMap = RequestContextUtils.getInputFlashMap(request);
         if (flashMap == null || !flashMap.containsKey("applyCompleteFlag")) {
-            return "redirect:/apply/step1";
+            return "redirect:/apply/intro";
         }
         return "apply/complete";
     }
@@ -198,7 +206,7 @@ public class EventController {
     @GetMapping("/ticket")
     public String viewTicket(@RequestParam(value = "token", required = false) String token, Model model) {
         if (token == null || token.trim().isEmpty()) {
-            return "redirect:/apply/step1";
+            return "redirect:/apply/intro";
         }
 
         try {
@@ -228,7 +236,7 @@ public class EventController {
             return "apply/mypage";
 
         } catch (Exception e) {
-            return "redirect:/apply/step1";
+            return "redirect:/apply/intro";
         }
     }
 

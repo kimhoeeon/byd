@@ -31,8 +31,8 @@
     <%-- 비정상 접근 시 화면 렌더링 전 강제 튕겨내기 --%>
     <c:if test="${empty sessionScope.tempInfo}">
         <script>
-            alert("정상적인 접근 경로가 아닙니다.\n이름과 연락처를 먼저 입력해 주세요.");
-            location.replace("/apply/step1");
+            alert("정상적인 접근 경로가 아니거나 시간이 초과되었습니다.\n처음부터 다시 진행해 주세요.");
+            location.replace("/apply/intro");
         </script>
     </c:if>
 
@@ -74,9 +74,9 @@
                     <c:set var="isCustomDomain" value="false" />
 
                     <%-- 생년월일 복구 세팅 --%>
-                    <c:set var="retainedYear" value="" />
+                    <%--<c:set var="retainedYear" value="" />
                     <c:set var="retainedMonth" value="" />
-                    <c:set var="retainedDay" value="" />
+                    <c:set var="retainedDay" value="" />--%>
 
                     <c:if test="${not empty retainedData}">
                         <c:if test="${not empty retainedData.email}">
@@ -85,19 +85,19 @@
                             <c:set var="savedEmailDomain" value="${fn:length(emailParts) > 1 ? emailParts[1] : ''}" />
                             <c:set var="isCustomDomain" value="${not empty savedEmailDomain and savedEmailDomain ne 'naver.com' and savedEmailDomain ne 'gmail.com' and savedEmailDomain ne 'daum.net' and savedEmailDomain ne 'hanmail.net' and savedEmailDomain ne 'nate.com'}" />
                         </c:if>
-                        <c:if test="${not empty retainedData.birthDate and fn:length(retainedData.birthDate) eq 8}">
+                        <%--<c:if test="${not empty retainedData.birthDate and fn:length(retainedData.birthDate) eq 8}">
                             <c:set var="retainedYear" value="${fn:substring(retainedData.birthDate, 0, 4)}" />
                             <c:set var="retainedMonth" value="${fn:substring(retainedData.birthDate, 4, 6)}" />
                             <c:set var="retainedDay" value="${fn:substring(retainedData.birthDate, 6, 8)}" />
-                        </c:if>
+                        </c:if>--%>
                     </c:if>
 
                     <form action="/apply/applyProcess" method="post" id="applyForm2">
 
                         <!-- 서버 전송용 히든 필드 -->
                         <input type="hidden" name="email" id="fullEmail">
-                        <input type="hidden" name="birthDate" id="hiddenBirthDate">
-                        <input type="hidden" name="consultYn" id="consultYn" value="N">
+                        <%--<input type="hidden" name="birthDate" id="hiddenBirthDate">--%>
+                        <input type="hidden" name="consultYn" id="consultYn" value="N"> <%--DB 무결성 보호용--%>
                         <input type="hidden" name="consultAgree" id="hiddenConsultAgree" value="N">
                         <input type="hidden" name="privacyAgree" id="hiddenPrivacy" value="N">
                         <input type="hidden" name="thirdPartyAgree" id="hiddenThirdParty" value="N">
@@ -106,7 +106,7 @@
                         <input type="hidden" name="mktAgree" id="hiddenMkt" value="N">
 
                         <ul class="form_box">
-                            <li>
+                            <%--<li>
                                 <div class="gubun">생년월일</div>
                                 <div class="row">
                                     <div class="input">
@@ -125,7 +125,7 @@
                                         </select>
                                     </div>
                                 </div>
-                            </li>
+                            </li>--%>
                             <li>
                                 <div class="gubun">이메일</div>
                                 <div class="row email">
@@ -280,7 +280,7 @@
             });
 
             // 생년월일 셀렉트 박스 동적 생성
-            const yearSelect = document.getElementById("birthYear");
+            /*const yearSelect = document.getElementById("birthYear");
             const monthSelect = document.getElementById("birthMonth");
             const daySelect = document.getElementById("birthDay");
 
@@ -323,7 +323,7 @@
                 $("#birthMonth").val(retainedMonth);
                 updateDays(); // 일을 세팅하기 전 날짜 목록부터 생성
                 $("#birthDay").val(retainedDay);
-            }
+            }*/
 
             // [서버 튕김 방지] 기존에 선택했던 지점 정보가 있다면 복구
             if (retainedShopInfo) {
@@ -393,7 +393,7 @@
 
         // 폼 제출 시 유효성 검사
         function validateForm() {
-            const bYear = $("#birthYear").val();
+            /*const bYear = $("#birthYear").val();
             const bMonth = $("#birthMonth").val();
             const bDay = $("#birthDay").val();
 
@@ -406,7 +406,7 @@
             }
 
             $("#hiddenBirthDate").val(bYear + bMonth + bDay);
-            const birthDateStr = bYear + "년 " + bMonth + "월 " + bDay + "일";
+            const birthDateStr = bYear + "년 " + bMonth + "월 " + bDay + "일";*/
 
             const emailId = $("#emailId").val().trim();
             const emailDomainSelect = $("#emailDomain").val();
@@ -466,7 +466,7 @@
             Swal.fire({
                 title: '입력하신 정보가 맞습니까?',
                 html: '<div style="text-align:left; font-size:15px; margin-top:10px; padding:15px; background:#f8f9fa; border-radius:8px; color:#383838; border:1px solid #ddd; line-height:1.6;">' +
-                    '<strong>생년월일 :</strong> ' + birthDateStr + '<br>' +
+                    /*'<strong>생년월일 :</strong> ' + birthDateStr + '<br>' +*/
                     '<strong>이메일 :</strong> ' + fullEmailStr + '<br>' +
                     '<strong>방문 전시장 :</strong> [' + regionVal + '] ' + shopVal + '<br>' +
                     '<strong>관심차량 :</strong> <span style="color:#d32f2f; font-weight:bold;">' + carVal + '</span><br>' +
