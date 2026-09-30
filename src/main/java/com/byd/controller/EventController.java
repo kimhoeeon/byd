@@ -28,14 +28,15 @@ public class EventController {
     private static final String SECRET_KEY = "bydEventTokenKey";
 
     // 인트로 페이지 진입 라우팅
-    @GetMapping({"", "/", "/intro"})
+    @GetMapping({"", "/", "/intro", "/step1"})
     public String intro(HttpSession session) {
         // 인트로 진입 시 기존 세션 초기화
         session.removeAttribute("tempInfo");
         return "apply/intro";
     }
 
-    @GetMapping("/step1")
+    /*@GetMapping("/step1")*/
+    @GetMapping("/form")
     public String step1(HttpSession session) {
         session.removeAttribute("tempInfo");
         return "apply/step1";
@@ -56,7 +57,7 @@ public class EventController {
         try {
 
             // [보안 패치 1] 연락처로 먼저 가입 여부 확인
-            ParticipantVO existingPhone = eventService.getParticipantByPhoneToday(cleanPhone);
+            ParticipantVO existingPhone = eventService.getParticipantByPhone(cleanPhone);
 
             if (existingPhone != null) {
                 // 이미 가입된 연락처라면 -> 이름과 배번호가 정확히 일치해야만 본인으로 인정!

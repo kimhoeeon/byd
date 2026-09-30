@@ -66,7 +66,8 @@
                         </li>
                     </ul>
                     <div class="btn_box">
-                        <button type="button" class="btn_st01" onclick="location.href='/apply/step1'">다음</button>
+                        <%--<button type="button" class="btn_st01" onclick="location.href='/apply/step1'">다음</button>--%>
+                        <button type="button" class="btn_st01" onclick="location.href='/apply/form'">다음</button>
                     </div>
                 </div>
             </div>
