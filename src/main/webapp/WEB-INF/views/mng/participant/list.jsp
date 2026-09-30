@@ -164,11 +164,14 @@
                                             <c:when test="${item.shopInfo eq 'BYD 서초'}"><c:set var="shopCode" value="APKR0001AW0002SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 수영'}"><c:set var="shopCode" value="APKR0001AW0005SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 수원'}"><c:set var="shopCode" value="APKR0001AW0001SW"/></c:when>
+                                            <c:when test="${item.shopInfo eq 'BYD 남양주'}"><c:set var="shopCode" value="APKR0001AW0019SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 스타필드 명지'}"><c:set var="shopCode" value="APKR0001AW0014SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 스타필드 안성'}"><c:set var="shopCode" value="APKR0001AW0016SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 스타필드 운정'}"><c:set var="shopCode" value="APKR0001AW0017SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 스타필드 일산'}"><c:set var="shopCode" value="APKR0001AW0013SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 스타필드 하남'}"><c:set var="shopCode" value="APKR0001AW0015SW"/></c:when>
+                                            <c:when test="${item.shopInfo eq 'BYD 스타필드 월계'}"><c:set var="shopCode" value="APKR0001AW0021SW"/></c:when>
+                                            <c:when test="${item.shopInfo eq 'BYD 평택'}"><c:set var="shopCode" value="APKR0003AW0012SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 용인'}"><c:set var="shopCode" value="APKR0001AW0009SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 일산'}"><c:set var="shopCode" value="APKR0001AW0007SW"/></c:when>
                                             <c:when test="${item.shopInfo eq 'BYD 창원'}"><c:set var="shopCode" value="APKR0001AW0012SW"/></c:when>

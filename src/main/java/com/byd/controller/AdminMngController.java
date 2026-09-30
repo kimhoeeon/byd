@@ -318,6 +318,9 @@ public class AdminMngController {
                     case "BYD 스타필드 운정": shopCode = "APKR0001AW0017SW"; break;
                     case "BYD 스타필드 일산": shopCode = "APKR0001AW0013SW"; break;
                     case "BYD 스타필드 하남": shopCode = "APKR0001AW0015SW"; break;
+                    case "BYD 스타필드 월계": shopCode = "APKR0001AW0021SW"; break;
+                    case "BYD 남양주": shopCode = "APKR0001AW0019SW"; break;
+                    case "BYD 평택": shopCode = "APKR0003AW0012SW"; break;
                     case "BYD 용인": shopCode = "APKR0001AW0009SW"; break;
                     case "BYD 일산": shopCode = "APKR0001AW0007SW"; break;
                     case "BYD 창원": shopCode = "APKR0001AW0012SW"; break;
